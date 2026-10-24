@@ -1,0 +1,16 @@
+# Core editor (python -m editor.server)
+fastapi==0.115.6
+uvicorn==0.34.0
+python-multipart==0.0.20
+pydantic==2.10.4
+faster-whisper==1.2.1
+numpy==2.5.4
+pyyaml==6.0.3
+requests==2.34.2
+
+# Reel studio / montage / b-roll matching
+scipy==1.18.1
+soundfile==0.14.0
+opencv-python-headless==5.0.0.93
+onnxruntime==1.31.0
+playwright==1.64.1

@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Euphoria Editor</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --panel2: #1e222b; --line: #2a2f3a;
+    --text: #e8eaef; --muted: #8b93a3; --accent: #ff7a45; --accent2: #ffb38f;
+    --cut: #ff5d6c; --ok: #3ecf8e; --warn: #f5c451;
+    --font: "Segoe UI", "Nirmala UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 var(--font); }
+  button, select, input { font: inherit; color: inherit; }
+  button { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 14px; cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--muted); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #1a0d06; font-weight: 600; }
+  button:disabled { opacity: .45; cursor: default; }
+  select { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+  a { color: var(--accent2); }
+  .app { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; }
+  aside { background: var(--panel); border-right: 1px solid var(--line); padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+  h1 { font-size: 17px; margin: 0; letter-spacing: .2px; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .drop { border: 1.5px dashed var(--line); border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 10px; }
+  .drop.over { border-color: var(--accent); background: #ff7a4510; }
+  .drop .file { color: var(--muted); font-size: 12px; word-break: break-all; }
+  .jobs { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+  .job { padding: 9px 11px; border-radius: 9px; border: 1px solid transparent; cursor: pointer; }
+  .job:hover { background: var(--panel2); }
+  .job.sel { background: var(--panel2); border-color: var(--line); }
+  .job .n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .job .s { font-size: 12px; color: var(--muted); }
+  .bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 5px; }
+  .bar > div { height: 100%; background: var(--accent); transition: width .4s; }
+  main { padding: 22px 26px; min-width: 0; }
+  .empty { color: var(--muted); margin-top: 18vh; text-align: center; }
+  .top { display: grid; grid-template-columns: minmax(260px, 420px) 1fr; gap: 22px; align-items: start; }
+  video { width: 100%; max-height: 62vh; background: #000; border-radius: 12px; display: block; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .stats { display: flex; gap: 22px; flex-wrap: wrap; }
+  .stat b { display: block; font-size: 20px; }
+  .stat span { color: var(--muted); font-size: 12px; }
+  .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  label.chk { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  input[type=range] { accent-color: var(--accent); width: 140px; }
+  input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+  .muted { color: var(--muted); }
+  .err { color: var(--cut); white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+  .transcript { margin-top: 20px; font-size: 17px; line-height: 2.05; user-select: text; }
+  .transcript h3 { font-size: 13px; color: var(--muted); font-weight: 500; margin: 0 0 6px; }
+  .w { padding: 2px 3px; border-radius: 5px; cursor: pointer; transition: background .1s; }
+  .w:hover { background: var(--panel2); }
+  .w.low { text-decoration: underline dotted var(--warn); text-underline-offset: 5px; }
+  .w.cut { color: var(--cut); text-decoration: line-through; opacity: .75; }
+  .w.filler.cut { background: #ff5d6c18; }
+  .w.now { background: #ff7a4540; color: #fff; }
+  .gap { display: inline-block; font-size: 11px; line-height: 1; padding: 3px 6px; margin: 0 3px; border-radius: 10px; background: #ff5d6c22; color: var(--cut); vertical-align: middle; cursor: default; }
+  .legend { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .legend i { font-style: normal; color: var(--cut); text-decoration: line-through; }
+  .out { margin-top: 18px; }
+  .w.retake.cut { background: #f5c45122; color: var(--warn); }
+  .legend .rt { color: var(--warn); text-decoration: line-through; }
+  .legend .kwl { color: var(--kw); font-weight: 650; } .legend .brl { box-shadow: inset 0 -2px 0 var(--br); }
+  .note { color: var(--warn); font-size: 12px; margin-top: 8px; }
+  .chat { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .chat h3 { font-size: 13px; color: var(--muted); font-weight: 500; margin: 0; }
+  .msgs { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+  .msg { padding: 8px 11px; border-radius: 10px; max-width: 92%; white-space: pre-wrap; }
+  .msg.user { align-self: flex-end; background: #ff7a4522; }
+  .msg.assistant { align-self: flex-start; background: var(--panel2); }
+  .msg .sum { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .chat form { display: flex; gap: 8px; }
+  .chat input[type=text] { flex: 1; min-width: 0; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chips button { font-size: 12px; padding: 4px 10px; border-radius: 14px; }
+  /* finishing panels: style, b-roll, sound */
+  :root { --kw: #FFD23F; --br: #5b8cff; }
+  .fin { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+  details.card > summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 8px; }
+  details.card > summary::-webkit-details-marker { display: none; }
+  details.card > summary::before { content: '▸'; color: var(--muted); transition: transform .15s; display: inline-block; }
+  details.card[open] > summary::before { transform: rotate(90deg); }
+  .skill { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: auto; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: 14px; align-items: start; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field > span { color: var(--muted); font-size: 12px; }
+  input.in, textarea { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; min-width: 0; color: var(--text); }
+  textarea { width: 100%; resize: vertical; font: 12px/1.45 ui-monospace, Consolas, monospace; }
+  input[type=color] { width: 46px; height: 30px; padding: 0 2px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; }
+  .brow { border-top: 1px solid var(--line); padding: 12px 0 4px; display: grid; gap: 7px; }
+  .brow .head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .brow .head button, .brow .head select { font-size: 12px; padding: 4px 9px; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--panel2); color: var(--muted); white-space: nowrap; }
+  .pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); }
+  .w.kw { color: var(--kw); font-weight: 650; }
+  .w.br { box-shadow: inset 0 -2px 0 var(--br); }
+  .w.fixed { text-decoration: underline dotted #6aa8ff; text-underline-offset: 5px; }
+  .skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .skill-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .skill-card.on { border-color: var(--accent); }
+  .skill-card .by { color: var(--muted); font-size: 11px; }
+  .skill-card .what { font-size: 13px; flex: 1; }
+  .skill-card .row button { font-size: 12px; padding: 5px 10px; }
+  .tb { color: var(--accent); font-weight: 700; margin: 0 2px 0 6px; }
+  table.smap { width: 100%; font-size: 12px; border-collapse: collapse; margin-top: 8px; }
+  table.smap td, table.smap th { text-align: left; padding: 4px 8px 4px 0; border-bottom: 1px solid var(--line); }
+  table.smap th { color: var(--muted); font-weight: 500; }
+  .outs { display: flex; flex-direction: column; gap: 14px; }
+  .tabs { display: flex; gap: 4px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+  .tabs button { flex: 1; border: 0; background: transparent; padding: 6px 4px; border-radius: 7px; font-size: 13px; }
+  .tabs button.on { background: var(--accent); color: #1a0d06; font-weight: 600; }
+  .view { display: flex; flex-direction: column; gap: 16px; max-width: 1100px; }
+  .view h2 { font-size: 16px; margin: 0 0 4px; }
+  .md { font-size: 14px; line-height: 1.6; overflow-x: auto; }
+  .md h1 { font-size: 20px; } .md h2 { font-size: 17px; margin-top: 22px; } .md h3 { font-size: 15px; }
+  .md table { border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  .md td, .md th { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+  .md code { background: var(--panel2); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+  .md pre { background: var(--panel2); padding: 10px; border-radius: 8px; white-space: pre-wrap; }
+  .clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+  .clip { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 6px; font-size: 12px; position: relative; }
+  .clip video { max-height: 160px; border-radius: 6px; }
+  .clip .x { position: absolute; top: 4px; right: 4px; padding: 1px 7px; font-size: 12px; }
+  .sheet { width: 100%; border-radius: 8px; margin-top: 8px; display: block; }
+  @media (max-width: 860px) { .app { grid-template-columns: 1fr; } .top { grid-template-columns: 1fr; } aside { border-right: 0; border-bottom: 1px solid var(--line); } .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div>
+      <h1>Euphoria <span>Editor</span></h1>
+      <div class="sub">Talking-head videos, cut by the transcript</div>
+    </div>
+    <div class="tabs" id="tabs"><button data-mode="edit" class="on">Edit</button><button data-mode="montage" title="Beat-synced montage from clips + a song">Montage</button><button data-mode="grow" title="Starter kit, scripts">Grow</button><button data-mode="skills" title="Every skill as a switch">Skills</button></div>
+    <div id="side-edit" style="display:flex;flex-direction:column;gap:18px">
+    <form class="drop" id="drop">
+      <div>Drop a video here or</div>
+      <input type="file" id="file" accept="video/*" hidden>
+      <button type="button" id="pick">Choose video</button>
+      <div class="file" id="fname"></div>
+      <div class="row" style="justify-content:center">
+        <span class="muted">Language</span>
+        <select id="lang"></select>
+      </div>
+      <button class="primary" id="upload" disabled>Upload &amp; transcribe</button>
+      <div class="bar" id="upbar" hidden><div style="width:0"></div></div>
+    </form>
+    <div class="jobs" id="jobs"></div>
+    </div>
+    <div id="side-montage" style="display:none;flex-direction:column;gap:12px">
+      <button class="primary" id="m-new">New montage</button>
+      <div class="muted" style="font-size:12px">Clips + one song → a ~20 s beat-synced 9:16 reel.</div>
+      <div class="jobs" id="mlist"></div>
+    </div>
+    <div id="side-grow" style="display:none;flex-direction:column;gap:12px">
+      <button class="primary" id="g-home">Starter kit &amp; scripts</button>
+      <div class="muted" style="font-size:12px">Saved files</div>
+      <div class="jobs" id="glist"></div>
+    </div>
+  </aside>
+  <main id="main"><div class="empty">Upload a talking-head video to get started.</div></main>
+</div>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = t => { t = Math.max(0, t || 0); const m = Math.floor(t / 60), s = Math.floor(t % 60); return `${m}:${String(s).padStart(2, '0')}`; };
+const BUSY = ['uploading', 'queued', 'transcribing', 'finding retakes', 'render queued', 'rendering'];
+const LABEL = { uploading: 'Uploading', queued: 'Waiting', transcribing: 'Transcribing', 'finding retakes': 'Finding retakes (AI)', ready: 'Ready to review',
+  'render queued': 'Waiting to render', rendering: 'Rendering', done: 'Rendered', error: 'Error' };
+
+let languages = {}, jobsList = [], selected = null, state = null, previewEdit = true, saveTimer = null, ai = { configured: false };
+let finishOpen = { style: true, broll: false, sound: false, publish: false };
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, opts);
+  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail || m; } catch {} throw new Error(m); }
+  return r.json();
+}
+
+// ---------- upload ----------
+const fileInput = $('#file'), drop = $('#drop');
+$('#pick').onclick = () => fileInput.click();
+fileInput.onchange = () => setFile(fileInput.files[0]);
+['dragover', 'dragenter'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) setFile(f); });
+let pending = null;
+function setFile(f) { pending = f; $('#fname').textContent = f ? f.name : ''; $('#upload').disabled = !f; }
+drop.onsubmit = ev => {
+  ev.preventDefault();
+  if (!pending) return;
+  const fd = new FormData(); fd.append('file', pending); fd.append('language', $('#lang').value);
+  const xhr = new XMLHttpRequest(), bar = $('#upbar');
+  bar.hidden = false; $('#upload').disabled = true;
+  xhr.upload.onprogress = e => { if (e.lengthComputable) bar.firstElementChild.style.width = (100 * e.loaded / e.total) + '%'; };
+  xhr.onload = () => {
+    bar.hidden = true; bar.firstElementChild.style.width = 0; setFile(null); fileInput.value = '';
+    if (xhr.status === 200) { const m = JSON.parse(xhr.responseText); refreshJobs().then(() => select(m.id)); }
+    else { alertMsg(JSON.parse(xhr.responseText || '{}').detail || 'Upload failed'); }
+  };
+  xhr.onerror = () => { bar.hidden = true; $('#upload').disabled = false; alertMsg('Upload failed'); };
+  xhr.open('POST', '/api/jobs'); xhr.send(fd);
+};
+function alertMsg(m) { $('#fname').textContent = m; }
+
+// ---------- job list ----------
+async function refreshJobs() {
+  jobsList = await api('/api/jobs');
+  $('#jobs').innerHTML = jobsList.map(j => `
+    <div class="job ${j.id === selected ? 'sel' : ''}" data-id="${j.id}">
+      <div class="n">${esc(j.name)}</div>
+      <div class="s">${LABEL[j.status] || j.status}${j.duration ? ' · ' + fmt(j.duration) : ''}</div>
+      ${BUSY.includes(j.status) ? `<div class="bar"><div style="width:${Math.round((j.progress || 0) * 100)}%"></div></div>` : ''}
+    </div>`).join('');
+  $('#jobs').querySelectorAll('.job').forEach(el => el.onclick = () => select(el.dataset.id));
+  if (selected && mode === 'edit') {
+    const m = jobsList.find(j => j.id === selected);
+    if (m && state && (m.status !== state.meta.status || BUSY.includes(m.status))) {
+      const wasBusy = BUSY.includes(state.meta.status);
+      state.meta = m;
+      if (wasBusy && !BUSY.includes(m.status)) await select(selected, true); else renderStatus();
+    }
+  }
+}
+
+async function select(id, keepScroll) {
+  selected = id;
+  state = await api('/api/jobs/' + id);
+  if (mode === 'skills') renderSkills(); else renderJob(keepScroll);
+  refreshJobs();
+}
+
+// ---------- job view ----------
+function renderJob() {
+  const { meta, transcript, plan } = state;
+  const main = $('#main');
+  const lang = meta.detected_language ? (languages[meta.detected_language] || meta.detected_language) : '';
+  main.innerHTML = `
+    <div class="top">
+      <div>
+        <video id="video" controls preload="metadata" src="/api/jobs/${meta.id}/source"></video>
+      </div>
+      <div>
+        <div class="card">
+          <div class="stats">
+            <div class="stat"><b id="st-orig">${fmt(plan ? plan.duration : meta.duration)}</b><span>original</span></div>
+            <div class="stat"><b id="st-edit">${plan ? fmt(plan.edited_duration) : '–'}</b><span>after edit</span></div>
+            <div class="stat"><b id="st-cuts">${plan ? plan.cuts.length : '–'}</b><span>cuts</span></div>
+            <div class="stat"><b>${esc(lang || '–')}</b><span>language</span></div>
+          </div>
+          <div id="status" style="margin-top:12px"></div>
+          ${plan ? `
+          <div class="controls">
+            <label class="chk"><input type="checkbox" id="o-sil" ${plan.settings.remove_silences ? 'checked' : ''}> Tighten pauses longer than
+              <input type="range" id="o-min" min="0.3" max="2" step="0.1" value="${plan.settings.min_silence}"> <b id="o-min-v">${(+plan.settings.min_silence).toFixed(1)}s</b></label>
+            <label class="chk"><input type="checkbox" id="o-cap" ${plan.captions.enabled !== false ? 'checked' : ''}> Burn in captions</label>
+            <label class="chk"><input type="checkbox" id="o-prev" ${previewEdit ? 'checked' : ''}> Preview the edit in the player (skips cuts)</label>
+          </div>
+          <div class="actions">
+            <button class="primary" id="render" title="Full resolution, final quality">Render final</button>
+            <button id="draft" title="Low resolution, fast: check the edit before the final render">Draft (fast)</button>
+            <button id="reset-fill" title="Cut every detected filler word">Cut fillers</button>
+            <button id="restore" title="Bring back every word">Restore all words</button>
+            <button id="retakes" title="AI finds sentences you said twice and keeps the last take" ${ai.configured ? '' : 'disabled'}>Find retakes</button>
+            <button id="coach" title="3 notes on energy, pace and the first 3 seconds of this take" ${ai.configured ? '' : 'disabled'}>Coach this take</button>
+            <button id="fixwords" title="AI fixes misheard names, numbers and English words; timings stay" ${ai.configured ? '' : 'disabled'}>Fix captions</button>
+            ${state.has_fixes ? '<button id="restorewords" title="Undo the AI caption fixes">Restore original words</button>' : ''}
+            <button id="shorts" title="AI finds 2-3 highlight clips and adds each as a new video" ${ai.configured ? '' : 'disabled'}>Find shorts</button>
+            <button id="undo" title="Undo the last change" ${state.undo ? '' : 'disabled'}>Undo</button>
+            <a href="/api/jobs/${meta.id}/edit.yaml" download>edit.yaml</a>
+            <button id="del" style="margin-left:auto">Delete</button>
+          </div>` : `<div class="actions"><button id="del">Delete</button></div>`}
+        </div>
+        ${plan ? `<div class="card chat" id="chat">
+          <h3>Edit by typing ${ai.configured ? '' : '(add LLM_API_KEY=... to app\\.env then reload this page)'}</h3>
+          <div class="msgs" id="msgs"></div>
+          <div class="chips">
+            <button type="button">Make a 30-second reel of the best part</button>
+            <button type="button">Remove the part where I talk about price</button>
+            <button type="button">Keep pauses a bit longer</button>
+            <button type="button">Make the captions pop on keywords</button>
+            <button type="button">Make the whoosh shorter and deeper</button>
+          </div>
+          <form id="chatform"><input type="text" id="chatin" placeholder="e.g. cut the intro, make it under 1 minute…" autocomplete="off" ${ai.configured ? '' : 'disabled'}>
+            <button class="primary" id="chatsend" ${ai.configured ? '' : 'disabled'}>Send</button></form>
+        </div>` : ''}
+        <div class="out" id="out"></div>
+      </div>
+    </div>
+    ${transcript ? `<div class="transcript card" id="tx">
+      <h3>Transcript: click a word to cut it or bring it back; select several words to cut them together.</h3>
+      <div id="words"></div>
+      <div class="legend"><i>struck words</i> are cut · <span class="rt">yellow</span> = earlier take of a retake · red chips are pauses being tightened · dotted words were heard with low confidence<br>
+        <b>Shift-click</b> a word to make it a <span class="kwl">keyword</span> that pops · <b>Alt-click</b> a word to start a new topic there (<span class="tb">¶</span> gets a transition) · <span class="brl">underlined</span> words are covered by b-roll</div>
+    </div>` : ''}
+    ${plan ? '<div class="fin" id="finish"></div>' : ''}`;
+
+  $('#del').onclick = async () => {
+    if (!confirm('Delete this video and its edit?')) return;
+    try { await api('/api/jobs/' + meta.id, { method: 'DELETE' }); selected = null; state = null;
+      $('#main').innerHTML = '<div class="empty">Deleted.</div>'; refreshJobs(); } catch (e) { alert(e.message); }
+  };
+  renderStatus();
+  if (!plan) return;
+
+  $('#o-sil').onchange = e => savePlan({ settings: { remove_silences: e.target.checked } });
+  $('#o-min').oninput = e => { $('#o-min-v').textContent = (+e.target.value).toFixed(1) + 's'; };
+  $('#o-min').onchange = e => savePlan({ settings: { min_silence: +e.target.value } });
+  $('#o-cap').onchange = e => savePlan({ captions: { enabled: e.target.checked } });
+  $('#o-prev').onchange = e => { previewEdit = e.target.checked; };
+  $('#restore').onclick = () => savePlan({ removed_words: [] });
+  $('#reset-fill').onclick = () => savePlan({ removed_words: [...new Set([...plan.removed_words, ...plan.filler_words])] });
+  $('#undo').onclick = async () => {
+    try { const r = await api(`/api/jobs/${meta.id}/undo`, { method: 'POST' }); setPlan(r.plan, r.undo, r.style, r.timeline); } catch (e) { alert(e.message); }
+  };
+  $('#fixwords').onclick = async () => {
+    const b = $('#fixwords'); b.disabled = true; b.textContent = 'Checking words…';
+    try { const r = await api(`/api/jobs/${meta.id}/fixwords`, { method: 'POST' }); state.transcript = r.transcript; state.chat = r.chat;
+      state.has_fixes = state.has_fixes || r.fixes.length > 0; renderJob(); } catch (e) { alert(e.message); b.disabled = false; b.textContent = 'Fix captions'; }
+  };
+  if ($('#restorewords')) $('#restorewords').onclick = async () => {
+    try { const r = await api(`/api/jobs/${meta.id}/restorewords`, { method: 'POST' }); state.transcript = r.transcript; state.has_fixes = false; renderJob(); } catch (e) { alert(e.message); }
+  };
+  $('#shorts').onclick = async () => {
+    const b = $('#shorts'); b.disabled = true; b.textContent = 'Finding shorts…';
+    try { const r = await api(`/api/jobs/${meta.id}/shorts`, { method: 'POST' }); await refreshJobs();
+      addMsg('assistant', r.clips.length ? `Added ${r.clips.length} short${r.clips.length > 1 ? 's' : ''} to the list: ` + r.clips.map(c => `“${c.title}” (${c.seconds}s)`).join(', ') + '. Each is its own video you can style and render.' : 'No self-contained highlight clips found.'); }
+    catch (e) { alert(e.message); }
+    b.disabled = false; b.textContent = 'Find shorts';
+  };
+  $('#coach').onclick = async () => {
+    const b = $('#coach'); b.disabled = true; b.textContent = 'Listening…';
+    try { const r = await api(`/api/jobs/${meta.id}/coach`, { method: 'POST' }); state.chat = r.chat; renderChat(); }
+    catch (e) { alert(e.message); }
+    b.disabled = false; b.textContent = 'Coach this take';
+  };
+  $('#retakes').onclick = async () => {
+    const b = $('#retakes'); b.disabled = true; b.textContent = 'Finding retakes…';
+    try {
+      const r = await api(`/api/jobs/${meta.id}/retakes`, { method: 'POST' });
+      setPlan(r.plan, r.undo, r.style, r.timeline);
+      addMsg('assistant', r.found.length ? `Found ${r.found.length} retake${r.found.length > 1 ? 's' : ''}: ` + r.found.map(x => x.reason).join('; ') + '. The earlier takes are cut (yellow); click a word to bring it back.' : 'No retakes found.');
+    } catch (e) { alert(e.message); }
+    b.disabled = false; b.textContent = 'Find retakes';
+  };
+  renderChat();
+  $('#chatform').onsubmit = ev => { ev.preventDefault(); sendChat($('#chatin').value); };
+  $('#chat').querySelectorAll('.chips button').forEach(b => b.onclick = () => { if (ai.configured) sendChat(b.textContent); else $('#chatin').value = b.textContent; });
+  const startRender = draft => async () => {
+    try { state.meta = await api(`/api/jobs/${meta.id}/render?draft=${draft}`, { method: 'POST' }); renderStatus(); refreshJobs(); }
+    catch (e) { alert(e.message); }
+  };
+  $('#render').onclick = startRender(false);
+  $('#draft').onclick = startRender(true);
+  renderWords();
+  renderFinishing();
+  setupPlayer();
+}
+
+function renderStatus() {
+  const { meta } = state, el = $('#status'), out = $('#out');
+  if (!el) return;
+  const busy = BUSY.includes(meta.status);
+  const pct = Math.round((meta.progress || 0) * 100);
+  const notes = [meta.stt_note, meta.retakes_error && ('Retake detection failed: ' + meta.retakes_error)].filter(Boolean)
+    .map(n => `<div class="note">${esc(n)}</div>`).join('');
+  el.innerHTML = notes + (meta.status === 'error' ? `<div class="err">${esc(meta.error || 'Something went wrong')}</div>`
+    : busy ? `<div class="muted">${meta.status === 'rendering' && meta.render_kind === 'draft' ? 'Rendering draft' : LABEL[meta.status]}… ${pct}%${meta.status === 'transcribing' ? ' (the first video takes longer while the model loads)' : ''}</div>
+              <div class="bar"><div style="width:${pct}%"></div></div>`
+    : meta.status === 'ready' ? `<div class="muted">Review the cuts below, then render.${meta.stt_model ? ` <span title="speech-to-text model">· ${esc(meta.stt_model)}</span>` : ''}</div>` : '');
+  const r = $('#render'); if (r) r.disabled = busy;
+  const dr = $('#draft'); if (dr) dr.disabled = busy;
+  if (!out) return;
+  const cards = [];
+  if (!busy && meta.rendered) cards.push(`
+    <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <b>Edited video</b><a href="/api/jobs/${meta.id}/output?download=true">Download MP4</a></div>
+      <video controls preload="metadata" src="/api/jobs/${meta.id}/output?t=${meta.rendered || ''}"></video></div>`);
+  if (!busy && meta.draft_rendered) cards.push(`
+    <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <b>Draft</b><span class="muted" style="font-size:12px">low resolution, for review</span></div>
+      <video controls preload="metadata" src="/api/jobs/${meta.id}/draft?t=${meta.draft_rendered}"></video></div>`);
+  out.innerHTML = cards.length ? `<div class="outs">${cards.join('')}</div>` : '';
+}
+
+function renderWords() {
+  if (!$('#words')) return;
+  const { transcript, plan } = state;
+  const removed = new Set(plan.removed_words), fillers = new Set(plan.filler_words), retakes = new Set(plan.retake_words || []);
+  const st = state.style || {}, kws = new Set(st.keywords || []), breaks = new Set(st.topic_breaks || []);
+  const brw = new Map();
+  (plan.broll || []).forEach((b, n) => { for (let i = b.from_word; i <= b.to_word; i++) brw.set(i, `b-roll ${n + 1}: ${b.show || ''}`); });
+  const silenceCuts = plan.cuts.filter(c => c.reason.includes('silence'));
+  const words = transcript.words;
+  let html = '', ci = 0;
+  const chip = c => `<span class="gap" title="${esc(c.reason)}: ${(c.end - c.start).toFixed(1)}s">⏸ ${(c.end - c.start).toFixed(1)}s</span>`;
+  for (let k = 0; k < words.length; k++) {
+    const w = words[k];
+    while (ci < silenceCuts.length && silenceCuts[ci].end <= w.start + 0.05) { html += chip(silenceCuts[ci++]); }
+    const cls = ['w', removed.has(w.i) && 'cut', fillers.has(w.i) && 'filler', retakes.has(w.i) && 'retake', w.prob < 0.5 && 'low',
+      kws.has(w.i) && 'kw', brw.has(w.i) && 'br', w.orig_text && 'fixed'].filter(Boolean).join(' ');
+    if (breaks.has(w.i)) html += '<span class="tb" title="New topic: transition here">¶</span>';
+    const tip = [brw.get(w.i), w.orig_text && `heard as: ${w.orig_text}`].filter(Boolean).join(' · ');
+    html += `<span class="${cls}" data-i="${w.i}" data-s="${w.start}"${tip ? ` title="${esc(tip)}"` : ''}>${esc(w.text)}</span> `;
+  }
+  while (ci < silenceCuts.length) html += chip(silenceCuts[ci++]);
+  const box = $('#words');
+  box.innerHTML = html || '<span class="muted">No speech was detected in this video.</span>';
+  box.onmousedown = e => { if (e.shiftKey || e.altKey) e.preventDefault(); };
+  box.onmouseup = e => {
+    if (e.shiftKey || e.altKey) return;
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && box.contains(sel.anchorNode)) {
+      const ids = [...box.querySelectorAll('.w')].filter(el => sel.containsNode(el, true)).map(el => +el.dataset.i);
+      sel.removeAllRanges();
+      if (ids.length > 1) { toggle(ids); return; }
+    }
+  };
+  box.onclick = e => {
+    const el = e.target.closest('.w');
+    if (!el) return;
+    if (e.shiftKey) { toggleStyleWord('keywords', +el.dataset.i); return; }
+    if (e.altKey) { e.preventDefault(); toggleStyleWord('topic_breaks', +el.dataset.i); return; }
+    if (window.getSelection().isCollapsed) toggle([+el.dataset.i]);
+  };
+}
+
+function toggle(ids) {
+  const removed = new Set(state.plan.removed_words);
+  const allCut = ids.every(i => removed.has(i));
+  ids.forEach(i => allCut ? removed.delete(i) : removed.add(i));
+  state.plan.removed_words = [...removed].sort((a, b) => a - b);
+  ids.forEach(i => { const el = document.querySelector(`.w[data-i="${i}"]`); if (el) el.classList.toggle('cut', !allCut); });
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => savePlan({ removed_words: state.plan.removed_words }), 350);
+}
+
+async function savePlan(body) {
+  try {
+    const plan = await api(`/api/jobs/${state.meta.id}/plan`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    setPlan(plan, plan._undo, plan._style, plan._timeline);
+  } catch (e) { alert('Could not save: ' + e.message); }
+}
+
+function setPlan(plan, undoCount, style, timeline) {
+  state.plan = plan;
+  if (style) state.style = style;
+  if (timeline) state.timeline = timeline;
+  if (undoCount !== undefined) { state.undo = undoCount; const u = $('#undo'); if (u) u.disabled = !undoCount; }
+  if (!$('#st-edit')) { if (mode === 'skills') renderSkills(); return; }
+  $('#st-edit').textContent = fmt(plan.edited_duration);
+  $('#st-cuts').textContent = plan.cuts.length;
+  const sil = $('#o-sil'); if (sil) sil.checked = !!plan.settings.remove_silences;
+  const mn = $('#o-min'); if (mn) { mn.value = plan.settings.min_silence; $('#o-min-v').textContent = (+plan.settings.min_silence).toFixed(1) + 's'; }
+  const cap = $('#o-cap'); if (cap) cap.checked = plan.captions.enabled !== false;
+  renderWords();
+  renderFinishing();
+}
+
+// ---------- finishing: style (HyperFrames), b-roll (B-Roll Prompter), sound (Sound Design) ----------
+function saveStyle(changes) { return savePlan({ style: changes }); }
+
+function toggleStyleWord(key, i) {
+  const cur = new Set((state.style || {})[key] || []);
+  cur.has(i) ? cur.delete(i) : cur.add(i);
+  const changes = { [key]: [...cur].sort((a, b) => a - b) };
+  if (cur.has(i)) Object.assign(changes, key === 'keywords' ? { keyword_pop: true } : { transitions: true });
+  saveStyle(changes);
+}
+
+function applyResp(r) { setPlan(r.plan, r.undo, r.style, r.timeline); if ('music' in r) { state.music = r.music; renderFinishing(); } }
+
+async function upload(url, file) {
+  const fd = new FormData(); fd.append('file', file);
+  return api(url, { method: 'POST', body: fd });
+}
+
+const fmtT = t => t == null ? '–' : (t < 60 ? t.toFixed(1) + 's' : fmt(t));
+const SFX_NAMES = { whoosh: 'whoosh', whoosh_soft: 'soft whoosh', pop: 'pop', tick: 'tick', hit: 'hit', key: 'key tap' };
+
+function renderFinishing() {
+  const box = $('#finish');
+  if (!box || !state.plan) return;
+  const id = state.meta.id, plan = state.plan, st = state.style || {}, tl = state.timeline || {};
+  document.documentElement.style.setProperty('--kw', st.accent || '#FFD23F');
+  const words = state.transcript.words;
+  const slots = tl.broll || {}, smap = tl.sound_map || [];
+  const brows = (plan.broll || []).map((b, n) => {
+    const slot = slots[b.id] || {};
+    const line = words.slice(b.from_word, b.to_word + 1).map(w => w.text).join(' ');
+    const where = slot.start != null ? `${fmtT(slot.start)}–${fmtT(slot.end)}` : '';
+    const pill = slot.status === 'placed' ? 'ok' : slot.start == null ? 'warn' : '';
+    return `<div class="brow" data-id="${b.id}">
+      <div class="head"><b>${n + 1}.</b><span>${esc(b.show || '')}</span>
+        <span class="pill ${pill}">${esc(where ? where + ' · ' : '')}${esc(slot.status || '')}</span>
+        <span style="margin-left:auto"></span>
+        <select class="b-layout" title="Full screen covers you; split screen slides in beside you">
+          <option value="full" ${b.layout !== 'split' ? 'selected' : ''}>Full screen</option>
+          <option value="split" ${b.layout === 'split' ? 'selected' : ''}>Split screen</option></select>
+        <button class="b-copy">Copy prompt</button>
+        <button class="b-up ${b.clip ? '' : 'primary'}">${b.clip ? 'Replace clip' : 'Upload clip'}</button>
+        <input type="file" class="b-file" accept="video/*" hidden>
+        <button class="b-del" title="Remove this b-roll moment">✕</button></div>
+      <div class="muted" style="font-size:12px">Covers: “${esc(line)}”${b.clip ? ` · clip ${b.clip_duration ? b.clip_duration.toFixed(1) + 's' : ''}${b.clip_has_audio ? ', its own sound kept quietly' : ''}` : ''}</div>
+      <textarea class="b-prompt" rows="3" spellcheck="false">${esc(b.prompt || '')}</textarea>
+    </div>`;
+  }).join('');
+  const counts = smap.reduce((m, e) => (m[e.kind] = (m[e.kind] || 0) + 1, m), {});
+  const opt = (v, cur, label) => `<option value="${v}" ${v === cur ? 'selected' : ''}>${label}</option>`;
+
+  box.innerHTML = `
+  <details class="card" data-sec="style" ${finishOpen.style ? 'open' : ''}>
+    <summary>Style <span class="skill">title · captions · transitions · look</span></summary>
+    <div class="actions" style="margin-top:12px">
+      <button class="primary" id="f-auto">Auto-style</button>
+      <span class="muted" style="font-size:12px">${ai.configured ? 'AI picks a title, the keywords and the topic changes, and turns the finishing on.' : 'Picks keywords and topic changes by simple rules. Add an API key for AI picks and a title.'}</span>
+    </div>
+    <div class="grid2">
+      <div class="field"><span>Title card (first 2 seconds, 3–5 words)</span>
+        <div class="row"><input class="in" type="text" id="f-title" maxlength="60" value="${esc(st.title || '')}" placeholder="e.g. Edit 3x Faster" style="flex:1">
+        <label class="chk"><input type="checkbox" id="f-title-on" ${st.title_enabled ? 'checked' : ''}> Show</label></div></div>
+      <label class="field"><span>Captions</span>
+        <select id="f-cap">${opt('plain', st.caption_style, 'Plain lines')}${opt('highlight', st.caption_style, 'Word-synced (spoken word highlighted)')}</select></label>
+      <div class="field"><label class="chk"><input type="checkbox" id="f-pop" ${st.keyword_pop ? 'checked' : ''}> Keywords pop <span class="muted">(${(st.keywords || []).length} keywords)</span></label>
+        <span>Pop size <b id="f-popv">${Math.round((st.pop_scale || 1.18) * 100)}%</b> · speed <b id="f-pmsv">${st.pop_ms} ms</b></span>
+        <div class="row"><input type="range" id="f-pops" min="1.05" max="1.6" step="0.01" value="${st.pop_scale}"><input type="range" id="f-pms" min="40" max="400" step="10" value="${st.pop_ms}"></div></div>
+      <div class="field"><label class="chk"><input type="checkbox" id="f-tr" ${st.transitions ? 'checked' : ''}> Zoom transition at topic changes <span class="muted">(${(tl.transitions || []).length})</span></label>
+        <label class="chk"><input type="checkbox" id="f-punch" ${st.punch_in ? 'checked' : ''}> Punch-in zoom on jump cuts</label></div>
+      <label class="field"><span>Look (Editorial film: bright black-and-white, soft bloom, fine grain)</span>
+        <select id="f-look">${opt('clean', st.look, 'Clean')}${opt('archival', st.look, 'Film look on b-roll only')}${opt('archival_all', st.look, 'Film look on the whole video')}${opt('vhs', st.look, 'VHS tape (whole video)')}</select></label>
+      <label class="field"><span>Accent colour (spoken word, keywords, title box)</span><input type="color" id="f-acc" value="${st.accent || '#FFD23F'}"></label>
+      <div class="field"><span>Format (Reel Editor)</span>
+        <select id="f-fmt">${opt('original', st.format, 'Original size')}${opt('reel', st.format, 'Reel 9:16 (1080×1920, Instagram safe zones, −14 LUFS voice)')}</select>
+        ${st.format === 'reel' && state.meta.width && state.meta.width / state.meta.height > 0.57 ? `<span>Face position for the 9:16 crop <b id="f-fxv">${Math.round((st.face_x ?? 0.5) * 100)}%</b> from the left</span>
+        <input type="range" id="f-fx" min="0" max="1" step="0.01" value="${st.face_x ?? 0.5}">` : ''}
+        <button id="f-pace" title="Cut dead air over 0.3 s, leave about 0.2 s (Reel Editor)">Reel pacing: tight pauses</button></div>
+      <div class="field"><span>Colour grade</span>
+        <select id="f-grade">${opt('none', st.grade, 'None')}${opt('cinematic', st.grade, 'Cinematic: warm skin, cool shadows (any footage)')}${opt('look01', st.grade, 'Look 01 teal-orange LUT (Sony S-Log3 footage only)')}</select>
+        <span id="f-gwarn" class="note" style="margin:0"></span>
+        <span>Look 01 by @shakirc.ai · <a href="/api/luts/look01.cube" download>export the LUT</a> (<a href="/api/luts/look01.cube?points=33" download>33-pt</a>) for other apps</span></div>
+      <div class="field"><span>Lower-third name card (graphic-overlays)</span>
+        <div class="row"><input class="in" type="text" id="f-lname" maxlength="40" placeholder="Name" value="${esc(st.lower_name || '')}" style="flex:1">
+        <input class="in" type="text" id="f-lrole" maxlength="50" placeholder="Role, e.g. Team Euphoria" value="${esc(st.lower_role || '')}" style="flex:1"></div>
+        <span>Appears at <b id="f-latv">${(+st.lower_at || 0).toFixed(1)} s</b> for 4 s</span><input type="range" id="f-lat" min="0" max="${Math.max(5, Math.floor(plan.edited_duration - 4))}" step="0.5" value="${st.lower_at ?? 2.5}"></div>
+      <div class="field"><span>Caption language (subtitle-generation)</span>
+        <div class="row"><select id="f-clang">${[['', 'As spoken'], ['en', 'English'], ['hi', 'Hindi'], ['ml', 'Malayalam'], ['ta', 'Tamil'], ['te', 'Telugu'], ['kn', 'Kannada'], ['ar', 'Arabic']].map(([v, l]) => opt(v, st.caption_lang || '', l)).join('')}</select>
+        <label class="chk"><input type="checkbox" id="f-cdual" ${st.caption_dual ? 'checked' : ''}> Both (spoken + translation)</label></div>
+        <span>Speed of the finished video <b id="f-spdv">${(+st.speed || 1).toFixed(2)}x</b> (voice keeps its pitch)</span><input type="range" id="f-spd" min="1" max="1.5" step="0.05" value="${st.speed || 1}"></div>
+      <div class="field" style="grid-column:1/-1"><span>Call to action in the last 3 seconds: a comment keyword that types itself into a comment box</span>
+        <div class="row"><input class="in" type="text" id="f-ctak" maxlength="24" placeholder="Keyword, e.g. GUIDE" value="${esc(st.cta_keyword || '')}" style="width:180px">
+        <input class="in" type="text" id="f-ctal" maxlength="60" placeholder="Line above it, e.g. Comment for the free checklist" value="${esc(st.cta_line || '')}" style="flex:1"></div></div>
+    </div>
+  </details>
+
+  <details class="card" data-sec="broll" ${finishOpen.broll ? 'open' : ''}>
+    <summary>B-roll <span class="skill">${(plan.broll || []).length ? (plan.broll.length + ' moments · ') : ''}AI map · prompts · placement</span></summary>
+    <div class="actions" style="margin-top:12px">
+      <button id="f-bplan" class="${(plan.broll || []).length ? '' : 'primary'}" ${ai.configured ? '' : 'disabled title="Needs LLM_API_KEY in app\\.env"'}>${(plan.broll || []).length ? 'Re-plan b-roll' : 'Plan b-roll'}</button>
+      ${(plan.broll || []).length ? `<a href="/api/jobs/${id}/broll.md" download>Download prompts (.md)</a>` : ''}
+    </div>
+    <div class="muted" style="font-size:12px;margin-top:8px">Paste each prompt into OpenArt (or any video model): 5 seconds, this video's aspect ratio, the same model for every clip; generate the shot with a person first. Upload each clip here: it's trimmed to its best 2–4 s and covers you while your voice keeps running. Re-planning keeps moments that already have a clip.</div>
+    ${brows || `<div class="muted" style="margin-top:10px">${ai.configured ? 'No b-roll yet. “Plan b-roll” reads the current cut and writes one prompt per moment.' : 'B-roll planning needs an API key (LLM_API_KEY in app\\.env).'}</div>`}
+    <div class="field" style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+      <span>Your own clips (broll-match-engine): upload phone clips instead of generating; the AI describes each one and puts the best fit on each moment.</span>
+      <div class="clips">${(state.library || []).map(c => `<div class="clip"><button class="x lib-x" data-f="${esc(c.file)}" title="Remove">✕</button>
+        <img src="/api/jobs/${id}/library/file/${c.thumb}" style="width:100%;border-radius:6px"><div>${esc(c.name)}</div><div class="muted">${esc(c.desc)} · ${c.duration}s</div></div>`).join('')}</div>
+      <div class="actions"><button id="f-libup">Add clips</button><input type="file" id="f-libfile" accept="video/*" multiple hidden>
+        <button id="f-libmatch" ${(state.library || []).length && (plan.broll || []).length && ai.configured ? '' : 'disabled'} title="${(plan.broll || []).length ? '' : 'Plan b-roll first'}">Match library to moments</button>
+        <span class="muted" id="f-libstat" style="font-size:12px"></span></div></div>
+  </details>
+
+  <details class="card" data-sec="sound" ${finishOpen.sound ? 'open' : ''}>
+    <summary>Sound <span class="skill">effects from code · music under the voice</span></summary>
+    <div class="grid2">
+      <div class="field"><label class="chk"><input type="checkbox" id="f-vclean" ${st.voice_clean ? 'checked' : ''}> Clean voice: remove hiss and hum, soften harsh "s", add presence (audio-editing)</label>
+        <label class="chk"><input type="checkbox" id="f-sfx" ${st.sfx ? 'checked' : ''}> Sound effects <span class="muted">(${smap.length} moments)</span></label>
+        <div class="row">${['whoosh', 'pop', 'tick', 'hit'].map(k => `<button class="f-play" data-k="${k}" title="Listen">▶ ${k}</button>`).join('')}</div></div>
+      <label class="field"><span>Effects level <b id="f-sdbv">${st.sfx_db} dB</b></span><input type="range" id="f-sdb" min="-24" max="6" step="1" value="${st.sfx_db}"></label>
+      <label class="field"><span>Whoosh length <b id="f-wmsv">${st.whoosh_ms} ms</b></span><input type="range" id="f-wms" min="150" max="900" step="10" value="${st.whoosh_ms}"></label>
+      <label class="field"><span>Whoosh pitch <b id="f-whzv">${Math.round(st.whoosh_hz)} Hz</b> (lower = deeper)</span><input type="range" id="f-whz" min="200" max="3000" step="10" value="${st.whoosh_hz}"></label>
+    </div>
+    <div class="grid2" style="border-top:1px solid var(--line);padding-top:14px">
+      <div class="field"><span>Music bed: instrumental, loopable, about 95 BPM, no vocals (e.g. Lyria 3 in OpenArt)</span>
+        <div class="row">${state.music ? `<audio controls preload="none" src="/api/jobs/${id}/music" style="height:32px;max-width:230px"></audio><button id="f-mdel">Remove</button>` : '<button id="f-mup">Upload music</button>'}
+        <input type="file" id="f-mfile" accept="audio/*,video/*" hidden></div>
+        <label class="chk"><input type="checkbox" id="f-mus" ${st.music ? 'checked' : ''} ${state.music ? '' : 'disabled'}> Use the music</label></div>
+      <div class="field">
+        <span>Music between phrases <b id="f-mdbv">${st.music_db} dB</b></span><input type="range" id="f-mdb" min="-40" max="0" step="1" value="${st.music_db}">
+        <span>Extra dip under the voice <b id="f-ddbv">${st.duck_db} dB</b></span><input type="range" id="f-ddb" min="0" max="24" step="1" value="${st.duck_db}"></div>
+    </div>
+    ${smap.length ? `<details style="margin-top:12px"><summary class="muted" style="cursor:pointer">Sound map: ${Object.entries(counts).map(([k, v]) => `${v} ${SFX_NAMES[k] || k}`).join(', ')}${st.sfx ? '' : ' (effects are off)'}</summary>
+      <table class="smap"><tr><th>#</th><th>Time</th><th>On screen</th><th>Sound</th></tr>
+      ${smap.map((e, n) => `<tr><td>${n + 1}</td><td>${e.t.toFixed(2)}s</td><td>${esc(e.what)}</td><td>${SFX_NAMES[e.kind] || e.kind}</td></tr>`).join('')}</table></details>` : ''}
+  </details>
+
+  <details class="card" data-sec="publish" ${finishOpen.publish ? 'open' : ''}>
+    <summary>Publish <span class="skill">subtitles · post kit · exports</span></summary>
+    <div class="grid2">
+      <div class="field"><span>Subtitle files of the edited video (subtitle-packager)</span>
+        <div class="row"><a href="/api/jobs/${id}/subtitles.srt">SRT</a> · <a href="/api/jobs/${id}/subtitles.vtt">VTT</a> · <a href="/api/jobs/${id}/subtitles.ass">ASS (styled)</a></div></div>
+      <div class="field"><span>Post kit: captions, YouTube titles, chapters, hashtags, thumbnail text (caption-writer + content-repurposer)</span>
+        <div class="row"><button id="f-post" ${ai.configured ? '' : 'disabled'}>Write post kit</button>
+          <button id="f-carousel" ${ai.configured ? '' : 'disabled'} title="5-7 slide images of the key points (social-carousel)">Make carousel</button>
+          <button id="f-review" ${ai.configured && (state.meta.rendered || state.meta.draft_rendered) ? '' : 'disabled'} title="AI vision checks frames of the latest render (video-understand)">Review render</button></div></div>
+    </div>
+    <div id="f-postmd" class="md" style="margin-top:10px"></div>
+    <div id="f-car" class="clips"></div>
+    <div class="field" style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px"><span>Exports of the rendered video (video-edit / ffmpeg)${state.meta.rendered ? '' : ': render the final video first'}</span>
+      <div class="row">${Object.entries({ whatsapp: 'WhatsApp size', square: 'Square 1:1', landscape: 'YouTube 16:9', vertical: 'Vertical 9:16', mp3: 'MP3', thumbnail: 'Thumbnail' })
+        .map(([k, l]) => `<button class="f-exp" data-k="${k}" ${state.meta.rendered ? '' : 'disabled'}>${l}</button>`).join('')}</div>
+      <div class="row"><input class="in" type="text" id="f-thumbtxt" maxlength="40" placeholder="Thumbnail text (defaults to the title)" style="flex:1"></div>
+      <div class="row" id="f-exps">${(state.exports || []).map(n => `<a href="/api/jobs/${id}/exports/${n}?download=true">${n}</a>`).join(' · ')}</div></div>
+  </details>`;
+
+  box.querySelectorAll('details[data-sec]').forEach(d => d.addEventListener('toggle', () => { finishOpen[d.dataset.sec] = d.open; }));
+
+  // style
+  $('#f-auto').onclick = async () => {
+    const b = $('#f-auto'); b.disabled = true; b.textContent = 'Styling…';
+    try { const r = await api(`/api/jobs/${id}/autostyle`, { method: 'POST' }); applyResp(r);
+      addMsg('assistant', `Auto-style (${r.how}): ${r.style.title ? `title “${r.style.title}”, ` : ''}${r.style.keywords.length} keywords pop, ${r.timeline.transitions.length} transitions at topic changes. Shift-click or Alt-click words to adjust.`); }
+    catch (e) { alert(e.message); b.disabled = false; b.textContent = 'Auto-style'; }
+  };
+  $('#f-title').onchange = e => saveStyle({ title: e.target.value, title_enabled: !!e.target.value.trim() });
+  $('#f-title-on').onchange = e => saveStyle({ title_enabled: e.target.checked });
+  $('#f-cap').onchange = e => saveStyle({ caption_style: e.target.value });
+  $('#f-pop').onchange = e => saveStyle({ keyword_pop: e.target.checked });
+  $('#f-pops').oninput = e => { $('#f-popv').textContent = Math.round(e.target.value * 100) + '%'; };
+  $('#f-pops').onchange = e => saveStyle({ pop_scale: +e.target.value });
+  $('#f-pms').oninput = e => { $('#f-pmsv').textContent = e.target.value + ' ms'; };
+  $('#f-pms').onchange = e => saveStyle({ pop_ms: +e.target.value });
+  $('#f-tr').onchange = e => saveStyle({ transitions: e.target.checked });
+  $('#f-punch').onchange = e => saveStyle({ punch_in: e.target.checked });
+  $('#f-look').onchange = e => saveStyle({ look: e.target.value });
+  $('#f-acc').onchange = e => saveStyle({ accent: e.target.value });
+  $('#f-fmt').onchange = e => saveStyle({ format: e.target.value });
+  if ($('#f-fx')) { $('#f-fx').oninput = e => { $('#f-fxv').textContent = Math.round(e.target.value * 100) + '%'; };
+    $('#f-fx').onchange = e => saveStyle({ face_x: +e.target.value }); }
+  $('#f-pace').onclick = () => savePlan({ settings: { remove_silences: true, min_silence: 0.3, pad: 0.1 } });
+  $('#f-grade').onchange = e => saveStyle({ grade: e.target.value });
+  $('#f-ctak').onchange = e => saveStyle({ cta_keyword: e.target.value });
+  $('#f-lname').onchange = e => saveStyle({ lower_name: e.target.value });
+  $('#f-lrole').onchange = e => saveStyle({ lower_role: e.target.value });
+  $('#f-lat').oninput = e => { $('#f-latv').textContent = (+e.target.value).toFixed(1) + ' s'; };
+  $('#f-lat').onchange = e => saveStyle({ lower_at: +e.target.value });
+  $('#f-spd').oninput = e => { $('#f-spdv').textContent = (+e.target.value).toFixed(2) + 'x'; };
+  $('#f-spd').onchange = e => saveStyle({ speed: +e.target.value });
+  const translate = async () => {
+    const lang = $('#f-clang').value, dual = $('#f-cdual').checked;
+    $('#f-clang').disabled = true;
+    try { const r = await api(`/api/jobs/${id}/translate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lang, dual }) }); applyResp(r); }
+    catch (e) { alert(e.message); $('#f-clang').disabled = false; }
+  };
+  $('#f-clang').onchange = translate;
+  $('#f-cdual').onchange = translate;
+  $('#f-ctal').onchange = e => saveStyle({ cta_line: e.target.value });
+  if (st.grade === 'look01') api(`/api/jobs/${id}/looks_log`).then(r => { const w = $('#f-gwarn');
+    if (w) w.textContent = r.looks_log ? '' : 'This video doesn\'t look like flat S-Log3 footage: Look 01 will look washed out. Use Cinematic for phone video.'; }).catch(() => {});
+
+  // publish: carousel, review
+  $('#f-carousel').onclick = async () => {
+    const b = $('#f-carousel'); b.disabled = true; b.textContent = 'Making slides…';
+    try { const r = await api(`/api/jobs/${id}/carousel`, { method: 'POST' });
+      $('#f-car').innerHTML = r.slides.map(n => `<a class="clip" href="/api/jobs/${id}/exports/${n}?download=true"><img src="/api/jobs/${id}/exports/${n}?t=${Date.now()}" style="width:100%;border-radius:6px"><div>${n}</div></a>`).join(''); }
+    catch (e) { alert(e.message); }
+    b.disabled = false; b.textContent = 'Make carousel';
+  };
+  $('#f-review').onclick = async () => {
+    const b = $('#f-review'); b.disabled = true; b.textContent = 'Looking at frames…';
+    try { const r = await api(`/api/jobs/${id}/review`, { method: 'POST' }); state.chat = r.chat; renderChat();
+      $('#f-postmd').innerHTML = '<h3>Render review</h3>' + md(r.markdown); }
+    catch (e) { alert(e.message); }
+    b.disabled = false; b.textContent = 'Review render';
+  };
+  // b-roll library
+  $('#f-libup').onclick = () => $('#f-libfile').click();
+  $('#f-libfile').onchange = async e => { const files = [...e.target.files];
+    for (let k = 0; k < files.length; k++) { $('#f-libstat').textContent = `Adding ${k + 1} of ${files.length}${ai.configured ? ' (describing it)' : ''}…`;
+      try { const item = await upload(`/api/jobs/${id}/library`, files[k]); state.library = [...(state.library || []).filter(c => c.file !== item.file), item]; }
+      catch (err) { alert(files[k].name + ': ' + err.message); } }
+    finishOpen.broll = true; renderFinishing(); };
+  box.querySelectorAll('.lib-x').forEach(b => b.onclick = async () => {
+    try { state.library = await api(`/api/jobs/${id}/library/${encodeURIComponent(b.dataset.f)}`, { method: 'DELETE' }); renderFinishing(); } catch (e) { alert(e.message); } });
+  $('#f-libmatch').onclick = async () => {
+    const b = $('#f-libmatch'); b.disabled = true; b.textContent = 'Matching…';
+    try { const r = await api(`/api/jobs/${id}/broll/match`, { method: 'POST' }); applyResp(r);
+      addMsg('assistant', r.matches.length ? `Placed ${r.matches.length} of your clips: ` + r.matches.map(m => `${m.desc} (${m.why || 'best fit'})`).join('; ') + '.' : 'None of the library clips fit the planned moments well.'); }
+    catch (e) { alert(e.message); b.disabled = false; b.textContent = 'Match library to moments'; }
+  };
+  $('#f-vclean').onchange = e => saveStyle({ voice_clean: e.target.checked });
+  // publish
+  $('#f-post').onclick = async () => {
+    const b = $('#f-post'); b.disabled = true; b.textContent = 'Writing…';
+    try { const r = await api(`/api/jobs/${id}/postkit`, { method: 'POST' }); $('#f-postmd').innerHTML = md(r.markdown) + `<a href="/api/jobs/${id}/postkit.md" download="postkit.md">Download post kit (.md)</a>`; }
+    catch (e) { alert(e.message); }
+    b.disabled = false; b.textContent = 'Write post kit';
+  };
+  box.querySelectorAll('.f-exp').forEach(b => b.onclick = async () => {
+    const label = b.textContent; b.disabled = true; b.textContent = 'Exporting…';
+    try { const r = await api(`/api/jobs/${id}/export/${b.dataset.k}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: $('#f-thumbtxt').value }) });
+      state.exports = [...new Set([...(state.exports || []), r.name])].sort();
+      $('#f-exps').innerHTML = state.exports.map(n => `<a href="/api/jobs/${id}/exports/${n}?download=true">${n}</a>`).join(' · ');
+      if (r.name.endsWith('.jpg')) $('#f-exps').innerHTML += `<img class="sheet" style="max-width:320px" src="/api/jobs/${id}/exports/${r.name}?t=${Date.now()}">`; }
+    catch (e) { alert(e.message); }
+    b.disabled = false; b.textContent = label;
+  });
+
+  // b-roll
+  const bplan = $('#f-bplan');
+  if (bplan) bplan.onclick = async () => {
+    bplan.disabled = true; bplan.textContent = 'Reading the cut…';
+    try { const r = await api(`/api/jobs/${id}/broll/plan`, { method: 'POST' }); finishOpen.broll = true; applyResp(r);
+      addMsg('assistant', r.found ? `Planned ${r.found} b-roll moment${r.found > 1 ? 's' : ''}. Copy each prompt into your video generator, then upload the clips in the B-roll panel.` : 'No b-roll moments found in this cut.'); }
+    catch (e) { alert(e.message); bplan.disabled = false; bplan.textContent = 'Plan b-roll'; }
+  };
+  box.querySelectorAll('.brow').forEach(row => {
+    const bid = row.dataset.id, url = `/api/jobs/${id}/broll/${bid}`;
+    const patch = body => api(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(applyResp).catch(e => alert(e.message));
+    row.querySelector('.b-layout').onchange = e => patch({ layout: e.target.value });
+    row.querySelector('.b-prompt').onchange = e => patch({ prompt: e.target.value });
+    row.querySelector('.b-copy').onclick = async e => {
+      const text = row.querySelector('.b-prompt').value;
+      try { await navigator.clipboard.writeText(text); } catch { row.querySelector('.b-prompt').select(); document.execCommand('copy'); }
+      e.target.textContent = 'Copied'; setTimeout(() => { e.target.textContent = 'Copy prompt'; }, 1200);
+    };
+    row.querySelector('.b-del').onclick = () => { if (confirm('Remove this b-roll moment?')) api(url, { method: 'DELETE' }).then(applyResp).catch(e => alert(e.message)); };
+    const file = row.querySelector('.b-file'), up = row.querySelector('.b-up');
+    up.onclick = () => file.click();
+    file.onchange = async () => {
+      if (!file.files[0]) return;
+      up.disabled = true; up.textContent = 'Uploading…';
+      try { applyResp(await upload(`${url}/clip`, file.files[0])); } catch (e) { alert(e.message); up.disabled = false; up.textContent = 'Upload clip'; }
+    };
+  });
+
+  // sound
+  $('#f-sfx').onchange = e => saveStyle({ sfx: e.target.checked });
+  box.querySelectorAll('.f-play').forEach(b => b.onclick = () => new Audio(`/api/jobs/${id}/sfx/${b.dataset.k}.wav?t=${Date.now()}`).play().catch(() => {}));
+  const slider = (sel, label, key, unit) => {
+    $(sel).oninput = e => { $(label).textContent = e.target.value + unit; };
+    $(sel).onchange = e => saveStyle({ [key]: +e.target.value });
+  };
+  slider('#f-sdb', '#f-sdbv', 'sfx_db', ' dB');
+  slider('#f-wms', '#f-wmsv', 'whoosh_ms', ' ms');
+  slider('#f-whz', '#f-whzv', 'whoosh_hz', ' Hz');
+  slider('#f-mdb', '#f-mdbv', 'music_db', ' dB');
+  slider('#f-ddb', '#f-ddbv', 'duck_db', ' dB');
+  $('#f-mus').onchange = e => saveStyle({ music: e.target.checked });
+  const mfile = $('#f-mfile');
+  if ($('#f-mup')) $('#f-mup').onclick = () => mfile.click();
+  mfile.onchange = async () => {
+    if (!mfile.files[0]) return;
+    const b = $('#f-mup'); if (b) { b.disabled = true; b.textContent = 'Uploading…'; }
+    try { applyResp(await upload(`/api/jobs/${id}/music`, mfile.files[0])); } catch (e) { alert(e.message); if (b) { b.disabled = false; b.textContent = 'Upload music'; } }
+  };
+  if ($('#f-mdel')) $('#f-mdel').onclick = () => api(`/api/jobs/${id}/music`, { method: 'DELETE' }).then(applyResp).catch(e => alert(e.message));
+}
+
+// ---------- chat edits ----------
+function addMsg(role, text, summary) {
+  state.chat = state.chat || [];
+  state.chat.push({ role, text, summary });
+  renderChat();
+}
+
+function renderChat() {
+  const box = $('#msgs');
+  if (!box) return;
+  const list = state.chat || [];
+  box.innerHTML = list.length ? list.map(m => `<div class="msg ${m.role}">${esc(m.text)}${m.summary ? `<span class="sum">${esc(m.summary)}</span>` : ''}</div>`).join('')
+    : `<div class="muted" style="font-size:12px">Tell the editor what to change, in Malayalam, Hindi or English. Every change can be undone.</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendChat(text) {
+  text = (text || '').trim();
+  if (!text) return;
+  const input = $('#chatin'), send = $('#chatsend');
+  input.value = ''; input.disabled = send.disabled = true;
+  addMsg('user', text);
+  addMsg('assistant', 'Thinking…');
+  try {
+    const r = await api(`/api/jobs/${state.meta.id}/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
+    state.chat = r.chat;
+    setPlan(r.plan, r.undo, r.style, r.timeline);
+    renderChat();
+  } catch (e) {
+    state.chat.pop(); addMsg('assistant', 'Sorry, that failed: ' + e.message);
+  }
+  input.disabled = send.disabled = false; input.focus();
+}
+
+// ---------- player: live preview of the edit + current-word highlight ----------
+function setupPlayer() {
+  const v = $('#video');
+  let lastNow = null;
+  const tick = () => {
+    if (!document.body.contains(v)) return;
+    const t = v.currentTime;
+    if (previewEdit && !v.paused && state.plan) {
+      const c = state.plan.cuts.find(c => t >= c.start && t < c.end - 0.02);
+      if (c) v.currentTime = Math.min(c.end, v.duration || c.end);
+    }
+    const words = state.transcript.words;
+    let lo = 0, hi = words.length - 1, idx = -1;
+    while (lo <= hi) { const m = (lo + hi) >> 1; if (words[m].start <= t) { idx = m; lo = m + 1; } else hi = m - 1; }
+    const now = idx >= 0 && t <= words[idx].end + 0.25 ? words[idx].i : null;
+    if (now !== lastNow) {
+      document.querySelectorAll('.w.now').forEach(el => el.classList.remove('now'));
+      if (now !== null) document.querySelector(`.w[data-i="${now}"]`)?.classList.add('now');
+      lastNow = now;
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// ---------- modes: Edit · Montage · Grow ----------
+let mode = 'edit', mstate = null, montList = [], growFiles = [];
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  $('#side-edit').style.display = m === 'edit' ? 'flex' : 'none';
+  $('#side-montage').style.display = m === 'montage' ? 'flex' : 'none';
+  $('#side-grow').style.display = m === 'grow' ? 'flex' : 'none';
+  $('#side-edit').style.display = (m === 'edit' || m === 'skills') ? 'flex' : 'none';
+  if (m === 'edit') { if (selected) select(selected); else $('#main').innerHTML = '<div class="empty">Upload a talking-head video to get started.</div>'; }
+  if (m === 'montage') refreshMontages().then(() => mstate ? openMontage(mstate.meta.id) : ($('#main').innerHTML = montageIntro()));
+  if (m === 'grow') { refreshGrow(); growHome(); }
+  if (m === 'skills') { if (selected) api('/api/jobs/' + selected).then(j => { state = j; renderSkills(); }); else renderSkills(); }
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+
+// tiny markdown renderer for the Grow files (headings, tables, lists, code, bold, links)
+function md(text) {
+  const inline = t => esc(t).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<i>$2</i>').replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  const lines = String(text || '').split('\n'); let out = '', i = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    if (/^```/.test(l)) { let b = ''; i++; while (i < lines.length && !/^```/.test(lines[i])) b += lines[i++] + '\n'; i++; out += `<pre>${esc(b)}</pre>`; continue; }
+    if (/^\s*\|/.test(l)) { const rows = []; while (i < lines.length && /^\s*\|/.test(lines[i])) rows.push(lines[i++]);
+      const cells = r => r.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+      const body = rows.filter(r => !/^[\s|:-]+$/.test(r));
+      out += '<table>' + body.map((r, k) => `<tr>${cells(r).map(c => k ? `<td>${inline(c)}</td>` : `<th>${inline(c)}</th>`).join('')}</tr>`).join('') + '</table>'; continue; }
+    const h = l.match(/^(#{1,4})\s+(.*)/); if (h) { out += `<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`; i++; continue; }
+    if (/^\s*([-*]|\d+\.)\s+/.test(l)) { const ordered = /^\s*\d+\./.test(l); let items = '';
+      while (i < lines.length && /^\s*([-*]|\d+\.)\s+/.test(lines[i])) items += `<li>${inline(lines[i++].replace(/^\s*([-*]|\d+\.)\s+/, ''))}</li>`;
+      out += ordered ? `<ol>${items}</ol>` : `<ul>${items}</ul>`; continue; }
+    if (/^>\s?/.test(l)) { out += `<blockquote class="muted">${inline(l.replace(/^>\s?/, ''))}</blockquote>`; i++; continue; }
+    out += l.trim() ? `<p>${inline(l)}</p>` : ''; i++;
+  }
+  return out;
+}
+
+// ---------- montage (Beat-Sync Cinematic Edit) ----------
+function montageIntro() {
+  return `<div class="view"><div class="card"><h2>Beat-synced montage</h2>
+    <div class="muted">Clips + one song → a ~20 s 9:16 cinematic reel: cuts on the bars, the biggest transition on the drop, eased slow-mo ramps,
+    smooth transitions only (dissolve, focus blur, zoom-through on the drop), effects only at key transitions, mastered loud for reels.
+    Style by @shakirc.ai. Click “New montage” to start.</div></div></div>`;
+}
+async function refreshMontages() {
+  montList = await api('/api/montages');
+  $('#mlist').innerHTML = montList.map(m => `<div class="job ${mstate && m.id === mstate.meta.id ? 'sel' : ''}" data-id="${m.id}">
+    <div class="n">${esc(m.name)}</div><div class="s">${m.clips.length} clips${m.song ? ' · ' + m.song.bpm + ' BPM' : ''} · ${esc(m.status)}</div>
+    ${['render queued', 'rendering'].includes(m.status) ? `<div class="bar"><div style="width:${Math.round((m.progress || 0) * 100)}%"></div></div>` : ''}</div>`).join('');
+  $('#mlist').querySelectorAll('.job').forEach(el => el.onclick = () => openMontage(el.dataset.id));
+}
+$('#m-new').onclick = async () => {
+  const name = prompt('Name for this montage', 'Montage'); if (name === null) return;
+  const m = await api('/api/montages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+  await refreshMontages(); openMontage(m.id);
+};
+async function openMontage(id) { mstate = await api('/api/montages/' + id); renderMontage(); refreshMontages(); }
+function renderMontage() {
+  const { meta, plan } = mstate, id = meta.id, busy = ['render queued', 'rendering'].includes(meta.status);
+  const st = meta.settings || {}, f = n => `/api/montages/${id}/file/${encodeURIComponent(n)}`;
+  const opt = (v, cur, label) => `<option value="${v}" ${v === cur ? 'selected' : ''}>${label}</option>`;
+  $('#main').innerHTML = `<div class="view">
+  <div class="card"><div class="row" style="justify-content:space-between"><h2>${esc(meta.name)}</h2><button id="m-del">Delete</button></div>
+    <div class="muted" style="font-size:12px">No repeated clips · cuts on the bars · the hero clip (most motion) lands on the drop · S-Log3 clips: pick Look 01 so every clip gets the same grade.</div>
+    <h3 style="font-size:13px;margin:14px 0 0">Clips (${meta.clips.length})</h3>
+    <div class="clips">${meta.clips.map(c => `<div class="clip"><button class="x" data-f="${esc(c.file)}" title="Remove">✕</button>
+      <video src="${f(c.file)}" muted preload="metadata"></video><div>${esc(c.name)}</div>
+      <div class="muted">${c.duration.toFixed(1)}s · ${Math.round(c.fps)} fps${c.doubled ? ' (30p doubled)' : ''} · motion ${c.motion}</div></div>`).join('')}</div>
+    <div class="actions"><button id="m-addc">Add clips</button><input type="file" id="m-cfile" accept="video/*" multiple hidden>
+      <span class="muted" id="m-cstat" style="font-size:12px"></span></div>
+    <h3 style="font-size:13px;margin:14px 0 0">Song</h3>
+    <div class="actions">${meta.song ? `<span>${esc(meta.song.name)} · <b>${meta.song.bpm} BPM</b> · starts on the bar at ${meta.song.start.toFixed(1)}s (skips the intro) · drop at ${meta.song.drop.toFixed(1)}s</span>` : '<span class="muted">No song yet</span>'}
+      <button id="m-adds">${meta.song ? 'Replace song' : 'Add song'}</button><input type="file" id="m-sfile" accept="audio/*,video/*" hidden></div>
+    <div class="grid2">
+      <label class="field"><span>Length <b id="m-lenv">${st.length || 20} s</b></span><input type="range" id="m-len" min="10" max="35" step="1" value="${st.length || 20}"></label>
+      <label class="field"><span>Grade (same on every clip)</span><select id="m-grade">${opt('none', st.grade, 'None')}${opt('cinematic', st.grade, 'Cinematic (any footage)')}${opt('look01', st.grade, 'Look 01 teal-orange (S-Log3 clips)')}</select></label>
+    </div>
+    <div class="actions"><button id="m-plan">Plan the edit</button><button id="m-draft" ${busy ? 'disabled' : ''}>Draft (fast)</button>
+      <button class="primary" id="m-render" ${busy ? 'disabled' : ''}>Render</button>
+      ${busy ? `<span class="muted">${esc(meta.status)}… ${Math.round((meta.progress || 0) * 100)}%</span>` : meta.status === 'error' ? `<span class="err">${esc(meta.error || '')}</span>` : ''}</div>
+  </div>
+  ${plan ? `<div class="card"><h2>Timeline (edit.json)</h2>
+    <div class="muted" style="font-size:12px">${plan.bpm} BPM · ${plan.length.toFixed(1)} s from ${plan.song_start.toFixed(1)}s of the song · drop at ${plan.drop.toFixed(1)}s${meta.plan_stale ? ' · <span class="note">clips or song changed: re-plan</span>' : ''}${plan.unused_clips.length ? ' · not used: ' + esc(plan.unused_clips.join(', ')) : ''}</div>
+    <table class="smap"><tr><th>#</th><th>Clip</th><th>Time</th><th>Source</th><th>Speed</th><th>Transition in</th><th></th></tr>
+    ${plan.segments.map((s, k) => `<tr><td>${k + 1}</td><td>${esc(s.name)}</td><td>${s.start.toFixed(2)}–${s.end.toFixed(2)}s</td><td>${s.in.toFixed(1)}s +${s.span.toFixed(1)}s</td>
+      <td>${s.speed[0] === s.speed[1] ? s.speed[0] + 'x' : s.speed[0] + 'x → ' + s.speed[1] + 'x'}</td><td>${{ fade: 'soft dissolve', hblur: 'focus blur', zoomin: 'zoom-through (drop)' }[s.transition_in] || 'focus-in open'}</td><td>${s.hero ? 'hero' : ''}</td></tr>`).join('')}</table>
+    <div class="muted" style="font-size:12px;margin-top:6px">Effects: ${plan.sfx.map(e => `${SFX_NAMES[e.kind] || e.kind} at ${e.t.toFixed(2)}s`).join(', ') || 'none'} · music dips 4.5 dB under each.</div></div>` : ''}
+  ${(meta.versions || []).slice().reverse().map(v => `<div class="card"><div class="row" style="justify-content:space-between"><b>Version ${v.v}${v.draft ? ' (draft)' : ''}</b>
+      <span class="muted" style="font-size:12px">${v.length.toFixed(1)} s · grade ${esc(v.grade)} · <a href="${f(v.file)}?download=true">Download MP4</a></span></div>
+      <div class="top" style="margin-top:10px"><video controls preload="metadata" src="${f(v.file)}"></video>
+      <div><div class="muted" style="font-size:12px">Contact sheet, 4 frames per second: check for repeats, frozen frames and harsh transitions.</div><img class="sheet" src="${f(v.sheet)}"></div></div></div>`).join('')}
+  <div class="card muted" style="font-size:12px">Not in this version of the skill: cut-out ride-ins, the wheel-portal zoom, the B&W clip band and the strip transition (they need a person/vehicle cut-out model).</div>
+  </div>`;
+  const post = (url, body) => api(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+  $('#m-del').onclick = async () => { if (!confirm('Delete this montage and its files?')) return; await api('/api/montages/' + id, { method: 'DELETE' }); mstate = null; refreshMontages(); $('#main').innerHTML = montageIntro(); };
+  $('#main').querySelectorAll('.clip .x').forEach(b => b.onclick = async () => { await api(`/api/montages/${id}/clips/${encodeURIComponent(b.dataset.f)}`, { method: 'DELETE' }); openMontage(id); });
+  $('#m-addc').onclick = () => $('#m-cfile').click();
+  $('#m-cfile').onchange = async e => { const files = [...e.target.files];
+    for (let k = 0; k < files.length; k++) { $('#m-cstat').textContent = `Uploading and analysing ${k + 1} of ${files.length}…`;
+      try { await upload(`/api/montages/${id}/clips`, files[k]); } catch (err) { alert(files[k].name + ': ' + err.message); } }
+    openMontage(id); };
+  $('#m-adds').onclick = () => $('#m-sfile').click();
+  $('#m-sfile').onchange = async e => { const b = $('#m-adds'); b.disabled = true; b.textContent = 'Finding the beat…';
+    try { await upload(`/api/montages/${id}/song`, e.target.files[0]); } catch (err) { alert(err.message); } openMontage(id); };
+  $('#m-len').oninput = e => { $('#m-lenv').textContent = e.target.value + ' s'; };
+  const replan = async () => { try { mstate = await post(`/api/montages/${id}/plan`, { length: +$('#m-len').value, grade: $('#m-grade').value }); renderMontage(); } catch (err) { alert(err.message); } };
+  $('#m-plan').onclick = replan;
+  $('#m-len').onchange = () => { if (plan) replan(); };
+  $('#m-grade').onchange = replan;
+  const go = draft => async () => { try { if (!plan || meta.plan_stale) await post(`/api/montages/${id}/plan`, { length: +$('#m-len').value, grade: $('#m-grade').value });
+    await api(`/api/montages/${id}/render?draft=${draft}`, { method: 'POST' }); openMontage(id); } catch (err) { alert(err.message); } };
+  $('#m-render').onclick = go(false); $('#m-draft').onclick = go(true);
+}
+setInterval(async () => {
+  if (mode !== 'montage' || !mstate) return;
+  if (!['render queued', 'rendering'].includes(mstate.meta.status)) return;
+  try { mstate = await api('/api/montages/' + mstate.meta.id); renderMontage(); refreshMontages(); } catch {}
+}, 2000);
+
+// ---------- grow (Growth Starter + Viral Script) ----------
+async function refreshGrow() {
+  try { growFiles = (await api('/api/grow')).files; } catch { growFiles = []; }
+  const label = { 'starter-kit': 'Starter kit', script: 'Script', style: 'Your voice (style.md)' };
+  $('#glist').innerHTML = growFiles.map(g => `<div class="job" data-n="${esc(g.name)}"><div class="n">${label[g.kind] || g.kind}</div>
+    <div class="s">${new Date(g.time * 1000).toLocaleString()}</div></div>`).join('') || '<div class="muted" style="font-size:12px">Nothing yet.</div>';
+  $('#glist').querySelectorAll('.job').forEach(el => el.onclick = () => showGrowFile(el.dataset.n));
+}
+$('#g-home').onclick = () => growHome();
+async function showGrowFile(name) {
+  const text = await (await fetch('/api/grow/file/' + encodeURIComponent(name))).text();
+  $('#main').innerHTML = `<div class="view"><div class="card"><div class="row" style="justify-content:space-between"><b>${esc(name)}</b>
+    <span><button id="g-copy">Copy</button> <a href="/api/grow/file/${encodeURIComponent(name)}?download=true">Download .md</a></span></div>
+    <div class="md">${md(text)}</div></div></div>`;
+  $('#g-copy').onclick = () => navigator.clipboard.writeText(text).catch(() => {});
+}
+function growHome() {
+  const q = (id, label, ph, rows = 2) => `<label class="field"><span>${label}</span><textarea class="in" id="${id}" rows="${rows}" placeholder="${esc(ph)}"></textarea></label>`;
+  $('#main').innerHTML = `<div class="view">
+  ${ai.configured ? '' : '<div class="card note">These tools need an API key: add LLM_API_KEY=... to app\\.env, then reload.</div>'}
+  <div class="card"><h2>1 · Starter kit <span class="skill">Growth Starter</span></h2>
+    <div class="muted" style="font-size:12px">Gets an account ready before the first reel: checks the topic has a big enough audience (TAM), a study list, bio A/B, picture brief, highlights, a 2-day warm-up and a week-1 plan.
+    For the TAM check, search your topic on Instagram yourself (<code>instagram.com/explore/search/keyword/?q=your topic</code>, 3–5 phrasings, in English and your language) and paste what you see or attach screenshots. This app never logs into or acts on Instagram.</div>
+    <div class="grid2">
+      ${q('g1', '1. Who are you and what do you know well?', 'job, skill, business, life experience')}
+      ${q('g2', '2. 2–3 topics you\'d like to make videos about', 'AI tools, cooking, exam tips…')}
+      ${q('g3', '3. Who should watch?', 'normal people (mass) or a group: students, business owners, nurses abroad…')}
+      ${q('g4', '4. Language of the videos', 'Malayalam, Hindi, English…', 1)}
+      ${q('g5', '5. Face on camera or faceless?', '', 1)}
+      ${q('g6', '6. What do you want from it?', 'followers, leads, a personal brand, sell something later')}
+      ${q('g7', '7. Proof you can show + one free thing to give away', 'numbers, years, clients, results · a guide, template, checklist')}
+      ${q('g8', 'Your current profile (optional)', 'name field, bio, highlights')}
+      ${q('g9', 'What you found when searching your topic (optional)', 'reel links, creators, view counts, what the covers say', 3)}
+      <label class="field"><span>Screenshots: your profile or search results (optional, up to 4)</span><input type="file" id="g-img" accept="image/*" multiple></label>
+    </div>
+    <div class="actions"><button class="primary" id="g-start" ${ai.configured ? '' : 'disabled'}>Write my starter kit</button><span class="muted" id="g-sstat"></span></div>
+  </div>
+  <div class="card"><h2>2 · Script from a reel that's working <span class="skill">Viral Script</span></h2>
+    <div class="muted" style="font-size:12px">Find a reel in your topic with big views (300K+, or the top 10% for a small niche), screen-record it on your phone and upload it here, or paste its words.
+    The script keeps its hook → structure → CTA and changes the words to yours. ${growFiles.some(g => g.kind === 'starter-kit') ? 'Your latest starter kit is used automatically.' : ''} ${growFiles.some(g => g.kind === 'style') ? 'Your saved voice (style.md) is used automatically.' : ''}</div>
+    <div class="grid2">
+      ${q('s1', 'Topic', 'what this reel is about')}
+      ${q('s2', 'Audience', 'mass, or a specific group')}
+      ${q('s3', 'Language of the script, and what stays in English', 'Malayalam; first hook line in English')}
+      ${q('s5', 'CTA: comment keyword and what you give away', 'Comment GUIDE → free PDF')}
+      ${q('s4', 'Your voice: 2–3 of your captions or scripts', 'paste a few so it sounds like you', 3)}
+      <div class="field"><span>Reference reel: screen recording (it's transcribed here)</span>
+        <div class="row"><input type="file" id="s-ref" accept="video/*,audio/*"><select id="s-lang">${Object.entries(languages).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')}</select></div>
+        <span class="muted" id="s-rstat"></span></div>
+      ${q('s6', 'Reference words with times (filled from the recording, or paste)', '[0.0s] Claude just killed…', 5)}
+      ${q('s7', 'Reference notes: creator handle, link, views (mark estimates est.)', '@creator · instagram.com/reel/… · 1.2M views')}
+    </div>
+    <div class="actions"><button class="primary" id="g-script" ${ai.configured ? '' : 'disabled'}>Write my script</button><span class="muted" id="g-tstat"></span></div>
+  </div></div>`;
+  $('#g-start').onclick = async () => {
+    const fd = new FormData();
+    [['g1', 'about'], ['g2', 'topics'], ['g3', 'audience'], ['g4', 'language'], ['g5', 'face'], ['g6', 'goal'], ['g7', 'proof'], ['g8', 'profile'], ['g9', 'research']]
+      .forEach(([id, k]) => fd.append(k, $('#' + id).value));
+    [...$('#g-img').files].slice(0, 4).forEach(f => fd.append('images', f));
+    const b = $('#g-start'); b.disabled = true; $('#g-sstat').textContent = 'Writing… (about a minute)';
+    try { const r = await api('/api/grow/starter', { method: 'POST', body: fd }); await refreshGrow(); showGrowFile(r.name); }
+    catch (e) { alert(e.message); b.disabled = false; $('#g-sstat').textContent = ''; }
+  };
+  $('#s-ref').onchange = async e => {
+    const file = e.target.files[0]; if (!file) return;
+    const fd = new FormData(); fd.append('file', file); fd.append('language', $('#s-lang').value);
+    $('#s-rstat').textContent = 'Transcribing the reference…';
+    try { const r = await api('/api/grow/reference', { method: 'POST', body: fd }); $('#s6').value = r.transcript; $('#s-rstat').textContent = `Done: ${Math.round(r.duration || 0)} s, ${r.language || ''}. Check the words and fix any mistakes.`; }
+    catch (err) { $('#s-rstat').textContent = 'Failed: ' + err.message; }
+  };
+  $('#g-script').onclick = async () => {
+    const body = { topic: $('#s1').value, audience: $('#s2').value, language: $('#s3').value, voice: $('#s4').value, cta: $('#s5').value, reference: $('#s6').value, notes: $('#s7').value };
+    const b = $('#g-script'); b.disabled = true; $('#g-tstat').textContent = 'Writing… (about a minute)';
+    try { const r = await api('/api/grow/script', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); await refreshGrow(); showGrowFile(r.name); }
+    catch (e) { alert(e.message); b.disabled = false; $('#g-tstat').textContent = ''; }
+  };
+}
+
+// ---------- Skills tab: every skill as a feature you can switch on for the selected video ----------
+// kind: 'toggle' (a style/setting switch), 'run' (an AI or ffmpeg action), 'open' (a panel or tab)
+const SKILLS = [
+  { group: 'Cut & captions', name: 'Cut video', by: 'cut-video · louisedesadeleer', what: 'Cuts long pauses, filler words and retakes from the transcript.',
+    on: () => !!state.plan.settings.remove_silences, set: v => savePlan({ settings: { remove_silences: v } }) },
+  { group: 'Cut & captions', name: 'Word-synced captions', by: 'HyperFrames · Mira', what: 'The word being spoken lights up in the accent colour.',
+    on: st => st.caption_style === 'highlight', set: v => saveStyle({ caption_style: v ? 'highlight' : 'plain' }) },
+  { group: 'Cut & captions', name: 'Keyword pops', by: 'HyperFrames · Mira', what: 'Numbers, names and claim words scale up with a 150 ms ease-out.',
+    on: st => !!st.keyword_pop, set: v => saveStyle({ keyword_pop: v }) },
+  { group: 'Cut & captions', name: 'Fix captions', by: 'subtitle-correction · sugarforever', what: 'AI fixes misheard names, numbers and English words; timings stay.',
+    run: () => clickInEdit('#fixwords') },
+  { group: 'Cut & captions', name: 'Translated captions', by: 'subtitle-generation · eachlabs', what: 'Captions in English, Hindi and more, or both languages at once.',
+    on: st => !!st.caption_lang, open: 'style' },
+  { group: 'Finish', name: 'Title card', by: 'HyperFrames · Mira', what: 'Animated 3–5 word title in the first 2 seconds.',
+    on: st => !!(st.title_enabled && st.title), set: v => saveStyle({ title_enabled: v, ...(v && !state.style.title ? { title: (state.meta.name || '').replace(/\.[^.]+$/, '').slice(0, 40) } : {}) }) },
+  { group: 'Finish', name: 'Topic transitions', by: 'HyperFrames · Mira', what: 'A zoom push at each change of topic, never between every sentence.',
+    on: st => !!st.transitions, set: v => saveStyle({ transitions: v }) },
+  { group: 'Finish', name: 'Auto-style', by: 'HyperFrames · Mira', what: 'Picks the title, keywords and topic changes and switches the finishing on.',
+    run: () => clickInEdit('#f-auto') },
+  { group: 'Finish', name: 'Lower-third', by: 'graphic-overlays · heygen-com/hyperframes', what: 'Name and role card slides in for 4 seconds.',
+    on: st => !!st.lower_name, open: 'style' },
+  { group: 'Reels', name: 'Reel 9:16', by: 'reel-editor', what: '1080×1920 crop around the face, Instagram safe zones, −14 LUFS voice.',
+    on: st => st.format === 'reel', set: v => saveStyle({ format: v ? 'reel' : 'original' }) },
+  { group: 'Reels', name: 'Punch-in zoom', by: 'reel-editor', what: 'Alternates 100% / 112% framing so jump cuts look intentional.',
+    on: st => !!st.punch_in, set: v => saveStyle({ punch_in: v }) },
+  { group: 'Reels', name: 'Comment-keyword CTA', by: 'reel-editor', what: 'The keyword types itself into a comment box in the last 3 seconds.',
+    on: st => !!st.cta_keyword, open: 'style' },
+  { group: 'Reels', name: 'Coach this take', by: 'growth-starter (practice plan)', what: '3 notes on energy, pace and the first 3 seconds.',
+    run: () => clickInEdit('#coach') },
+  { group: 'Reels', name: 'Find shorts', by: 'byted-las-video-edit · bytedance', what: 'Finds 2–3 self-contained highlight clips and adds each as a new video.',
+    run: () => clickInEdit('#shorts') },
+  { group: 'Look', name: 'Cinematic grade', by: 'reel-editor', what: 'Warm skin, cooler shadows, gentle contrast and vignette, for any footage.',
+    on: st => st.grade === 'cinematic', set: v => saveStyle({ grade: v ? 'cinematic' : 'none' }) },
+  { group: 'Look', name: 'Look 01 teal-orange', by: 'teal-orange-cinematic-grade · @shakirc.ai', what: 'The Look 01 LUT, vignette and grain. Sony S-Log3 footage only.',
+    on: st => st.grade === 'look01', set: v => saveStyle({ grade: v ? 'look01' : 'none' }) },
+  { group: 'Look', name: 'Film look on b-roll', by: 'editorial-film-edit', what: 'Bright black-and-white, soft bloom and fine grain; the face stays clean.',
+    on: st => st.look === 'archival' || st.look === 'archival_all', set: v => saveStyle({ look: v ? 'archival' : 'clean' }) },
+  { group: 'B-roll & sound', name: 'B-roll prompts', by: 'B-Roll Prompter · Mira', what: 'One OpenArt prompt per moment; uploaded clips cover the speaker for 2–4 s.',
+    on: () => (state.plan.broll || []).length > 0, open: 'broll' },
+  { group: 'B-roll & sound', name: 'Sound effects', by: 'Sound Design · Mira', what: 'Whoosh, pop, tick and hit made in code, timed to every cut.',
+    on: st => !!st.sfx, set: v => saveStyle({ sfx: v }) },
+  { group: 'B-roll & sound', name: 'Music under the voice', by: 'Sound Design · Mira', what: 'Your music bed, ducked to −18 dB under speech and −10 dB in gaps.',
+    on: st => !!st.music, open: 'sound' },
+  { group: 'Publish', name: 'Speed-up', by: 'video-edit · heygen-com', what: 'Plays the finished video at 1.1x; the voice keeps its pitch.',
+    on: st => (st.speed || 1) > 1.001, set: v => saveStyle({ speed: v ? 1.1 : 1.0 }) },
+  { group: 'Publish', name: 'Subtitle files', by: 'subtitle-packager · postplusai', what: 'SRT, VTT and styled ASS of the edited video.', open: 'publish' },
+  { group: 'Publish', name: 'Post kit', by: 'caption-writer + content-repurposer · blacktwist', what: 'Caption, YouTube titles, chapters at real times, hashtags, thumbnail text.', open: 'publish' },
+  { group: 'Publish', name: 'Exports', by: 'video-edit · heygen-com / ffmpeg toolkit', what: 'WhatsApp size, 1:1, 16:9, 9:16 with blurred fill, MP3, thumbnail.', open: 'publish' },
+  { group: 'Publish', name: 'Carousel', by: 'social-carousel · open-design', what: '5–7 slide images (1080×1350) of the video\'s key points.', open: 'publish' },
+  { group: 'Publish', name: 'Review render', by: 'video-understand · heygen-com / ffmpeg-analyse-video', what: 'AI vision checks frames of the render: text over the face, cut-off text, bad crops.', open: 'publish' },
+  { group: 'Look', name: 'VHS tape', by: 'vhs · dot-skills', what: 'Soft tape blur, colour fringing, moving noise and scanlines.',
+    on: st => st.look === 'vhs', set: v => saveStyle({ look: v ? 'vhs' : 'clean' }) },
+  { group: 'B-roll & sound', name: 'Clean voice', by: 'audio-editing · clawfu-skills', what: 'Removes hiss and hum, softens harsh “s”, adds presence.',
+    on: st => !!st.voice_clean, set: v => saveStyle({ voice_clean: v }) },
+  { group: 'B-roll & sound', name: 'Your own b-roll', by: 'broll-match-engine · postplusai', what: 'Upload phone clips; the AI puts the best one on each b-roll moment.',
+    on: () => (state.plan.broll || []).some(b => (b.clip || '').startsWith('lib_')), open: 'broll' },
+  { group: 'Montage & growth', name: 'Beat-synced montage', by: 'beat-sync-cinematic-edit · @shakirc.ai', what: 'Clips + a song → a 20 s reel cut on the beat, slow-mo on the drop.', tab: 'montage' },
+  { group: 'Montage & growth', name: 'Starter kit', by: 'growth-starter · hadibuilds.com/grow', what: 'Topic with a real audience, bio A/B, highlights, warm-up and week-1 plan.', tab: 'grow' },
+  { group: 'Montage & growth', name: 'Script from a working reel', by: 'viral-script', what: 'Same hook, structure and CTA as a reel that works, in your words.', tab: 'grow' },
+];
+
+async function clickInEdit(sel, sec) {
+  if (!selected) { alert('Open a video in the Edit list first.'); return; }
+  if (sec) finishOpen[sec] = true;
+  setMode('edit');
+  for (let k = 0; k < 40 && !$(sel); k++) await new Promise(r => setTimeout(r, 100));
+  const el = $(sel);
+  if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (el.tagName === 'BUTTON' && !sec) el.click(); }
+}
+
+function renderSkills() {
+  const has = !!(selected && state && state.plan);
+  const st = has ? (state.style || {}) : {};
+  const groups = [...new Set(SKILLS.map(s => s.group))];
+  const onCount = has ? SKILLS.filter(s => s.on && s.on(st)).length : 0;
+  $('#main').innerHTML = `<div class="view">
+    <div class="card"><h2>Skills</h2><div class="muted">${has ? `For <b>${esc(state.meta.name)}</b>: ${onCount} on. Switches apply to this video; render a draft to see them.` : 'Pick a video in the list to switch skills on for it. Montage and Grow work without one.'}</div></div>
+    ${groups.map(g => `<div><h3 style="font-size:13px;color:var(--muted);margin:4px 0 8px">${g}</h3><div class="skills">
+      ${SKILLS.map((sk, i) => [sk, i]).filter(([sk]) => sk.group === g).map(([sk, i]) => {
+        const on = has && sk.on ? sk.on(st) : false;
+        const needs = !sk.tab && !has;
+        const btn = sk.set ? `<button data-i="${i}" data-act="toggle" class="${on ? '' : 'primary'}" ${needs ? 'disabled' : ''}>${on ? 'Turn off' : 'Turn on'}</button>`
+          : sk.run ? `<button data-i="${i}" data-act="run" ${needs || !ai.configured ? 'disabled' : ''}>Run</button>`
+          : `<button data-i="${i}" data-act="open" ${needs ? 'disabled' : ''}>Open</button>`;
+        const pill = sk.on ? `<span class="pill ${on ? 'ok' : ''}">${has ? (on ? 'on' : 'off') : '–'}</span>` : `<span class="pill">${sk.tab ? 'tab' : 'tool'}</span>`;
+        return `<div class="skill-card ${on ? 'on' : ''}"><div class="row" style="justify-content:space-between"><b>${esc(sk.name)}</b>${pill}</div>
+          <div class="by">${esc(sk.by)}</div><div class="what">${esc(sk.what)}</div><div class="row">${btn}</div></div>`;
+      }).join('')}</div></div>`).join('')}
+  </div>`;
+  $('#main').querySelectorAll('button[data-act]').forEach(b => b.onclick = async () => {
+    const sk = SKILLS[+b.dataset.i];
+    if (b.dataset.act === 'toggle') { b.disabled = true; await sk.set(!(sk.on && sk.on(state.style || {}))); renderSkills(); }
+    else if (b.dataset.act === 'run') sk.run();
+    else if (sk.tab) setMode(sk.tab);
+    else clickInEdit(`details[data-sec="${sk.open}"]`, sk.open);
+  });
+}
+
+// ---------- boot ----------
+(async () => {
+  languages = await api('/api/languages');
+  try { ai = await api('/api/ai'); } catch {}
+  $('#lang').innerHTML = Object.entries(languages).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('');
+  await refreshJobs();
+  if (jobsList.length) select(jobsList[0].id);
+  setInterval(() => refreshJobs().catch(() => {}), 1500);
+})();
+</script>
+</body>
+</html>

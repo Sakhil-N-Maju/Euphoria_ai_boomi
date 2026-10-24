@@ -1,0 +1,96 @@
+# Team Euphoria video editor: default settings.
+# Every value here can be overridden per video from the review page or in that video's edit.yaml.
+
+whisper:
+  engine: local           # local = faster-whisper on this PC; openai = OpenAI whisper-1 API (uses the key in .env)
+  model: small            # default model, a name or Hugging Face repo id cached under ../models
+  # Language-specific models, used when that language is picked or detected.
+  # Get them once with download_models.bat; until then the default model is used.
+  language_models:
+    ml: adalat-ai/ct2-whisper-medium-ml-rmft   # Whisper medium fine-tuned for Malayalam (Apache-2.0)
+  device: cpu             # cpu or cuda
+  compute_type: int8      # int8 is fastest on CPU; use float16 on a GPU
+  beam_size: 5
+  vad_filter: true        # skip long silences while transcribing (faster, fewer made-up words)
+  openai_model: whisper-1 # used when engine is openai; the only OpenAI model that returns word timestamps
+
+# AI edits (retake detection and chat edits). Works with any OpenAI-compatible chat API.
+# Put the key in app\.env as  LLM_API_KEY=...  (or OPENAI_API_KEY=...).
+llm:
+  base_url: https://api.openai.com/v1
+  model: gpt-4.1-mini     # change to whichever model your credits cover
+  auto_retakes: true      # look for retakes right after transcribing
+  timeout: 120
+
+edit:
+  remove_silences: true
+  min_silence: 0.6        # pauses longer than this many seconds get tightened
+  pad: 0.12               # seconds of breathing room kept on each side of a cut
+  min_cut: 0.25           # ignore cuts shorter than this
+  remove_fillers: true
+
+# Words treated as fillers (compared after lower-casing and stripping punctuation).
+# Whisper often leaves fillers out of the transcript entirely; those still get removed
+# as pauses when they are long enough.
+fillers:
+  - um
+  - umm
+  - uh
+  - uhh
+  - uhm
+  - hmm
+  - hm
+  - erm
+  - ah
+  - aah
+  - mm
+  - अं
+  - उम
+  - हम्म
+  - ആ
+  - ഉം
+
+captions:
+  enabled: true
+  font: Nirmala UI        # ships with Windows and covers Latin plus most Indian scripts
+  max_words: 4
+  max_chars: 26
+  size: 0.07              # font size as a fraction of the shorter video side
+  bottom_margin: 0.16     # distance from the bottom as a fraction of video height (vertical video)
+  uppercase_latin: false
+
+render:
+  crf: 20
+  preset: veryfast
+  audio_bitrate: 160k
+  loudnorm: true          # even out voice loudness (-16 LUFS, the usual social media target)
+  draft_short_side: 540   # "Draft" renders: short side in pixels, fast preset, for quick review
+  draft_preset: ultrafast
+  draft_crf: 28
+  look01_lut: luts/Look01_TealOrange_Master_SLog3_65.cube   # teal-orange LUT (S-Log3 input), not in the repo
+
+# Finishing style (HyperFrames + Sound Design + Editorial Film Edit skills). Everything is OFF by default and is
+# switched on per video in the Style / Sound panels, by "Auto-style", or by a chat edit; the values below are
+# the starting points. Each video keeps its own copy in edit.yaml under "style".
+style:
+  accent: "#FFD23F"       # colour of the spoken word, keyword pops and the title box
+  caption_style: plain    # plain | highlight (word-synced: the spoken word is tinted)
+  pop_scale: 1.18         # keyword pop: scale to ~115-120% ...
+  pop_ms: 150             # ... with a 150 ms ease-out
+  transition_zoom: 1.15   # zoom push at each topic change
+  transition_ms: 350
+  punch_zoom: 1.12        # alternate 100% / 112% framing on jump cuts (when punch-in is on)
+  look: clean             # clean | archival (B&W + bloom + grain on b-roll) | archival_all (whole video)
+  sfx_db: 0               # overall sound-effects trim
+  whoosh_ms: 400
+  whoosh_hz: 900          # lower = deeper whoosh
+  music_db: -10           # music level between phrases (after levelling the track to speech loudness)
+  duck_db: 8              # extra dip under the voice: -10 - 8 = -18 dB under speech
+
+# B-roll placement (B-Roll Prompter skill)
+broll:
+  min_seconds: 2.0        # each insert covers the speaker for 2-4 s; the voice keeps running underneath
+  max_seconds: 4.0
+  skip_start: 0.4         # skip the first frames of generated clips (often unstable)
+  ambience_db: -20        # the clip's own natural sound, under the voice
+  split_ms: 380           # split-screen slide-in time

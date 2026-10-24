@@ -1,0 +1,515 @@
+<!doctype html>
+<!-- EXAMPLE from a real edit (34 s Malayalam reel). Uses bg.png, thumbs/t*.jpg, proof.png and subs with ^ * ~ flags. Copy patterns (editor window, phone gallery, terminal, chat UI, progress ring, phone + particles, proof card, CTA comment box), not the whole file. -->
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:IT;src:url(fonts/inter-tight/files/inter-tight-latin-500-normal.woff2);font-weight:500}
+@font-face{font-family:IT;src:url(fonts/inter-tight/files/inter-tight-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:IT;src:url(fonts/inter-tight/files/inter-tight-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:IT;src:url(fonts/inter-tight/files/inter-tight-latin-800-normal.woff2);font-weight:800}
+@font-face{font-family:AM;src:url(fonts/anek-malayalam/files/anek-malayalam-malayalam-600-normal.woff2);font-weight:600}
+@font-face{font-family:AM;src:url(fonts/anek-malayalam/files/anek-malayalam-malayalam-700-normal.woff2);font-weight:700}
+@font-face{font-family:AM;src:url(fonts/anek-malayalam/files/anek-malayalam-malayalam-800-normal.woff2);font-weight:800}
+@font-face{font-family:IS;src:url(fonts/instrument-serif/files/instrument-serif-latin-400-italic.woff2);font-style:italic}
+@font-face{font-family:JB;src:url(fonts/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2);font-weight:400}
+@font-face{font-family:JB;src:url(fonts/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2);font-weight:500}
+:root{--txt:#F5F2EC;--mut:#8C8880;--dim:#5E5B56;--acc:#FF6A2B;--accg:rgba(255,106,43,.55);--card:#151518;--card2:#1C1C20;--line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.16)}
+html,body{margin:0;background:transparent}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:IT,AM,sans-serif;-webkit-font-smoothing:antialiased;color:var(--txt)}
+.abs{position:absolute}.layer{position:absolute;inset:0;display:none}
+#card{position:absolute;inset:0;display:none;background:url(bg.png) center/cover}
+.pipf{position:absolute;display:none;box-sizing:border-box}
+#shade{position:absolute;left:0;right:0;top:960px;height:960px;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,.30) 35%,rgba(0,0,0,.62) 100%)}
+#tshade{position:absolute;left:0;right:0;top:0;height:560px;background:linear-gradient(to top,rgba(0,0,0,0),rgba(0,0,0,.42))}
+/* captions */
+#cap{position:absolute;left:0;top:0;width:1080px;display:flex;justify-content:center;pointer-events:none}
+#capin{display:inline-flex;flex-direction:column;transform-origin:center center}
+.row{display:block;white-space:nowrap;line-height:1.02}
+.row.pre{text-align:left}.row.post{text-align:right}.row.mid{text-align:center}
+.w{display:inline-block;margin:0 .12em;text-shadow:0 4px 20px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.45)}
+.sm{font:700 50px IT,AM}
+.bg{font:800 112px IT,AM;letter-spacing:-0.02em}
+.bg.serif{font:italic 400 150px IS,AM;letter-spacing:-0.01em}
+.bg.ml{font:800 104px AM,IT}
+.in{font:700 60px IT,AM}
+.in.big{font:800 70px IT,AM}
+.in.big.serif{font:italic 400 86px IS,AM}
+.acc{color:var(--acc)}
+#subbox{position:absolute;display:none;border:3px dashed var(--acc);border-radius:22px}
+#subtag{position:absolute;left:-3px;top:-44px;background:var(--acc);color:#fff;font:700 22px IT;padding:6px 12px;border-radius:10px}
+#hl{position:absolute;left:0;right:0;top:236px;text-align:center;font:700 56px IT,AM;letter-spacing:-0.01em;text-shadow:0 3px 18px rgba(0,0,0,.5)}
+/* back layer */
+#back{position:absolute;inset:0;display:none}
+.giant{position:absolute;left:0;right:0;text-align:center;white-space:nowrap}
+/* generic UI */
+.glass{background:rgba(24,24,28,.92);border:1.5px solid var(--line2);border-radius:26px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.chip{position:absolute;background:#1D1D22;border:1.5px solid rgba(255,255,255,.18);border-radius:40px;padding:12px 26px;font:700 30px IT;white-space:nowrap;box-shadow:0 14px 34px rgba(0,0,0,.5);color:var(--txt)}
+.pill{display:inline-flex;align-items:center;gap:12px;border-radius:44px;padding:12px 26px;font:700 32px IT;white-space:nowrap}
+.mono{font-family:JB,monospace}
+.lbl{font:600 20px IT;letter-spacing:.14em;color:var(--mut)}
+</style></head><body>
+<div id="stage">
+  <div id="back">
+    <div class="giant" id="g-claude" style="top:318px;font:800 300px/1 IT;letter-spacing:-0.05em;color:#F7F2EA">Claude</div>
+    <div class="giant" id="g-edit" style="top:300px;font:800 380px/1 IT;letter-spacing:-0.04em;color:var(--acc)">EDIT</div>
+  </div>
+
+  <div id="card">
+    <!-- gallery -->
+    <div class="layer" id="cg" style="perspective:1700px">
+      <div class="abs" id="cg-glow" style="left:140px;top:300px;width:800px;height:900px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,106,43,.22),rgba(255,106,43,0))"></div>
+      <div class="abs" id="cg-phone" style="left:255px;top:214px;width:570px;height:1040px;border-radius:72px;background:linear-gradient(145deg,#3a3a40,#16161a 40%,#2b2b31);padding:13px;box-sizing:border-box;box-shadow:0 50px 90px rgba(0,0,0,.6),inset 0 0 0 1.5px rgba(255,255,255,.14);transform-style:preserve-3d">
+        <div style="position:relative;width:100%;height:100%;border-radius:60px;background:#0d0d0f;overflow:hidden">
+          <div class="abs" style="left:50%;top:16px;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#000"></div>
+          <div class="abs" style="left:30px;top:76px;font:800 42px IT;letter-spacing:-0.02em">Recents</div>
+          <div class="abs" style="left:30px;top:128px;font:500 24px IT;color:var(--mut)">47 videos · not posted</div>
+          <div class="abs" id="cg-grid" style="left:14px;top:176px;width:520px"></div>
+        </div>
+      </div>
+      <div class="abs" id="cg-badge" style="left:730px;top:168px;width:220px;height:220px;border-radius:110px;background:var(--acc);color:#fff;text-align:center;box-shadow:0 0 60px rgba(255,106,43,.55),0 20px 40px rgba(0,0,0,.4)">
+        <div id="cg-num" style="font:800 100px IT;letter-spacing:-0.04em;margin-top:34px;line-height:1">0</div>
+        <div style="font:700 27px IT;margin-top:6px">unposted</div>
+      </div>
+    </div>
+    <!-- processing -->
+    <div class="layer" id="cp">
+      <div class="abs" style="left:0;right:0;top:330px;text-align:center"><div class="lbl" style="font-size:24px">AUTO EDIT</div></div>
+      <svg class="abs" style="left:360px;top:390px" width="360" height="360" viewBox="-30 -30 360 360">
+        <circle cx="150" cy="150" r="128" stroke="rgba(255,255,255,.08)" stroke-width="16" fill="none"/>
+        <circle id="cp-ring" cx="150" cy="150" r="128" stroke="var(--acc)" stroke-width="16" fill="none" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" transform="rotate(-90 150 150)" style="filter:drop-shadow(0 0 14px rgba(255,106,43,.7))"/>
+      </svg>
+      <div class="abs mono" id="cp-pct" style="left:360px;top:520px;width:360px;text-align:center;font:500 84px JB;letter-spacing:-0.04em">0%</div>
+      <div class="abs" style="left:0;right:0;top:800px;text-align:center;font:800 70px IT;letter-spacing:-0.03em">Claude is editing</div>
+      <div class="abs" id="cp-list" style="left:230px;top:930px;width:660px"></div>
+    </div>
+  </div>
+
+  <div class="pipf" id="pipf"></div>
+  <div id="shade"></div>
+  <div id="tshade"></div>
+  <div class="abs" id="flash" style="display:none;background:#fff"></div>
+
+  <!-- B1 editor -->
+  <div class="layer" id="ed">
+    <svg class="abs" id="ed-chrome" style="left:0;top:0" width="1080" height="1920"><path id="ed-path" fill="rgba(21,21,24,.96)" fill-rule="evenodd" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/></svg>
+    <div class="abs" id="ed-top" style="left:40px;top:118px;width:1000px;height:56px">
+      <div class="abs" style="left:26px;top:20px;display:flex;gap:10px"><i style="width:15px;height:15px;border-radius:8px;background:#FF5F57"></i><i style="width:15px;height:15px;border-radius:8px;background:#FEBC2E"></i><i style="width:15px;height:15px;border-radius:8px;background:#28C840"></i></div>
+      <div class="abs" style="left:0;right:0;top:15px;text-align:center;font:600 22px IT;color:var(--mut)">reel_edit.mp4 — edited by <span style="color:var(--txt)">Claude</span></div>
+      <div class="abs" style="right:20px;top:11px;background:var(--acc);color:#fff;font:700 19px IT;padding:6px 14px;border-radius:9px">Export</div>
+    </div>
+    <div class="abs" id="ed-left" style="left:64px;top:200px;width:214px"></div>
+    <div class="abs" id="ed-right" style="left:802px;top:200px;width:214px">
+      <div class="lbl" style="margin-bottom:14px">RENDER</div>
+      <svg width="214" height="150" viewBox="0 0 214 150"><circle cx="107" cy="75" r="60" stroke="rgba(255,255,255,.08)" stroke-width="10" fill="none"/><circle id="ed-ring" cx="107" cy="75" r="60" stroke="var(--acc)" stroke-width="10" fill="none" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" transform="rotate(-90 107 75)"/><text id="ed-rp" x="107" y="85" text-anchor="middle" font-family="JB" font-size="30" fill="#F5F2EC">0%</text></svg>
+      <div style="font:600 22px IT;color:var(--mut);margin-top:16px">1080 × 1920</div>
+      <div style="font:600 22px IT;color:var(--mut);margin-top:6px">30 fps · 4K src</div>
+      <div class="lbl" style="margin:40px 0 12px">AUDIO</div>
+      <div id="ed-meter" style="display:flex;gap:8px;align-items:flex-end;height:260px"></div>
+    </div>
+    <div class="abs" id="ed-tl" style="left:64px;top:1068px;width:952px;height:318px"></div>
+    <div class="abs" id="ed-sticker" style="left:640px;top:236px;background:var(--acc);color:#fff;font:800 28px IT;padding:9px 18px;border-radius:12px;box-shadow:0 0 30px rgba(255,106,43,.5)">graphic</div>
+    <div class="abs" id="ed-sfx" style="left:318px;top:214px;width:90px;height:90px"></div>
+    <div class="abs" id="ed-pill" style="left:0;right:0;top:972px;text-align:center"><span class="pill" style="background:#fff;color:#141414;box-shadow:0 0 40px rgba(255,255,255,.25)">100% edited by <span style="color:var(--acc)">Claude</span></span></div>
+  </div>
+
+  <!-- B3 complexity -->
+  <div class="layer" id="cx">
+    <div class="abs" id="cx-hdr" style="left:60px;top:1120px;width:960px">
+      <div style="display:flex;gap:16px;align-items:center">
+        <span class="pill" style="border:2px solid rgba(255,255,255,.25)">Instagram tutorials</span>
+        <span class="pill" id="cx-step" style="background:var(--acc);color:#fff;box-shadow:0 0 30px rgba(255,106,43,.4)">step 1 of 12</span>
+      </div>
+      <div style="margin-top:34px;height:14px;border-radius:7px;background:rgba(255,255,255,.08);overflow:hidden"><div id="cx-prog" style="height:100%;width:0;background:var(--acc)"></div></div>
+      <div style="margin-top:14px;font:600 26px IT;color:var(--mut)">setup progress</div><div id="cx-list" style="margin-top:26px"></div>
+    </div>
+    <div class="abs" id="cx-term" style="left:60px;top:1112px;width:960px;height:470px;border-radius:26px;background:#0A0A0C;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 70px rgba(0,0,0,.6);overflow:hidden">
+      <div class="abs" style="left:24px;top:22px;display:flex;gap:10px"><i style="width:15px;height:15px;border-radius:8px;background:#3a3a3e"></i><i style="width:15px;height:15px;border-radius:8px;background:#3a3a3e"></i><i style="width:15px;height:15px;border-radius:8px;background:#3a3a3e"></i></div>
+      <div class="abs mono" style="left:0;right:0;top:17px;text-align:center;font:500 20px JB;color:#5d5d62">zsh — 80×24</div>
+      <div class="abs mono" id="cx-lines" style="left:30px;top:70px;right:20px;font:400 24px/46px JB;color:#d8d8d8;white-space:pre"></div>
+    </div>
+    <div id="cx-chips"></div>
+    <div class="abs" id="cx-strike" style="left:50px;top:1340px;height:10px;width:980px;background:var(--acc);border-radius:5px;transform-origin:left center;box-shadow:0 0 24px rgba(255,106,43,.6)"></div>
+    <div class="abs" id="cx-mm" style="left:0;right:0;top:1118px;text-align:center;font:700 40px IT;color:var(--mut)">my method</div>
+    <div class="abs" id="cx-three" style="left:0;right:0;top:1160px;height:380px;display:flex;justify-content:center;align-items:center;gap:30px">
+      <span id="cx-3" style="font:800 330px/1 IT;color:var(--acc);letter-spacing:-0.05em;display:inline-block;text-shadow:0 0 60px rgba(255,106,43,.55)">3</span>
+      <span id="cx-steps" style="font:italic 400 170px/1 IS;display:inline-block;margin-top:70px">steps</span>
+    </div>
+    <div class="abs" id="cx-row" style="left:0;right:0;top:1560px;display:flex;justify-content:center;gap:16px"></div>
+  </div>
+
+  <!-- B4 chat UI -->
+  <div class="layer" id="ui">
+    <div class="abs" id="ui-steps" style="left:60px;top:1118px;display:flex;gap:14px"></div>
+    <div class="abs glass" id="ui-box" style="left:60px;top:1210px;width:960px;height:216px;border-radius:34px">
+      <div class="abs" id="ui-file" style="left:22px;top:20px;width:350px;height:88px;border-radius:18px;background:#232328;border:1.5px solid rgba(255,255,255,.12);overflow:hidden">
+        <img class="abs" src="thumbs/t3.jpg" style="left:12px;top:12px;width:64px;height:64px;border-radius:12px;object-fit:cover">
+        <svg class="abs" style="left:30px;top:30px" width="28" height="28" viewBox="0 0 28 28"><path d="M9 6 L22 14 L9 22 Z" fill="#fff"/></svg>
+        <div class="abs" style="left:92px;top:13px;font:700 25px IT">raw-video.mp4</div>
+        <div class="abs" style="left:92px;top:48px;font:500 21px IT;color:var(--mut)">34 sec · 4K</div>
+        <div class="abs" id="ui-fbar" style="left:0;bottom:0;height:5px;background:var(--acc)"></div>
+      </div>
+      <div class="abs" id="ui-skill" style="left:390px;top:36px;height:56px;border-radius:16px;background:var(--acc);color:#fff;display:flex;align-items:center;gap:12px;padding:0 20px;font:700 26px IT;box-shadow:0 0 30px rgba(255,106,43,.45)">
+        <svg width="24" height="24" viewBox="0 0 26 26"><path d="M14 2 L5 15 H12 L11 24 L21 10 H14 Z" fill="#fff"/></svg>reel-edit skill</div>
+      <div class="abs" id="ui-ph" style="left:30px;top:138px;font:500 28px IT;color:var(--dim)">Reply to Claude…</div>
+      <div class="abs" id="ui-key" style="left:582px;top:122px;width:190px;height:66px;border-radius:14px;background:#2A2A30;border:1.5px solid rgba(255,255,255,.2);border-bottom:7px solid #0f0f12;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;font:700 26px IT">enter
+        <svg width="28" height="24" viewBox="0 0 28 24"><path d="M24 3 V12 H6 M11 6 L5 12 L11 18" stroke="#F5F2EC" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="abs" id="ui-ring" style="left:788px;top:116px;width:80px;height:80px;border-radius:40px;border:4px solid var(--acc);box-sizing:border-box"></div>
+      <div class="abs" id="ui-send" style="left:794px;top:122px;width:68px;height:68px;border-radius:34px;background:var(--acc);box-shadow:0 0 26px rgba(255,106,43,.5)"><svg width="68" height="68" viewBox="0 0 68 68"><path d="M34 47 V22 M23 32 L34 21 L45 32" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="abs glass" id="ui-menu" style="left:420px;top:1446px;width:520px;padding:10px;box-sizing:border-box;border-radius:24px;transform-origin:top right"></div>
+  </div>
+
+  <!-- B6 phone -->
+  <div class="layer" id="ph">
+    <canvas class="abs" id="ph-parts" width="1080" height="1920" style="left:0;top:0"></canvas>
+    <div class="abs" id="ph-icons" style="left:706px;top:700px;width:60px">
+      <svg width="54" height="250" viewBox="0 0 54 250" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M27 42 C10 30 4 22 4 14 C4 6 10 2 16 2 C21 2 25 5 27 9 C29 5 33 2 38 2 C44 2 50 6 50 14 C50 22 44 30 27 42 Z"/>
+        <path d="M27 92 C40 92 50 84 50 74 C50 64 40 56 27 56 C14 56 4 64 4 74 C4 79 6 83 10 86 L7 96 L18 91 C21 92 24 92 27 92 Z"/>
+        <path d="M50 112 L4 128 L22 134 L28 152 Z M22 134 L50 112"/>
+      </svg>
+    </div>
+    <div class="abs" id="ph-pill" style="left:0;right:0;top:1112px;text-align:center">
+      <span class="pill" style="background:var(--acc);color:#fff;font:800 38px IT;padding:14px 32px 16px;box-shadow:0 0 50px rgba(255,106,43,.5)">
+        <svg width="34" height="34" viewBox="0 0 34 34"><path id="ph-chk" d="M6 18 L14 26 L28 9" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="40" stroke-dashoffset="40"/></svg>ready to post</span>
+    </div>
+  </div>
+
+  <!-- B7 proof -->
+  <div class="layer" id="pf" style="perspective:1400px">
+    <div class="abs" id="pf-shot" style="left:84px;top:1104px;width:336px;height:506px;border-radius:26px;overflow:hidden;border:5px solid rgba(255,255,255,.9);box-shadow:0 30px 60px rgba(0,0,0,.6)">
+      <img src="proof.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 40%">
+    </div>
+    <div class="abs" id="pf-num" style="left:470px;top:1126px;font:800 184px/1 IT;color:var(--acc);letter-spacing:-0.05em;text-shadow:0 0 50px rgba(255,106,43,.5);transform-origin:left center">80K+</div>
+    <div class="abs" id="pf-lbl" style="left:476px;top:1318px;font:600 38px IT;color:var(--mut)">views · yesterday’s reel</div>
+    <div class="abs" id="pf-stamp" style="left:472px;top:1410px;border:4px solid var(--acc);color:var(--acc);border-radius:18px;padding:12px 24px;font:800 42px IT;background:rgba(255,106,43,.08);box-shadow:0 0 30px rgba(255,106,43,.25)">edited by Claude</div>
+  </div>
+
+  <!-- B8 CTA -->
+  <div class="layer" id="ct">
+    <div class="abs" id="ct-row" style="left:0;right:0;top:170px;display:flex;justify-content:center;gap:18px"></div>
+    <div class="abs" id="ct-box" style="left:70px;top:1470px;width:940px;height:104px;border-radius:52px;box-sizing:border-box;background:rgba(20,20,22,.78);border:2px solid rgba(255,255,255,.22);box-shadow:0 20px 50px rgba(0,0,0,.4)">
+      <div class="abs" id="ct-ph" style="left:42px;top:28px;font:500 36px IT;color:rgba(255,255,255,.55)">Add a comment…</div>
+      <div class="abs" id="ct-typed" style="left:42px;top:20px;font:800 48px IT;color:#fff;letter-spacing:.04em"></div>
+      <div class="abs" id="ct-caret" style="top:26px;width:4px;height:52px;background:var(--acc)"></div>
+      <div class="abs" id="ct-send" style="right:14px;top:14px;width:72px;height:72px;border-radius:36px;background:var(--acc);box-shadow:0 0 26px rgba(255,106,43,.55)"><svg width="72" height="72" viewBox="0 0 72 72"><path d="M36 51 V23 M24 34 L36 22 L48 34" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="abs" id="ct-dm" style="left:0;right:0;top:172px;text-align:center">
+      <span class="pill" style="background:var(--acc);color:#fff;font:800 40px IT;padding:16px 34px 18px;box-shadow:0 0 50px rgba(255,106,43,.5)">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round"><path d="M36 4 L3 17 L16 22 L21 36 Z M16 22 L36 4"/></svg>sent to your DM</span>
+    </div>
+  </div>
+
+  <div id="hl">ഈ reel മുഴുവൻ edit ചെയ്തത്</div>
+  <div id="cap"><div id="capin"></div></div>
+  <div id="subbox"><div id="subtag">subtitles</div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const C=x=>Math.max(0,Math.min(1,x)), P=(t,a,d)=>C((t-a)/d), lerp=(a,b,x)=>a+(b-a)*x;
+const eo=x=>1-Math.pow(1-x,3), eo5=x=>1-Math.pow(1-x,5), eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eb=(x,s=1.6)=>{x=C(x);const c=s+1;return 1+c*Math.pow(x-1,3)+s*Math.pow(x-1,2)};
+const EASE={eo:eo,eo5:eo5,eio:eio,eb:eb,lin:x=>x};
+const show=(el,v)=>{if(el)el.style.display=v?'block':'none'};
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+let CFG={}, SUBS=[], cur=-1, curMode='', FR=0;
+const pop=(t,tk,d=0.34)=>[eb(P(t,tk,d)),C(P(t,tk,d)*2.6)];
+const ent=(t,tk,d=0.3)=>eo5(P(t,tk,d));
+function setT(el,o,tr,blur){el.style.opacity=o;el.style.transform=tr||'';el.style.filter=blur?`blur(${blur}px)`:''}
+
+// ---------- PIP ----------
+function pipAt(t){
+  const K=CFG.pip.keys,S=CFG.pip.states; let i=0;
+  for(let j=0;j<K.length;j++) if(K[j][0]<=t) i=j;
+  if(i>=K.length-1) return {s:S[K[i][1]],name:K[i][1]};
+  const a=K[i],b=K[i+1];
+  if(b[2]==='step'||b[0]===a[0]||a[1]===b[1]) return {s:S[a[1]],name:a[1]};
+  const u=(EASE[b[2]||'eio'])((t-a[0])/(b[0]-a[0]));
+  return {s:S[a[1]].map((v,k)=>v+(S[b[1]][k]-v)*u),name:a[1]+'>'+b[1],u};
+}
+const isFull=s=>s[0]<0.5&&s[1]<0.5&&s[2]>1079&&s[3]>1919;
+function drawPip(t){
+  const p=pipAt(t), s=p.s, el=$('pipf');
+  if(isFull(s)){show(el,0);return p}
+  show(el,1); const [x,y,w,h,r]=s;
+  let ph=0; if(p.name==='phone'||p.name==='phone0>phone') ph=1; else if(p.name==='phone>split') ph=1-p.u;
+  const bw=13*ph;
+  el.style.left=(x-bw)+'px'; el.style.top=(y-bw)+'px'; el.style.width=(w+2*bw)+'px'; el.style.height=(h+2*bw)+'px';
+  el.style.borderRadius=(r+bw)+'px'; el.style.border=bw>0.5?`${bw}px solid #1a1a1e`:'1.5px solid rgba(255,255,255,.14)';
+  el.style.boxShadow=ph>0?`0 0 0 1.5px rgba(255,255,255,.18), 0 0 140px rgba(255,106,43,${.32*ph}), 0 40px 80px rgba(0,0,0,.6)`:'0 30px 70px rgba(0,0,0,.55)';
+  return p;
+}
+
+// ---------- captions ----------
+function capStyle(t){
+  if(t>=4.2&&t<8.2) return {m:'in',y:1468};
+  if(t>=10.54&&t<13.62) return {m:'in',y:1356};
+  if(t>=13.62&&t<23.366) return {m:'in',y:1052};
+  if(t>=23.366&&t<24.46) return {m:'in',y:1500};
+  if(t>=24.46&&t<26.167) return {m:'in',y:1296};
+  if(t>=26.167&&t<29.567) return {m:'in',y:1052};
+  return {m:'st',y:1290};
+}
+const isML=s=>/[ഀ-ൿ]/.test(s.replace(/-.*$/,''));
+function buildCap(ch,mode){
+  const inn=$('capin'); inn.innerHTML=''; inn.style.transform='none';
+  const W=ch.w.map((w,i)=>({...w,i}));
+  const mk=(w,cls)=>`<span class="w ${cls}${w.a?' acc':''}" data-i="${w.i}">${w.x}</span>`;
+  const bigIdx=W.filter(w=>w.big).map(w=>w.i);
+  if(mode==='st' && bigIdx.length){
+    const b0=Math.min(...bigIdx), b1=Math.max(...bigIdx);
+    const pre=W.filter(w=>w.i<b0), mid=W.filter(w=>w.i>=b0&&w.i<=b1), post=W.filter(w=>w.i>b1);
+    let h='';
+    if(pre.length) h+=`<div class="row pre">${pre.map(w=>mk(w,'sm')).join('')}</div>`;
+    h+=`<div class="row mid">${mid.map(w=>mk(w,'bg'+(w.serif&&!isML(w.x)?' serif':(isML(w.x)?' ml':'')))).join('')}</div>`;
+    if(post.length) h+=`<div class="row post">${post.map(w=>mk(w,'sm')).join('')}</div>`;
+    inn.innerHTML=h;
+  } else if(mode==='st'){
+    inn.innerHTML=`<div class="row mid">${W.map(w=>mk(w,'in big')).join('')}</div>`;
+  } else {
+    inn.innerHTML=`<div class="row mid">${W.map(w=>mk(w,'in'+(w.big?' big':'')+(w.big&&w.serif&&!isML(w.x)?' serif':''))).join('')}</div>`;
+  }
+  const r=inn.getBoundingClientRect(); const sc=Math.min(1,980/r.width); inn.dataset.sc=sc; inn.dataset.h=r.height;
+}
+function setCap(t){
+  let k=SUBS.findIndex(s=>t>=s.s&&t<s.e); const st=capStyle(t); const cap=$('cap'), inn=$('capin');
+  if(k!==cur||st.m!==curMode){cur=k;curMode=st.m; if(k>=0) buildCap(SUBS[k],st.m); else inn.innerHTML=''}
+  if(k<0) return;
+  const sc=+inn.dataset.sc, h=+inn.dataset.h; cap.style.top=(st.y-h/2)+'px';
+  const ch=SUBS[k]; const cin=eo(P(t,ch.s,0.14));
+  inn.style.transform=`scale(${sc*(0.96+0.04*cin)})`;
+  inn.querySelectorAll('.w').forEach(sp=>{const w=ch.w[+sp.dataset.i]; const tk=+sp.dataset.i?w.t-0.05:ch.s;
+    const p=eo(P(t,tk,0.16)); const isBig=sp.classList.contains('bg')||sp.classList.contains('big');
+    const s=isBig?0.72+0.28*eb(P(t,tk,0.3)):0.9+0.1*p;
+    sp.style.opacity=p; sp.style.filter=p<1?`blur(${(1-p)*9}px)`:'';
+    sp.style.transform=`translateY(${(1-p)*18}px) scale(${s})`;
+    if(isBig){const gl=1-C(P(t,tk+0.15,0.6)); const base=w.a?'rgba(255,106,43,':'rgba(255,255,255,';
+      sp.style.textShadow=`0 0 ${20+26*gl}px ${base}${w.a?0.55+0.3*gl:0.18+0.3*gl}), 0 4px 20px rgba(0,0,0,.5)`;}
+  });
+}
+
+// ---------- B0 hook ----------
+function drawHook(t){
+  const hl=$('hl'); show(hl,t<4.25); const ho=1-eo(P(t,4.05,0.2)); hl.style.opacity=ho; hl.style.transform=`translateY(${(1-ho)*-20}px)`;
+  $('tshade').style.opacity=t<4.3?ho:0;
+}
+function drawBack(t){
+  const gc=$('g-claude'), ge=$('g-edit');
+  const onC=t<4.25, onE=t>=31.86;
+  gc.style.display=onC?'block':'none'; ge.style.display=onE?'block':'none';
+  if(onC){const s=1.06-0.06*eo(P(t,0,2.2)); const o=1-eo(P(t,4.02,0.22)); const gl=Math.max(0,1-Math.abs(t-3.72)/0.5);
+    gc.style.transform=`scale(${s})`; gc.style.opacity=o; gc.style.letterSpacing=`${-0.05+0.02*(1-eo(P(t,0,1.4)))}em`;
+    gc.style.color=gl>0?`rgb(${lerp(247,255,gl)},${lerp(242,106,gl)},${lerp(234,43,gl)})`:'#F7F2EA';
+    gc.style.textShadow=`0 0 ${30+50*gl}px rgba(255,${lerp(255,106,gl)},${lerp(255,43,gl)},${0.12+0.5*gl})`;}
+  if(onE){const [s,o]=pop(t,31.90,0.5); ge.style.transform=`scale(${s})`; ge.style.opacity=o; ge.style.textShadow='0 0 80px rgba(255,106,43,.55)'}
+}
+
+// ---------- B1 editor ----------
+let ED=null;
+function rrPath(x,y,w,h,r){return `M${x+r},${y} H${x+w-r} A${r},${r} 0 0 1 ${x+w},${y+r} V${y+h-r} A${r},${r} 0 0 1 ${x+w-r},${y+h} H${x+r} A${r},${r} 0 0 1 ${x},${y+h-r} V${y+r} A${r},${r} 0 0 1 ${x+r},${y} Z`}
+function buildED(){
+  const L=$('ed-left'); [['CUTS',6],['CAPTIONS',44],['GRAPHICS',12],['SFX',28]].forEach(([n,v],i)=>{
+    L.innerHTML+=`<div id="ed-s${i}" style="height:178px;margin-bottom:20px;border-radius:22px;background:#1A1A1E;border:1.5px solid rgba(255,255,255,.1);padding:22px;box-sizing:border-box"><div class="lbl">${n}</div><div id="ed-v${i}" style="font:800 76px IT;letter-spacing:-0.04em;margin-top:18px">0</div></div>`});
+  const M=$('ed-meter'); for(let i=0;i<8;i++) M.innerHTML+=`<div id="ed-m${i}" style="width:18px;border-radius:5px;background:linear-gradient(to top,#4a4a50,#8c8880)"></div>`;
+  const T=$('ed-tl'); let h=`<div class="abs lbl" style="left:4px;top:8px">TIMELINE</div><div class="abs mono" id="ed-tc" style="right:4px;top:4px;font:500 22px JB;color:var(--mut)">00:04</div>`;
+  ['cuts','captions','graphics','sfx'].forEach((n,i)=>{const y=52+i*64;
+    h+=`<div class="abs" id="ed-l${i}" style="left:0;top:${y}px;width:160px;height:48px;line-height:48px;font:600 26px IT;color:var(--mut)">${n}</div>`;
+    h+=`<div class="abs" id="ed-lane${i}" style="left:166px;top:${y}px;width:786px;height:48px;border-radius:12px;background:#1A1A1E;border:1px solid rgba(255,255,255,.06);overflow:hidden"></div>`;});
+  h+=`<div class="abs" id="ed-ph" style="top:44px;width:4px;height:262px;background:var(--acc);border-radius:2px;box-shadow:0 0 14px rgba(255,106,43,.8)"><div style="position:absolute;left:-9px;top:-8px;width:22px;height:16px;border-radius:5px;background:var(--acc)"></div></div>`;
+  T.innerHTML=h;
+  const r=rng(42); ED={cuts:[],subs:[],gfx:[],sfx:[],cutm:[]};
+  let x=0; [122,96,152,90,142,130].forEach((w,i)=>{const d=document.createElement('div');d.className='abs';d.style.cssText=`left:${x}px;top:0;width:${w}px;height:48px;border-radius:9px;background:linear-gradient(180deg,#5b5f6b,#3d4049)`;$('ed-lane0').appendChild(d);ED.cuts.push(d);
+    if(i){const m=document.createElement('div');m.className='abs';m.style.cssText=`left:${166+x-6}px;top:44px;width:6px;height:60px;border-radius:3px;background:var(--acc);box-shadow:0 0 12px rgba(255,106,43,.8)`;T.appendChild(m);ED.cutm.push(m)}
+    x+=w+8;});
+  x=8; for(let i=0;i<10;i++){const w=40+Math.floor(r()*44);const d=document.createElement('div');d.className='abs';d.style.cssText=`left:${x}px;top:12px;width:${w}px;height:24px;border-radius:12px;background:#F5F2EC`;$('ed-lane1').appendChild(d);ED.subs.push(d);x+=w+14+Math.floor(r()*14)}
+  [[16,150],[210,96],[350,180],[590,130]].forEach(([l,w])=>{const d=document.createElement('div');d.className='abs';d.style.cssText=`left:${l}px;top:0;width:${w}px;height:48px;border-radius:9px;background:var(--acc);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)`;$('ed-lane2').appendChild(d);ED.gfx.push(d)});
+  for(let i=0;i<26;i++){const hh=8+Math.floor(r()*30);const d=document.createElement('div');d.className='abs';d.style.cssText=`left:${14+i*29}px;top:${24-hh/2}px;width:7px;height:${hh}px;border-radius:4px;background:#F5F2EC;transform-origin:center`;$('ed-lane3').appendChild(d);ED.sfx.push(d)}
+}
+function drawED(t){
+  const p=pipAt(t).s; const ein=eo5(P(t,4.22,0.42)), ex=eo(P(t,7.88,0.32)); const vis=ein*(1-ex);
+  // chrome path with hole that follows the preview rect
+  const outer=rrPath(40,118,1000,1290,36), hole=rrPath(p[0],p[1],p[2],p[3],p[4]);
+  $('ed-path').setAttribute('d',outer+' '+hole); $('ed-chrome').style.opacity=vis;
+  const sc=1.06-0.06*ein+0.05*ex;
+  ['ed-top','ed-left','ed-right','ed-tl'].forEach((id,i)=>{const d=eo5(P(t,4.30+i*0.05,0.42)); setT($(id),d*(1-ex),`translateY(${(1-d)*40+ex*40}px)`, (1-d)*10)});
+  // stats
+  const keys=[4.42,5.04,5.96,6.80], vals=[6,44,12,28];
+  keys.forEach((k,i)=>{const nx=i<3?keys[i+1]:7.68; const on=t>=k&&t<nx, done=t>=nx;
+    $('ed-v'+i).textContent=Math.round(vals[i]*eo(P(t,k,0.5)));
+    const s=$('ed-s'+i); s.style.borderColor=on?'var(--acc)':'rgba(255,255,255,.1)'; s.style.boxShadow=on?'0 0 30px rgba(255,106,43,.35)':'none';
+    $('ed-v'+i).style.color=on?'var(--acc)':(t>=k?'var(--txt)':'var(--dim)');
+    $('ed-l'+i).style.color=on?'var(--acc)':(done?'var(--txt)':'var(--mut)');});
+  ED.cuts.forEach((d,i)=>{const q=eo(P(t,4.42+i*0.045,0.16)); d.style.clipPath=`inset(0 ${100-100*q}% 0 0)`});
+  ED.cutm.forEach((m,i)=>{const [s,o]=pop(t,4.50+i*0.045,0.26); m.style.opacity=o; m.style.transform=`scaleY(${s})`});
+  ED.subs.forEach((d,i)=>{const [s,o]=pop(t,5.04+i*0.032,0.28); d.style.opacity=o; d.style.transform=`scale(${s})`});
+  ED.gfx.forEach((d,i)=>{const [s,o]=pop(t,5.96+i*0.06,0.3); d.style.opacity=o; d.style.transform=`scale(${s})`});
+  ED.sfx.forEach((d,i)=>{const q=eb(P(t,6.80+i*0.018,0.22)); d.style.transform=`scaleY(${q})`; d.style.opacity=C(P(t,6.80+i*0.018,0.08))});
+  const php=C((t-4.42)/(7.86-4.42)); $('ed-ph').style.left=(166+786*php-2)+'px'; $('ed-ph').style.opacity=C(P(t,4.42,0.1));
+  $('ed-tc').textContent=`00:${String(Math.floor(t)).padStart(2,'0')}.${String(Math.floor((t%1)*100)).padStart(2,'0')}`;
+  const rp=eio(P(t,4.4,3.4)); $('ed-ring').style.strokeDashoffset=1-rp; $('ed-rp').textContent=Math.round(rp*100)+'%';
+  const mr=rng(FR*17+5); for(let i=0;i<8;i++){const v=t>6.7?0.35+0.6*mr():0.15+0.45*mr(); $('ed-m'+i).style.height=(v*260)+'px'; $('ed-m'+i).style.background=t>6.7&&t<7.7?'linear-gradient(to top,#ff6a2b,#ffb08a)':'linear-gradient(to top,#4a4a50,#8c8880)'}
+  const [ss,so]=pop(t,5.96,0.36); setT($('ed-sticker'),so*(1-C(P(t,7.6,0.2))),`rotate(${6+(1-ss)*12}deg) scale(${ss})`);
+  let rings=''; for(let i=0;i<3;i++){const q=C(P(t,6.80+i*0.16,0.7)); if(q>0&&q<1) rings+=`<div style="position:absolute;left:${45-72*q}px;top:${45-72*q}px;width:${144*q}px;height:${144*q}px;border-radius:50%;border:4px solid var(--acc);box-sizing:border-box;opacity:${1-q}"></div>`}
+  const sp=pop(t,6.76,0.3); rings+=`<svg style="position:absolute;left:20px;top:20px;opacity:${sp[1]*(1-C(P(t,7.6,0.2)))};transform:scale(${sp[0]})" width="50" height="50" viewBox="0 0 50 50"><path d="M8 19 H17 L28 9 V41 L17 31 H8 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><path d="M35 17 C39 21 39 29 35 33 M40 12 C47 19 47 31 40 38" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round"/></svg>`;
+  $('ed-sfx').innerHTML=rings;
+  const [ps,po]=pop(t,7.68,0.36); setT($('ed-pill'),po*(1-ex),`scale(${ps})`);
+  const fl=$('flash'); const fp=C(P(t,4.42,0.14)); const fo=t>=4.42&&t<4.6?(1-fp)*0.5:0;
+  if(fo>0){fl.style.display='block';Object.assign(fl.style,{left:p[0]+'px',top:p[1]+'px',width:p[2]+'px',height:p[3]+'px',borderRadius:p[4]+'px',opacity:fo})}else fl.style.display='none';
+}
+
+// ---------- B2 gallery ----------
+let GT=[];
+function buildGallery(){
+  const g=$('cg-grid'); const r=rng(9);
+  for(let i=0;i<15;i++){const d=document.createElement('div'); const col=i%3,row=Math.floor(i/3); const dur=`0:${String(10+Math.floor(r()*49)).padStart(2,'0')}`;
+    d.className='abs'; d.style.cssText=`left:${col*175}px;top:${row*175}px;width:170px;height:170px;border-radius:14px;overflow:hidden;background:#222`;
+    d.innerHTML=`<img src="thumbs/t${i}.jpg" style="width:100%;height:100%;object-fit:cover"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55),rgba(0,0,0,0) 45%)"></div><div style="position:absolute;right:12px;bottom:10px;font:700 21px IT;color:#fff">${dur}</div>`;
+    g.appendChild(d); GT.push(d);}
+}
+function drawGallery(t){
+  const e=eo5(P(t,10.54,0.5)), x=eo(P(t,13.62,0.2));
+  setT($('cg'),C(e*1.6)*(1-x),`scale(${1.08-0.08*e-0.06*x})`,(1-e)*16+x*12);
+  const wob=Math.sin(t*1.3)*2;
+  $('cg-phone').style.transform=`translateY(${(1-e)*180}px) rotateY(${-16+10*eo(P(t,10.54,3.0))+wob*0.3}deg) rotateX(${8-4*eo(P(t,10.54,3))}deg) rotateZ(${2-1*e}deg)`;
+  GT.forEach((d,i)=>{const [s,o]=pop(t,10.98+i*0.028,0.3); d.style.opacity=o; d.style.transform=`scale(${s})`});
+  const [bs,bo]=pop(t,11.88,0.42); setT($('cg-badge'),bo,`scale(${bs}) rotate(${(1-bs)*-20+6}deg)`);
+  $('cg-num').textContent=Math.round(47*eo(P(t,11.9,0.75)));
+  $('cg-glow').style.opacity=0.6+0.4*Math.sin(t*2);
+}
+
+// ---------- B3 complexity ----------
+const LINES=[['$','npm i -g @anthropic-ai/claude-code'],['$','git clone github.com/…/video-toolkit'],['$','cd video-toolkit && npm install'],['$','npx remotion render src/Reel.tsx out.mp4'],['$','ffmpeg -i in.mp4 -vf "crop=ih*9/16:ih" …'],['!','Error: ffprobe not found (code 127)']];
+const LT=[15.0,15.32,15.70,16.0,16.32,17.68];
+const CHIPS=[['Claude Code',56,1088,-6],['Remotion',712,1080,5],['FFmpeg',40,1544,4],['Node.js',740,1560,-5],['MCP server',330,1604,-3],['API keys',508,1100,3]];
+let CH=[];
+function buildCx(){ ['install Node.js','install Claude Code','clone a video toolkit','add your API key','install FFmpeg','configure an MCP server'].forEach((n,i)=>{$('cx-list').innerHTML+=`<div id="cx-li${i}" style="display:flex;align-items:center;gap:18px;height:52px;font:600 30px IT;color:#6f6c66"><span class="mono" style="font:500 24px JB;color:#4a4844;width:44px">${String(i+1).padStart(2,'0')}</span>${n}</div>`}); const c=$('cx-chips'); CHIPS.forEach(([n,x,y,r])=>{const d=document.createElement('div');d.className='chip';d.style.left=x+'px';d.style.top=y+'px';d.textContent=n;d.dataset.r=r;c.appendChild(d);CH.push(d)});
+  ['upload','skill','enter'].forEach((n,i)=>{const d=document.createElement('div');d.id='cx-r'+i;d.className='pill';d.style.cssText+=';border:2px solid rgba(255,255,255,.25)';d.innerHTML=`<span style="color:var(--acc)">${i+1}</span>${n}`;$('cx-row').appendChild(d)});}
+function drawCx(t){
+  const sweep=eo(P(t,18.5,0.32));
+  const he=ent(t,13.66,0.4); setT($('cx-hdr'),he*(1-C(P(t,14.9,0.15))),`translateY(${(1-he)*40}px)`,(1-he)*10);
+  [0,1,2,3,4,5].forEach(i=>{const q=eo(P(t,13.8+i*0.12,0.25)); const el=$('cx-li'+i); el.style.opacity=q; el.style.transform=`translateX(${(1-q)*30}px)`;});
+  $('cx-step').textContent=`step ${1+Math.floor(11*C(P(t,14.38,0.55)))} of 12`; $('cx-prog').style.width=(8*C(P(t,13.9,1.0)))+'%';
+  const te=ent(t,14.98,0.34); const shake=t>=17.68&&t<18.5;
+  const r=rng(FR*31+7); const jx=shake?(r()-.5)*10:0, jy=shake?(r()-.5)*8:0;
+  setT($('cx-term'),te*(1-sweep),`translate(${jx}px,${(1-te)*60+jy}px) scale(${1-0.3*sweep})`,(1-te)*12+sweep*14);
+  let html=''; LINES.forEach((L,i)=>{const q=P(t,LT[i],0.34); if(q<=0)return; const s=L[1].slice(0,Math.ceil(L[1].length*q));
+    html+= L[0]==='!'?`<span style="color:#ff4d4d">✗ ${s}</span>\n`:`<span style="color:var(--acc)">$</span> ${s}\n`});
+  const cursorOn=Math.floor(t*3)%2===0; html+=cursorOn?'<span style="background:#d8d8d8">&nbsp;</span>':'';
+  $('cx-lines').innerHTML=html; $('cx-lines').style.transform=`translateY(${-Math.max(0,html.split('\n').length-1-8)*46}px)`;
+  $('cx-lines').style.textShadow=shake?`${(r()-.5)*8}px 0 rgba(255,60,60,.7), ${(r()-.5)*-8}px 0 rgba(60,200,255,.6)`:'none';
+  CH.forEach((d,i)=>{const [s,o]=pop(t,16.16+i*0.11,0.32); const rr=rng(FR*13+i*101); const sj=shake?(rr()-.5)*12:0;
+    setT(d,o*(1-sweep),`translate(${sj}px,${sj*0.6+Math.sin(t*2+i)*4}px) rotate(${+d.dataset.r+(shake?(rr()-.5)*5:0)}deg) scale(${s*(1-0.4*sweep)})`,sweep*10)});
+  const sk=eo(P(t,18.40,0.2)); $('cx-strike').style.transform=`scaleX(${sk})`; $('cx-strike').style.opacity=sk>0?(1-sweep):0;
+  const [s3,o3]=pop(t,19.56,0.42); setT($('cx-3'),o3,`scale(${s3})`);
+  const sp=eo(P(t,19.92,0.3)); $('cx-steps').style.clipPath=`inset(-30% ${100-100*sp}% -30% 0)`;
+  const exT=1-eo(P(t,20.55,0.18)); $('cx-three').style.opacity=exT; $('cx-row').style.opacity=exT;
+  const mm=eo(P(t,18.62,0.3)); $('cx-mm').style.clipPath=`inset(-20% ${50-50*mm}% -20% ${50-50*mm}%)`; $('cx-mm').style.opacity=exT;
+  [0,1,2].forEach(i=>{const [s,o]=pop(t,20.28+i*0.08,0.3); setT($('cx-r'+i),o,`scale(${s})`)});
+}
+
+// ---------- B4 chat UI ----------
+function buildUI(){
+  ['upload','skill','enter'].forEach((n,i)=>{const d=document.createElement('div');d.id='ui-s'+i;d.className='pill';d.style.cssText+=';border:2px solid rgba(255,255,255,.18);color:var(--mut);background:#151518';d.innerHTML=`<span>${i+1}</span>${n}`;$('ui-steps').appendChild(d)});
+  const m=$('ui-menu'); [['reel-edit','edit my raw video'],['reel-thumbnail','cover from video'],['captions','subtitles only']].forEach(([a,b],i)=>{
+    m.innerHTML+=`<div id="ui-m${i}" style="height:64px;border-radius:16px;display:flex;align-items:center;gap:16px;padding:0 18px"><span style="font:700 27px IT">/${a}</span><span style="font:500 22px IT;color:var(--mut)">${b}</span></div>`});
+}
+function drawUI(t){
+  const be=ent(t,20.72,0.4); setT($('ui-box'),be,`translateY(${(1-be)*70}px)`,(1-be)*12);
+  const se=ent(t,20.80,0.34); setT($('ui-steps'),se,`translateY(${(1-se)*24}px)`);
+  const keys=[21.40,21.88,22.80];
+  keys.forEach((k,i)=>{const d=$('ui-s'+i); const on=t>=k; const done=i<2?t>=keys[i+1]:false;
+    d.style.borderColor=on?'var(--acc)':'rgba(255,255,255,.18)'; d.style.background=on&&!done?'var(--acc)':'#151518'; d.style.color=on&&!done?'#fff':(done?'var(--txt)':'var(--mut)');
+    d.style.boxShadow=on&&!done?'0 0 30px rgba(255,106,43,.45)':'none'; const [s]=pop(t,k,0.3); d.style.transform=`scale(${t>=k?s:1})`;});
+  const [fs,fo]=pop(t,21.40,0.36); setT($('ui-file'),fo,`translateY(${(1-fs)*-30}px) scale(${0.9+0.1*fs})`);
+  $('ui-fbar').style.width=(350*eo(P(t,21.45,0.4)))+'px'; $('ui-fbar').style.opacity=1-C(P(t,21.9,0.15));
+  const mo=eo5(P(t,21.88,0.26))*(1-eo(P(t,22.42,0.16))); setT($('ui-menu'),mo,`translateY(${(1-mo)*-20}px) scale(${0.94+0.06*mo})`);
+  [0,1,2].forEach(i=>{$('ui-m'+i).style.background=(i===0&&t>=22.1)?'rgba(255,106,43,.18)':'transparent'});
+  const [ks,ko]=pop(t,22.36,0.34); setT($('ui-skill'),ko,`scale(${ks})`);
+  $('ui-ph').style.opacity=1-C(P(t,21.4,0.15));
+  const kp=t>=22.80&&t<22.98; const [kks,kko]=pop(t,22.62,0.3); setT($('ui-key'),kko,`translateY(${kp?5:0}px) scale(${kks})`); $('ui-key').style.borderBottomWidth=kp?'2px':'7px';
+  const sp=t>=22.80&&t<22.95?0.84:(t>=22.95?1+0.1*Math.sin(Math.PI*C(P(t,22.95,0.2))):1); $('ui-send').style.transform=`scale(${sp})`;
+  const rp=C(P(t,22.86,0.5)); setT($('ui-ring'),rp>0&&rp<1?1-rp:0,`scale(${1+rp*0.9})`);
+}
+
+// ---------- B5 processing ----------
+const PL=[['silences cut',23.55],['captions added',23.74],['graphics placed',23.93],['sound designed',24.12],['exported 1080×1920',24.30]];
+function buildCp(){ const l=$('cp-list'); PL.forEach(([n],i)=>{l.innerHTML+=`<div style="height:90px;display:flex;align-items:center;gap:28px"><div id="cp-c${i}" style="width:52px;height:52px;border-radius:24px;border:3px solid #3a3a40;box-sizing:border-box;position:relative"><svg style="position:absolute;left:4px;top:4px" width="34" height="34" viewBox="0 0 34 34"><path id="cp-k${i}" d="M7 18 L14 25 L27 10" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div><div id="cp-t${i}" style="font:700 42px IT;color:#4a4a50;letter-spacing:-0.01em">${n}</div></div>`})}
+function drawCp(t){
+  const e=eo5(P(t,23.37,0.3)); setT($('cp'),e*(1-eo(P(t,24.40,0.08))),`scale(${1.06-0.06*e})`,(1-e)*14);
+  const q=eio(P(t,23.40,1.0)); $('cp-ring').style.strokeDashoffset=1-q; $('cp-pct').textContent=Math.round(q*100)+'%';
+  PL.forEach(([n,k],i)=>{const on=t>=k; const c=$('cp-c'+i); c.style.background=on?'var(--acc)':'transparent'; c.style.borderColor=on?'var(--acc)':'#3a3a40'; c.style.boxShadow=on?'0 0 20px rgba(255,106,43,.5)':'none';
+    const [s]=pop(t,k,0.26); c.style.transform=`scale(${on?s:1})`; $('cp-k'+i).style.strokeDashoffset=1-eo(P(t,k+0.04,0.16)); $('cp-t'+i).style.color=on?'var(--txt)':'#4a4a50'});
+}
+
+// ---------- B6 phone ----------
+function drawPh(t){
+  const cv=$('ph-parts'),x=cv.getContext('2d'); x.clearRect(0,0,1080,1920);
+  const q=P(t,24.46,0.9); if(q>0&&q<1){const r=rng(77); for(let i=0;i<46;i++){const a=r()*Math.PI*2, sp=380+r()*520, d=eo(q)*sp; const px=540+Math.cos(a)*d*(0.6+0.4*r()), py=640+Math.sin(a)*d*1.2+q*q*160;
+      const sz=6+r()*10; x.globalAlpha=(1-q)*(0.6+0.4*r()); x.fillStyle=i%3?'#FF6A2B':'#F5F2EC'; x.save(); x.translate(px,py); x.rotate(a+q*6); x.fillRect(-sz/2,-sz/4,sz,sz/2); x.restore();}}
+  x.globalAlpha=1;
+  const io=C(P(t,24.85,0.25))*(1-eo(P(t,26.0,0.17))); $('ph-icons').style.opacity=io;
+  const [ps,po]=pop(t,24.72,0.38); setT($('ph-pill'),po*(1-eo(P(t,26.0,0.17))),`scale(${ps})`);
+  $('ph-chk').setAttribute('stroke-dashoffset',40*(1-eo(P(t,24.86,0.25))));
+}
+
+// ---------- B7 proof ----------
+function drawPf(t){
+  const se=eo5(P(t,26.30,0.5)); const ex=1-eo(P(t,29.40,0.17));
+  setT($('pf-shot'),C(se*1.6)*ex,`translateX(${(1-se)*-200}px) rotateY(${18-10*se}deg) rotateZ(${-4-(1-se)*10}deg)`,(1-se)*10);
+  const [ns,no]=pop(t,26.71,0.4); setT($('pf-num'),no*ex,`scale(${ns})`); $('pf-num').textContent=Math.round(80*eo(P(t,26.71,0.6)))+'K+';
+  const le=eo(P(t,27.27,0.3)); $('pf-lbl').style.clipPath=`inset(-20% ${100-100*le}% -20% 0)`; $('pf-lbl').style.opacity=ex;
+  const sp=eo5(P(t,28.57,0.22)); setT($('pf-stamp'),C(sp*3)*ex,`rotate(-5deg) scale(${1.7-0.7*sp})`);
+}
+
+// ---------- B8 CTA ----------
+function buildCt(){ [['full tutorial',29.66],['my skills',31.14]].forEach(([n,k],i)=>{const d=document.createElement('div');d.id='ct-c'+i;d.className='pill';d.style.cssText+=';background:rgba(20,20,22,.7);border:2px solid rgba(255,255,255,.3);font:700 38px IT;box-shadow:0 12px 30px rgba(0,0,0,.35)';
+  d.innerHTML=`<svg width="34" height="34" viewBox="0 0 34 34"><path d="M7 18 L14 25 L27 10" stroke="#FF6A2B" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>${n}`; $('ct-row').appendChild(d)})}
+function drawCt(t){
+  const rowOut=1-eo(P(t,32.84,0.2));
+  [29.66,31.14].forEach((k,i)=>{const d=$('ct-c'+i); const [s,o]=pop(t,k,0.36); setT(d,o*rowOut,`scale(${s})`); d.querySelector('path').style.strokeDashoffset=1-eo(P(t,k+0.15,0.25))});
+  const be=ent(t,31.80,0.36); setT($('ct-box'),be,`translateY(${(1-be)*50}px)`,(1-be)*10);
+  const n=Math.floor(C(P(t,31.94,0.3))*4.999); $('ct-typed').textContent='EDIT'.slice(0,n); $('ct-ph').style.opacity=n>0?0:1;
+  const tw=$('ct-typed').getBoundingClientRect().width; $('ct-caret').style.left=(46+(n>0?tw:0))+'px'; $('ct-caret').style.opacity=(Math.floor(t*3)%2===0||n<4)?1:0;
+  $('ct-send').style.transform=`scale(${t>=32.32&&t<32.46?0.82:1})`;
+  const [ds,dO]=pop(t,33.12,0.38); setT($('ct-dm'),dO,`scale(${ds})`);
+}
+
+const BEATS=[
+  {layer:'ed', t0:4.20, t1:8.26, draw:drawED},
+  {card:'cg', t0:10.54, t1:13.84, draw:drawGallery},
+  {layer:'cx', t0:13.62, t1:20.76, draw:drawCx},
+  {layer:'ui', t0:20.70, t1:23.366, draw:drawUI},
+  {card:'cp', t0:23.366, t1:24.48, draw:drawCp},
+  {layer:'ph', t0:24.46, t1:26.167, draw:drawPh},
+  {layer:'pf', t0:26.167, t1:29.567, draw:drawPf},
+  {layer:'ct', t0:29.567, t1:40, draw:drawCt},
+];
+function renderFrame(t,f,mode){
+  FR=f; const back=mode==='back';
+  for(const el of $('stage').children){ if(el.id!=='back') el.style.visibility=back?'hidden':'visible' }
+  $('back').style.display=back?'block':'none';
+  if(back){drawBack(t);return true}
+  const card=BEATS.find(b=>b.card&&t>=b.t0&&t<b.t1);
+  show($('card'),!!card);
+  for(const b of BEATS){const on=t>=b.t0&&t<b.t1; show($(b.card||b.layer),on); if(on&&b.draw)b.draw(t)}
+  if(card){ const L=$(card.card); $('card').style.opacity=L.style.opacity===''?1:L.style.opacity; L.style.opacity=1; }
+  if(!(t>=4.2&&t<8.26)) $('flash').style.display='none';
+  const p=drawPip(t); if(card&&+($('card').style.opacity)>0.99) show($('pipf'),0);
+  // shades only over full-frame video
+  const full=isFull(p.s); $('shade').style.opacity=full&&!card?1:0;
+  drawHook(t);
+  setCap(t);
+  const sb=$('subbox'); if(t>=5.04&&t<5.76&&cur>=0){const r=$('capin').getBoundingClientRect(); const q=eo5(P(t,5.04,0.25));
+    sb.style.display='block'; sb.style.left=(r.left-16)+'px'; sb.style.top=(r.top-8)+'px'; sb.style.width=(r.width+32)+'px'; sb.style.height=(r.height+16)+'px';
+    sb.style.opacity=q*(1-C(P(t,5.62,0.14))); sb.style.transform=`scale(${1.08-0.08*q})`;} else sb.style.display='none';
+  return true;
+}
+window.init=async function(cfg){CFG=cfg; SUBS=cfg.subs;
+  buildED(); buildGallery(); buildCx(); buildUI(); buildCp(); buildCt();
+  for(const w of ['500','600','700','800']) await document.fonts.load(`${w} 100px IT`);
+  for(const w of ['600','700','800']) await document.fonts.load(`${w} 100px AM`,'മലയാളം');
+  await document.fonts.load('italic 100px IS'); await document.fonts.load('400 30px JB'); await document.fonts.load('500 30px JB');
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(im=>im.complete?1:new Promise(r=>{im.onload=r;im.onerror=r})));
+  return true};
+window.renderFrame=renderFrame;
+</script></body></html>

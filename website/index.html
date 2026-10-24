@@ -1,0 +1,1337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Euphoria Editor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Euphoria turns raw Malayalam, Hindi and Manglish talking-head takes into clean, captioned 9:16 reels. Edit the words and the video follows.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Hanken+Grotesk:wght@300;400;500;600&family=Noto+Sans+Malayalam:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+<style>
+/* Layout: ClipCut flow — glass nav, centred hero over a concave 3D reel cylinder, then problem → system → features → live demo → roadmap → process → audience → plans → FAQ → glow CTA → wordmark footer. Single dark look by choice. */
+:root{
+  --ink:#0a0503;          /* page ground (orig #090401, nudged warmer) */
+  --surface:#140c08;      /* cards (orig #100b08) */
+  --surface-2:#1c120c;
+  --line:rgba(255,236,224,.09);
+  --line-2:rgba(255,236,224,.16);
+  --accent:#f0561c;       /* ember (orig #e8501a) */
+  --accent-2:#ff7d30;     /* flame (orig #fa6114) */
+  --accent-3:#ffb070;     /* glow highlight */
+  --cream:#faf6f1;        /* headings (orig #f8f5f2) */
+  --text:rgba(255,246,240,.82);
+  --muted:rgba(255,246,240,.58);
+  --faint:rgba(255,246,240,.34);
+  --clay:#5b4034;         /* muted brown (orig #4e3a30) */
+  --ok:#3fbf6a;
+  --display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;
+  --body:"Hanken Grotesk","Bricolage Grotesque",system-ui,sans-serif;
+  --ml:"Noto Sans Malayalam","Hanken Grotesk",sans-serif;
+  --hi:"Noto Sans Devanagari","Hanken Grotesk",sans-serif;
+  --r-lg:22px; --r-md:16px; --r-sm:10px;
+  --ease-spring:cubic-bezier(.2,.9,.25,1.06);
+  --ease:cubic-bezier(.44,0,.56,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--ink)}
+body{margin:0;background:var(--ink);color:var(--text);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--ink)}
+h1,h2,h3,h4{font-family:var(--display);color:var(--cream);font-weight:500;letter-spacing:-.025em;margin:0;text-wrap:balance}
+p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent-2);outline-offset:3px;border-radius:8px}
+.ml{font-family:var(--ml)} .hi{font-family:var(--hi)}
+
+.wrap{width:100%;max-width:1200px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+section{position:relative}
+.sec{padding-block:120px}
+.head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;max-width:820px;margin:0 auto 64px}
+.head h2{font-size:clamp(38px,5.6vw,72px);line-height:1.04}
+.head p{font-size:clamp(17px,1.6vw,20px);color:var(--muted);max-width:620px}
+.tag{display:inline-flex;align-items:center;gap:10px;padding:7px 16px;border-radius:100px;border:1px solid var(--line-2);background:rgba(255,255,255,.04);color:var(--cream);font-size:15px}
+.tag::before,.tag::after{content:"";width:10px;height:1px;background:var(--faint)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 20px 13px 22px;border-radius:100px;font-weight:500;font-size:16px;border:1px solid transparent;transition:transform .35s var(--ease-spring),box-shadow .35s,background .3s;white-space:nowrap}
+.btn svg{width:16px;height:16px;transition:transform .35s var(--ease-spring)}
+.btn:hover svg{transform:translate(2px,-2px) rotate(0deg)}
+.btn:hover{transform:translateY(-2px)}
+.btn-fire{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#fff;box-shadow:0 10px 30px -10px rgba(240,86,28,.8),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn-fire:hover{box-shadow:0 16px 40px -10px rgba(240,86,28,.95),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn-ghost{background:rgba(255,255,255,.04);border-color:var(--line-2);color:var(--cream)}
+.btn-light{background:var(--cream);color:#1a0d06}
+
+/* Reveal motion (only elements below the first screen are pre-hidden by JS) */
+.rv{transition:opacity 1.1s var(--ease-spring),transform 1.1s var(--ease-spring),filter 1.1s var(--ease)}
+.rv.pre{opacity:0;transform:translateY(46px);filter:blur(6px)}
+.rv.pre.from-left{transform:translate(-40px,-30px)}
+.rv.pre.zoom{transform:scale(.94)}
+
+/* NAV */
+.nav{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:0;right:0;z-index:50;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));pointer-events:none}
+.nav-in{pointer-events:auto;max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 10px 10px 20px;border-radius:100px;background:rgba(20,12,8,.55);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border:1px solid var(--line);transition:background .4s}
+.nav.scrolled .nav-in{background:rgba(14,8,5,.82)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;font-size:21px;color:var(--cream);letter-spacing:-.02em}
+.logo-mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent-2),var(--accent) 60%,#a8300a);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 6px 18px -6px rgba(240,86,28,.8)}
+.logo-mark svg{width:16px;height:16px}
+.nav-links{display:flex;gap:28px;font-size:15px;color:var(--text)}
+.nav-links a{position:relative;transition:color .25s}
+.nav-links a:hover{color:var(--cream)}
+.nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--accent-2);transform:scaleX(0);transition:transform .35s var(--ease-spring)}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav .btn{padding:10px 16px 10px 18px;font-size:15px}
+
+/* HERO */
+.hero{padding-top:170px;overflow:hidden;isolation:isolate}
+.blob{position:absolute;z-index:-1;border-radius:50%;filter:blur(70px);pointer-events:none}
+.blob.b1{width:620px;height:620px;left:-220px;top:-260px;background:radial-gradient(circle,#ff6a1a 0%,#e4430f 35%,rgba(160,40,8,.0) 70%);opacity:.9;animation:drift 14s var(--ease) infinite alternate}
+.blob.b2{width:520px;height:380px;right:-260px;top:40px;background:radial-gradient(circle,rgba(240,86,28,.35),transparent 70%);animation:drift 18s var(--ease) infinite alternate-reverse}
+.blob.b3{width:900px;height:260px;left:50%;bottom:-40px;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(240,86,28,.45),transparent 70%);filter:blur(60px)}
+@keyframes drift{to{transform:translate(60px,40px) scale(1.08)}}
+.stars{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.2;animation:tw 4s ease-in-out infinite}
+@keyframes tw{50%{opacity:.9;transform:scale(1.6)}}
+.hero-copy{display:flex;flex-direction:column;align-items:center;text-align:center;gap:26px;position:relative;z-index:2}
+.badge{display:inline-flex;align-items:center;gap:10px;padding:7px 16px 7px 8px;border-radius:100px;background:rgba(255,255,255,.05);border:1px solid var(--line-2);font-size:15px;color:var(--cream)}
+.badge b{display:inline-grid;place-items:center;padding:3px 10px;border-radius:100px;background:var(--accent);font-weight:600;font-size:13px;color:#fff}
+.hero h1{font-size:clamp(42px,6.4vw,80px);line-height:1.02;max-width:980px;letter-spacing:-.035em}
+.hero h1 .lang{display:inline-block;position:relative;color:transparent;background:linear-gradient(100deg,var(--cream) 0%,var(--accent-3) 45%,var(--accent-2) 100%);-webkit-background-clip:text;background-clip:text;min-width:3ch}
+.hero .sub{font-size:clamp(17px,1.7vw,20px);color:var(--muted);max-width:640px}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.appear{animation:appear 1.5s var(--ease-spring) both}
+@keyframes appear{from{opacity:0;transform:translateY(50px);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+
+/* 3D cylinder */
+.cyl-stage{position:relative;height:var(--ch);margin-top:56px;perspective:var(--persp);perspective-origin:50% 40%;--R:1050px;--cw:230px;--ch:410px;--persp:1000px;--lift:520px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 8%,#000 92%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 8%,#000 92%,transparent 100%)}
+.cyl{position:absolute;left:50%;top:0;width:var(--cw);height:var(--ch);margin-left:calc(var(--cw) / -2);transform-style:preserve-3d;transform:translateZ(var(--lift)) rotateY(var(--rot,0deg))}
+.reel{position:absolute;inset:0;border-radius:18px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(var(--a)) translateZ(calc(var(--R) * -1));border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
+.reel .scene{position:absolute;inset:0}
+.reel .person{position:absolute;left:50%;bottom:-2%;width:96%;transform:translateX(-50%)}
+.reel .cap{position:absolute;left:10px;right:10px;bottom:15%;text-align:center;font-weight:600;font-size:17px;line-height:1.35;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+.reel .cap .on{color:#ffd23a}
+.reel .chip{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:100px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);font-size:12px;color:#fff;display:flex;align-items:center;gap:6px}
+.reel .chip i{width:6px;height:6px;border-radius:50%;background:var(--accent-2)}
+.reel .wave{position:absolute;left:12px;right:12px;bottom:10px;height:22px;display:flex;align-items:center;gap:2px}
+.reel .wave span{flex:1;border-radius:2px;background:rgba(255,255,255,.55)}
+.reel .wave span.cut{background:var(--accent-2);opacity:.9}
+.floor{position:relative;height:120px;margin-top:-10px;background:radial-gradient(60% 100% at 50% 0%,rgba(240,86,28,.28),transparent 70%)}
+.pills{position:relative;z-index:2;display:flex;justify-content:center;margin-top:-86px}
+.pills-in{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 16px;padding:10px 20px;border-radius:100px;background:rgba(20,12,8,.7);border:1px solid var(--line);backdrop-filter:blur(10px);font-size:15px;color:var(--text)}
+.pills-in span{display:inline-flex;align-items:center;gap:8px}
+.pills-in svg{width:16px;height:16px;color:var(--accent-2)}
+.pills-in .dot{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+
+/* Cards (shared) */
+.card{background:linear-gradient(180deg,var(--surface-2),var(--surface));border:1px solid var(--line);border-radius:var(--r-lg);position:relative;overflow:hidden}
+.card.glow::after{content:"";position:absolute;left:10%;right:10%;bottom:-60px;height:120px;background:radial-gradient(ellipse,rgba(240,86,28,.45),transparent 70%);filter:blur(20px);pointer-events:none;transition:opacity .5s;opacity:.55}
+.card.glow:hover::after{opacity:1}
+
+/* PROBLEM */
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.prob .vis{height:260px;margin:10px;border-radius:16px;position:relative;overflow:hidden;background:radial-gradient(120% 90% at 50% 110%,rgba(240,86,28,.55),rgba(90,30,8,.35) 45%,rgba(20,12,8,1) 80%);border:1px solid var(--line)}
+.prob .txt{padding:18px 24px 28px;display:flex;flex-direction:column;gap:8px}
+.prob h3{font-size:24px}
+.prob p{color:var(--muted);font-size:16px}
+.vis-label{position:absolute;top:14px;left:16px;font-size:12px;color:var(--muted)}
+.vis-big{position:absolute;top:32px;left:16px;font-family:var(--display);font-size:38px;font-weight:600;color:var(--cream);letter-spacing:-.02em}
+/* timeline visual */
+.tl{position:absolute;left:16px;right:16px;bottom:22px;display:flex;flex-direction:column;gap:10px}
+.tl-row{display:flex;gap:3px;height:34px}
+.tl-row b{border-radius:6px;background:linear-gradient(180deg,#fff3,#fff1);border:1px solid #ffffff22}
+.tl-row b.bad{background:repeating-linear-gradient(135deg,rgba(240,86,28,.75) 0 5px,rgba(240,86,28,.35) 5px 10px);border-color:rgba(255,125,48,.7);transform-origin:center;}
+.in .tl-row b.bad{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{filter:brightness(1.5)}}
+.tl-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tl-tags span{font-size:12px;padding:3px 9px;border-radius:100px;background:rgba(0,0,0,.4);border:1px solid rgba(255,125,48,.5);color:var(--accent-3)}
+/* ring visual */
+.ring{position:absolute;left:50%;top:54%;width:150px;height:150px;transform:translate(-50%,-50%)}
+.ring svg{width:100%;height:100%;overflow:visible}
+.ring .play{position:absolute;inset:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent-2),var(--accent));box-shadow:0 0 40px rgba(240,86,28,.8)}
+.ring .play svg{width:22px;height:22px}
+.lang-chip{position:absolute;font-size:13px;padding:5px 11px;border-radius:100px;background:rgba(0,0,0,.5);border:1px solid var(--line-2);display:flex;gap:6px;align-items:center;color:var(--cream);animation:bob 5s ease-in-out infinite}
+.lang-chip .x{color:#ff6b5a}.lang-chip .y{color:var(--ok)}
+@keyframes bob{50%{transform:translateY(-6px)}}
+/* retention curve visual */
+.curve{position:absolute;left:10px;right:10px;bottom:8px;height:180px}
+.curve svg{width:100%;height:100%;overflow:visible}
+.curve .path{stroke-dasharray:600;stroke-dashoffset:600;transition:stroke-dashoffset 2.2s var(--ease)}
+.in .curve .path{stroke-dashoffset:0}
+.drop-pin{position:absolute;left:24%;top:30px;padding:5px 10px;border-radius:8px;background:var(--accent);color:#fff;font-size:12px;font-weight:600;opacity:0;transform:translateY(8px);transition:all .6s var(--ease-spring) 1.4s}
+.in .drop-pin{opacity:1;transform:none}
+
+/* SYSTEM / stat cards */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.stat{padding:28px 24px 30px;display:flex;flex-direction:column;gap:14px;min-height:300px}
+.stat .k{font-size:19px;color:var(--text)}
+.stat .v{font-family:"Hanken Grotesk",sans-serif;font-weight:300;font-size:clamp(56px,6vw,76px);line-height:1;letter-spacing:-.03em;background:linear-gradient(0deg,rgba(255,255,255,.62),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;margin-top:auto}
+.stat p{color:var(--muted);font-size:15.5px}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat{padding:34px 26px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+.feat h3{font-size:clamp(28px,3vw,36px)}
+.icon3d{width:150px;height:150px;margin:18px 0 8px;position:relative;transform-style:preserve-3d;animation:float 6s ease-in-out infinite}
+.feat:nth-child(2) .icon3d{animation-delay:-2s}.feat:nth-child(3) .icon3d{animation-delay:-4s}
+@keyframes float{50%{transform:translateY(-10px) rotateX(8deg) rotateY(-10deg)}}
+.icon3d .slab{position:absolute;inset:14px;border-radius:38px;background:linear-gradient(150deg,#3a2a22 0%,#1a110c 55%,#0d0806 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.25),inset 0 -10px 30px rgba(240,86,28,.25),0 30px 50px -20px rgba(0,0,0,.9),0 0 60px -10px rgba(240,86,28,.55);border:1px solid rgba(255,255,255,.12)}
+.icon3d .slab::before{content:"";position:absolute;inset:6px;border-radius:32px;background:linear-gradient(160deg,rgba(255,255,255,.18),transparent 40%)}
+.icon3d .glyph{position:absolute;inset:0;display:grid;place-items:center;color:transparent}
+.icon3d .glyph svg{width:62px;height:62px;filter:drop-shadow(0 6px 14px rgba(240,86,28,.7))}
+.icon3d .glyph .ml{font-size:64px;font-weight:600;background:linear-gradient(180deg,#ffd0a8,var(--accent-2) 50%,var(--accent));-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 6px 14px rgba(240,86,28,.7))}
+.feat p{color:var(--muted);font-size:16px;max-width:300px}
+
+.stack{margin-top:24px;display:grid;grid-template-columns:1.05fr 1fr;gap:40px;padding:56px;border-radius:28px;border:1px solid var(--line);background:
+  repeating-linear-gradient(90deg,rgba(240,86,28,0) 0 46px,rgba(240,86,28,.07) 46px 48px),
+  radial-gradient(80% 70% at 85% 30%,rgba(240,86,28,.35),transparent 70%),
+  linear-gradient(180deg,#160d08,#0d0705);overflow:clip}
+.stack-l{position:sticky;top:130px;align-self:start;display:flex;flex-direction:column;gap:20px;padding-top:40px}
+.stack-l h3{font-size:clamp(36px,4vw,52px);line-height:1.05}
+.stack-l p{color:var(--text);max-width:420px}
+.stack-r{display:flex;flex-direction:column;gap:20px}
+.mini{padding:26px;border-radius:var(--r-md);background:rgba(16,9,6,.75);border:1px solid var(--line-2);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:10px;position:sticky;top:130px;box-shadow:0 -20px 40px -20px rgba(0,0,0,.7)}
+.mini:nth-child(2){top:150px}.mini:nth-child(3){top:170px}.mini:nth-child(4){top:190px}
+.mini .ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,var(--accent-3),var(--accent) 60%,#7a2206);box-shadow:0 0 20px rgba(240,86,28,.6)}
+.mini .ic svg{width:17px;height:17px}
+.mini h4{font-size:24px}
+.mini p{color:var(--muted);font-size:15.5px}
+
+/* DEMO */
+.demo{display:grid;grid-template-columns:1.25fr .9fr;gap:20px}
+.demo-main{padding:26px}
+.demo-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.demo-top .file{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.demo-top .file b{color:var(--cream);font-weight:500}
+.demo-actions{display:flex;gap:8px;flex-wrap:wrap}
+.chipbtn{padding:8px 14px;border-radius:100px;border:1px solid var(--line-2);background:rgba(255,255,255,.04);font-size:14px;transition:all .25s}
+.chipbtn:hover{border-color:var(--accent-2);color:var(--cream)}
+.chipbtn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.transcript{font-size:21px;line-height:2.05;color:var(--cream);padding:20px 22px;border-radius:14px;background:rgba(0,0,0,.35);border:1px solid var(--line);min-height:220px}
+.w{display:inline;padding:2px 3px;border-radius:6px;cursor:pointer;transition:background .2s,color .2s,opacity .3s;position:relative}
+.w:hover{background:rgba(255,255,255,.08)}
+.w.sugg{text-decoration:underline wavy rgba(255,125,48,.6) 1px;text-underline-offset:6px}
+.w.cut{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--accent-2);text-decoration-thickness:2px;background:rgba(240,86,28,.08)}
+.w.pause{font-family:var(--body);font-size:13px;vertical-align:middle;padding:3px 8px;border:1px dashed rgba(255,125,48,.55);color:var(--accent-3);border-radius:100px}
+.w.pause.cut{color:var(--faint);border-color:var(--line-2)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.bar{margin-top:18px}
+.bar-track{display:flex;height:40px;gap:2px;border-radius:10px;overflow:hidden;background:rgba(0,0,0,.4);padding:4px;border:1px solid var(--line)}
+.bar-track b{height:100%;border-radius:4px;background:linear-gradient(180deg,#ffffff40,#ffffff18);transition:flex-grow .7s var(--ease-spring),background .3s,opacity .3s;min-width:0}
+.bar-track b.k-filler,.bar-track b.k-pause,.bar-track b.k-retake{background:linear-gradient(180deg,rgba(255,125,48,.6),rgba(240,86,28,.35))}
+.bar-track b.gone{flex-grow:0!important;opacity:0;margin:0 -1px}
+.bar-meta{display:flex;justify-content:space-between;margin-top:10px;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.demo-side{display:flex;flex-direction:column;gap:20px}
+.result{padding:26px;display:flex;flex-direction:column;gap:12px}
+.result .lbl{font-size:14px;color:var(--muted)}
+.result .big{font-family:var(--display);font-size:clamp(46px,5vw,64px);color:var(--cream);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.result .big small{font-size:.42em;color:var(--muted);letter-spacing:0}
+.result .row{display:flex;gap:8px;flex-wrap:wrap}
+.result .row span{font-size:13px;padding:5px 11px;border-radius:100px;background:rgba(240,86,28,.12);border:1px solid rgba(240,86,28,.35);color:var(--accent-3);font-variant-numeric:tabular-nums}
+.edl{padding:22px 24px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:13px;line-height:1.6;color:var(--text);overflow-x:auto}
+.edl .h{font-family:var(--body);font-size:14px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;gap:10px}
+.edl pre{margin:0;white-space:pre}
+.edl .s{color:var(--accent-3)} .edl .n{color:#ffd23a}
+.note{font-size:13.5px;color:var(--faint);margin-top:14px;text-align:center}
+
+/* ROADMAP bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.bento .card{display:flex;flex-direction:column}
+.bento .c-l{grid-column:span 3}
+.bento .c-s{grid-column:span 2}
+.bento .art{margin:10px;border-radius:14px;height:240px;position:relative;overflow:hidden;border:1px solid var(--line);background:radial-gradient(100% 120% at 30% 0%,rgba(240,86,28,.28),transparent 60%),#0f0805}
+.bento .c-s .art{height:190px}
+.bento .body{padding:16px 22px 26px;display:flex;flex-direction:column;gap:8px}
+.bento h3{font-size:24px}
+.bento p{color:var(--muted);font-size:15.5px}
+.status{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:100px;background:rgba(0,0,0,.55);border:1px solid var(--line-2);font-size:12.5px;color:var(--cream);z-index:2}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+.status.planned i{background:var(--faint);box-shadow:none}
+.art svg.full{position:absolute;inset:0;width:100%;height:100%}
+.bubble{position:absolute;max-width:78%;padding:10px 14px;border-radius:16px;font-size:14.5px;line-height:1.45}
+.bubble.me{right:16px;top:52px;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.bubble.ai{left:16px;top:116px;background:rgba(255,255,255,.08);border:1px solid var(--line-2);color:var(--cream);border-bottom-left-radius:4px}
+.heat{position:absolute;left:16px;right:16px;bottom:40px;height:46px;border-radius:10px;background:linear-gradient(90deg,#3fbf6a55 0%,#3fbf6a55 22%,#ffb07088 30%,#f0561ccc 38%,#ffb07066 46%,#3fbf6a44 60%,#ffb07066 78%,#f0561caa 90%);border:1px solid var(--line-2)}
+.heat-ax{position:absolute;left:16px;right:16px;bottom:16px;display:flex;justify-content:space-between;font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+.heat-pin{position:absolute;left:calc(16px + 34%);bottom:92px;font-size:12px;padding:4px 9px;border-radius:7px;background:var(--accent);color:#fff;white-space:nowrap;transform:translateX(-50%)}
+.cm{position:absolute;left:14px;right:14px;top:50px;display:flex;flex-direction:column;gap:8px}
+.cm span{align-self:flex-start;padding:6px 11px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-size:14px;color:var(--cream)}
+.cm span:nth-child(2){align-self:flex-end}
+.cm em{font-style:normal;font-size:11px;color:var(--accent-3);margin-left:6px}
+.brief{position:absolute;left:16px;right:16px;top:50px;padding:14px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line-2);display:flex;flex-direction:column;gap:8px;font-size:14px}
+.brief b{color:var(--cream);font-weight:500}
+.brief .ln{height:7px;border-radius:4px;background:rgba(255,255,255,.12)}
+.brief .ln:nth-of-type(2){width:80%}.brief .ln:nth-of-type(3){width:62%}
+.bench{position:absolute;left:18px;right:18px;bottom:26px;top:56px;display:flex;align-items:flex-end;gap:10px}
+.bench div{flex:1;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.06));transform-origin:bottom;transform:scaleY(.2);transition:transform 1.2s var(--ease-spring)}
+.bench div.you{background:linear-gradient(180deg,var(--accent-2),rgba(240,86,28,.25))}
+.in .bench div{transform:scaleY(1)}
+
+/* PROCESS */
+.proc{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1000px;margin:0 auto}
+.proc .s1{grid-column:1 / -1}
+.step{padding:10px;display:flex;flex-direction:column}
+.step .art{height:300px;border-radius:14px;border:1px solid var(--line);position:relative;overflow:hidden;background:radial-gradient(90% 90% at 50% 100%,rgba(240,86,28,.22),transparent 70%),#0d0705}
+.step .s-body{padding:18px 18px 22px;display:flex;flex-direction:column;gap:8px}
+.step .num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:600;font-size:14px}
+.step h3{font-size:28px;display:flex;align-items:center;gap:12px}
+.step p{color:var(--muted);max-width:560px}
+.drop{position:absolute;inset:24px;border-radius:14px;border:1.5px dashed rgba(255,236,224,.22);display:grid;place-items:center;transition:border-color .4s}
+.drop .up{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid var(--line-2)}
+.drop .up svg{width:28px;height:28px}
+.file-fly{position:absolute;right:12%;bottom:18%;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line-2);font-size:14px;box-shadow:0 20px 40px -10px #000;animation:fly 5s var(--ease-spring) infinite}
+.file-fly .th{width:30px;height:42px;border-radius:6px;background:linear-gradient(160deg,#7a3a1c,#2a140a)}
+@keyframes fly{0%{transform:translate(60px,40px) rotate(8deg);opacity:0}25%,70%{transform:none;opacity:1}100%{transform:translate(-120px,-40px) scale(.7);opacity:0}}
+.ba{position:absolute;inset:22px;display:flex;flex-direction:column;justify-content:center;gap:16px}
+.ba .lab{font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+.ba .trk{height:34px;display:flex;gap:3px}
+.ba .trk b{border-radius:5px;background:linear-gradient(180deg,#fff3,#fff1)}
+.ba .trk b.x{background:repeating-linear-gradient(135deg,rgba(240,86,28,.7) 0 4px,rgba(240,86,28,.3) 4px 8px)}
+.ba .trk.after b{background:linear-gradient(180deg,rgba(255,176,112,.6),rgba(240,86,28,.35))}
+.ba .trk.after{width:66%}
+.scan{position:absolute;top:10px;bottom:10px;width:2px;background:var(--accent-2);box-shadow:0 0 14px var(--accent-2);left:22px;animation:scan 4s var(--ease) infinite alternate}
+@keyframes scan{to{left:calc(100% - 24px)}}
+.ba .tags{display:flex;gap:6px;flex-wrap:wrap}
+.ba .tags span{font-size:12px;padding:4px 10px;border-radius:100px;border:1px solid var(--line-2);color:var(--text)}
+.ba .tags span:first-child{background:var(--accent);border-color:var(--accent);color:#fff}
+.phones{position:absolute;inset:0;display:flex;justify-content:center;align-items:flex-end;gap:14px;padding-bottom:0}
+.phone{width:120px;height:230px;border-radius:20px 20px 0 0;border:1px solid var(--line-2);border-bottom:0;overflow:hidden;position:relative;background:linear-gradient(170deg,#6b2f15,#1c0e08)}
+.phone:nth-child(2){height:262px;background:linear-gradient(170deg,#8a4320,#24120a)}
+.phone .cap{position:absolute;left:8px;right:8px;bottom:34%;text-align:center;font-size:12.5px;font-weight:600;color:#fff;text-shadow:0 1px 6px #000}
+.phone .cap .on{color:#ffd23a}
+.phone .ui{position:absolute;right:8px;bottom:14px;display:flex;flex-direction:column;gap:8px}
+.phone .ui i{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.4)}
+
+/* AUDIENCE + loop */
+.aud{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.aud .card{padding:28px 26px 30px;display:flex;flex-direction:column;gap:12px}
+.aud .who{font-size:13.5px;color:var(--accent-3)}
+.aud h3{font-size:26px}
+.aud p{color:var(--muted);font-size:16px}
+.aud ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.aud li{display:flex;gap:10px;align-items:flex-start}
+.aud li::before{content:"";width:6px;height:6px;margin-top:9px;border-radius:50%;background:var(--accent-2);flex:none}
+.loop{margin-top:56px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.loop-track{display:flex;gap:16px;width:max-content;animation:tick 30s linear infinite}
+.loop:hover .loop-track{animation-play-state:paused}
+@keyframes tick{to{transform:translateX(-50%)}}
+.loop-item{display:flex;align-items:center;gap:16px;font-family:var(--display);font-size:clamp(30px,4vw,48px);color:var(--cream);white-space:nowrap}
+.loop-item small{font-family:var(--body);font-size:15px;color:var(--muted);max-width:200px;white-space:normal;line-height:1.35}
+.loop-item .arw{color:var(--accent-2)}
+
+/* PRICING */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.plan{padding:32px 28px;display:flex;flex-direction:column;gap:18px}
+.plan.hot{border-color:rgba(255,125,48,.55);background:radial-gradient(120% 60% at 50% 0%,rgba(240,86,28,.28),transparent 60%),linear-gradient(180deg,var(--surface-2),var(--surface));box-shadow:0 30px 80px -30px rgba(240,86,28,.55)}
+.plan h3{font-size:30px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.plan h3 span{font-family:var(--body);font-size:12.5px;padding:4px 10px;border-radius:100px;background:var(--accent);color:#fff;font-weight:500;letter-spacing:0}
+.plan .for{color:var(--muted);font-size:15.5px;min-height:48px}
+.price{font-family:var(--display);font-size:clamp(40px,4.4vw,56px);line-height:1;letter-spacing:-.03em;background:linear-gradient(100deg,rgba(255,255,255,.92),#d8492a 52%,#ec8a44);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:4px}
+.price.word{font-size:clamp(34px,3.4vw,44px)}
+.price-note{font-size:14px;color:var(--faint);margin-top:-8px}
+.plan ul{list-style:none;margin:0;padding:18px 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px;font-size:15.5px;flex:1}
+.plan li{display:flex;gap:10px}
+.plan li::before{content:"";width:16px;height:16px;flex:none;margin-top:3px;border-radius:50%;background:radial-gradient(circle,var(--accent-2) 0 3px,rgba(240,86,28,.2) 4px)}
+.plan .btn{justify-content:center}
+.plan:not(.hot) .btn{background:rgba(255,255,255,.05);border-color:var(--line-2);color:var(--cream)}
+
+/* FAQ */
+.faq{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:start}
+.faq-l{position:sticky;top:130px;display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+.faq-l h2{font-size:clamp(38px,5vw,64px);line-height:1.04}
+.faq-l p{color:var(--muted);max-width:380px}
+.qa{border-bottom:1px solid var(--line)}
+.qa button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 4px;background:none;border:0;text-align:left;font-size:clamp(18px,1.8vw,22px);color:var(--cream)}
+.qa .pm{width:28px;height:28px;flex:none;border-radius:50%;border:1px solid var(--line-2);position:relative;transition:transform .45s var(--ease-spring),background .3s}
+.qa .pm::before,.qa .pm::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:1.5px;background:var(--cream);transform:translate(-50%,-50%)}
+.qa .pm::after{transform:translate(-50%,-50%) rotate(90deg)}
+.qa.open .pm{transform:rotate(45deg);background:var(--accent);border-color:var(--accent)}
+.qa .ans{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--ease-spring)}
+.qa.open .ans{grid-template-rows:1fr}
+.qa .ans>div{overflow:hidden}
+.qa .ans p{padding:0 4px 24px;color:var(--muted);max-width:620px}
+
+/* PLATFORMS ticker */
+.plat{overflow:hidden;padding-block:6px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.plat-track{display:flex;gap:16px;width:max-content;animation:tick 34s linear infinite}
+.plat-track.rev{animation-direction:reverse;margin-top:16px}
+.pl{display:flex;align-items:center;gap:12px;padding:16px 24px;border-radius:18px;background:linear-gradient(180deg,var(--surface-2),var(--surface));border:1px solid var(--line);font-family:var(--display);font-size:22px;color:var(--cream);white-space:nowrap}
+.pl i{width:12px;height:12px;border-radius:4px;background:linear-gradient(145deg,var(--accent-2),var(--accent));box-shadow:0 0 12px rgba(240,86,28,.6)}
+.pl small{font-family:var(--body);font-size:13px;color:var(--muted)}
+
+/* CTA */
+.cta{position:relative;border-radius:30px;overflow:hidden;padding:100px 24px 70px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px;border:1px solid rgba(255,125,48,.35);background:
+  repeating-linear-gradient(90deg,transparent 0 34px,rgba(255,140,60,.08) 34px 36px),
+  radial-gradient(70% 90% at 50% 120%,#ff5a17 0%,#b8370c 35%,rgba(60,18,6,.6) 65%,#0f0805 100%)}
+.cta h2{font-size:clamp(38px,5.4vw,68px);line-height:1.04;max-width:780px}
+.cta p{color:var(--text);max-width:560px;font-size:18px}
+.rays{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 80px,rgba(255,180,120,.12) 80px 82px,transparent 82px 160px);animation:rays 9s linear infinite;-webkit-mask-image:linear-gradient(0deg,#000,transparent 80%);mask-image:linear-gradient(0deg,#000,transparent 80%)}
+@keyframes rays{to{background-position:160px 0}}
+.wl{display:flex;gap:8px;padding:6px;border-radius:100px;background:rgba(10,5,3,.6);border:1px solid var(--line-2);width:100%;max-width:460px;position:relative;z-index:1}
+.wl input{flex:1;min-width:0;background:none;border:0;padding:10px 16px;font:inherit;font-size:16px;color:var(--cream);outline:none}
+.wl input::placeholder{color:var(--faint)}
+.wl .btn{padding:11px 18px}
+.wl-msg{min-height:22px;font-size:14.5px;color:var(--cream);position:relative;z-index:1}
+.fine{font-size:13.5px;color:var(--muted);position:relative;z-index:1}
+
+/* FOOTER */
+footer{position:relative;overflow:hidden;padding-top:90px}
+.foot{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:40px;align-items:start}
+.foot .about{display:flex;flex-direction:column;gap:16px;max-width:380px}
+.foot .about p{color:var(--muted);font-size:15.5px}
+.foot h4{font-size:20px;margin-bottom:14px}
+.foot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;color:var(--text);font-size:15.5px}
+.foot ul a:hover{color:var(--accent-3)}
+.legal{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:60px;padding-block:20px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.giant{position:relative;margin-top:10px;height:clamp(110px,22vw,300px);overflow:hidden}
+.giant span{position:absolute;left:50%;top:0;transform:translateX(-50%);font-family:var(--display);font-weight:600;font-size:clamp(120px,24vw,330px);line-height:.95;letter-spacing:-.05em;white-space:nowrap;color:transparent;background:repeating-linear-gradient(90deg,rgba(255,125,48,.9) 0 6px,rgba(240,86,28,.25) 6px 16px),linear-gradient(180deg,#ff8a3d,#7a2306 80%);background-blend-mode:multiply;-webkit-background-clip:text;background-clip:text;opacity:.75;animation:stripes 12s linear infinite}
+@keyframes stripes{to{background-position:160px 0,0 0}}
+.giant::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--ink) 95%)}
+
+/* RESPONSIVE */
+@media (max-width:1020px){
+  .nav-links{display:none}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat{min-height:240px}
+  .prob-grid,.feat-grid,.aud,.plans{grid-template-columns:1fr 1fr}
+  .prob-grid>:last-child,.feat-grid>:last-child,.aud>:last-child,.plans>:last-child{grid-column:1 / -1}
+  .demo{grid-template-columns:1fr}
+  .stack{grid-template-columns:1fr;padding:36px}
+  .stack-l{position:static;padding-top:0}
+  .faq{grid-template-columns:1fr;gap:28px}
+  .faq-l{position:static}
+  .bento .c-l{grid-column:span 6}.bento .c-s{grid-column:span 3}
+  .bento .c-s:last-child{grid-column:span 6}
+  .foot{grid-template-columns:1fr 1fr}.foot .about{grid-column:1 / -1}
+}
+@media (max-width:680px){
+  body{font-size:16px}
+  .sec{padding-block:84px}
+  .head{margin-bottom:44px}
+  .hero{padding-top:130px}
+  .nav .btn span{display:none}
+  .nav .btn{padding:10px 12px}
+  .cyl-stage{--R:620px;--cw:150px;--ch:268px;--persp:640px;--lift:300px;margin-top:40px}
+  .reel .cap{font-size:12.5px}
+  .pills{margin-top:-70px}
+  .pills-in{border-radius:20px;font-size:13.5px;padding:10px 14px}
+  .prob-grid,.feat-grid,.aud,.plans,.stats,.proc{grid-template-columns:1fr}
+  .prob-grid>:last-child,.feat-grid>:last-child,.aud>:last-child,.plans>:last-child{grid-column:auto}
+  .bento .c-s{grid-column:span 6}
+  .stack{padding:24px}
+  .mini{position:static}
+  .transcript{font-size:18px;padding:16px}
+  .step .art{height:250px}
+  .phone{width:92px;height:190px}.phone:nth-child(2){height:214px}
+  .cta{padding:70px 18px 50px}
+  .foot{grid-template-columns:1fr}
+}
+[hidden]{display:none!important}
+/* STUDIO */
+.studio{display:grid;grid-template-columns:.85fr 1.15fr;gap:20px;align-items:start}
+.st-form{padding:22px;display:flex;flex-direction:column;gap:16px}
+.drop-in{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;min-height:200px;padding:24px;border-radius:16px;border:1.5px dashed rgba(255,236,224,.24);background:rgba(0,0,0,.25);cursor:pointer;transition:border-color .3s,background .3s}
+.drop-in:hover,.drop-in.over{border-color:var(--accent-2);background:rgba(240,86,28,.08)}
+.drop-in.has{border-style:solid;border-color:rgba(255,125,48,.55)}
+.drop-in .up{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent-2),var(--accent));box-shadow:0 10px 30px -10px rgba(240,86,28,.9)}
+.drop-in .up svg{width:24px;height:24px}
+.drop-in b{color:var(--cream);font-weight:500;font-size:17px;word-break:break-all}
+.drop-in small{color:var(--muted);font-size:14px;max-width:300px}
+.st-row{display:flex;flex-direction:column;gap:6px}
+.st-row label{font-size:14px;color:var(--text)}
+.st-row label span{color:var(--faint)}
+.st-row input,.st-row select,.st-row textarea{font:inherit;font-size:15.5px;color:var(--cream);background:rgba(0,0,0,.35);border:1px solid var(--line-2);border-radius:12px;padding:11px 14px;resize:vertical}
+.st-row select option{background:#1c120c}
+.st-go{justify-content:center}
+.st-go[disabled]{opacity:.45;pointer-events:none}
+.st-health{font-size:13.5px;color:var(--muted);text-align:center;min-height:20px}
+.st-health.bad{color:#ffb4a0}
+.st-health.ok::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 8px var(--ok)}
+.st-run{padding:24px;min-height:520px;display:flex;flex-direction:column}
+.st-empty{margin:auto;text-align:center;display:flex;flex-direction:column;gap:22px;align-items:center;max-width:420px;color:var(--muted)}
+.st-steps-preview{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.st-steps-preview span{font-size:13px;padding:6px 12px;border-radius:100px;border:1px solid var(--line-2);color:var(--text)}
+.st-live{display:flex;flex-direction:column;gap:16px;flex:1;min-height:0}
+.st-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.st-top h3{font-size:clamp(24px,2.6vw,32px);margin-top:6px}
+.st-status{display:inline-flex;align-items:center;gap:8px;font-size:13px;padding:4px 11px;border-radius:100px;background:rgba(240,86,28,.15);border:1px solid rgba(240,86,28,.4);color:var(--accent-3)}
+.st-status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent-2);animation:tw 1.4s ease-in-out infinite}
+.st-meta{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.st-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.st-steps li{font-size:12.5px;text-align:center;padding:8px 4px 0;border-top:3px solid rgba(255,255,255,.1);color:var(--faint);transition:all .4s}
+.st-steps li.done{border-color:var(--accent);color:var(--text)}
+.st-steps li.now{border-color:var(--accent-3);color:var(--cream)}
+.st-log{flex:1;min-height:280px;max-height:440px;overflow-y:auto;padding:14px;border-radius:14px;background:rgba(0,0,0,.4);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;font-size:14.5px}
+.st-log .ln{display:flex;gap:10px;align-items:flex-start;animation:lnIn .5s var(--ease-spring) both}
+@keyframes lnIn{from{opacity:0;transform:translateY(8px)}}
+.st-log .ln i{flex:none;width:18px;height:18px;margin-top:2px;border-radius:5px;display:grid;place-items:center;font-style:normal;font-size:11px}
+.st-log .k-step i{background:rgba(255,255,255,.08);color:var(--muted)}
+.st-log .k-step i::before{content:"›"}
+.st-log .k-claude{color:var(--cream)}
+.st-log .k-claude i{background:linear-gradient(145deg,var(--accent-2),var(--accent));color:#fff}
+.st-log .k-claude i::before{content:"✦"}
+.st-log .k-app{color:var(--muted)}
+.st-log .k-app i::before{content:"·"}
+.st-log .k-warn{color:#ffb4a0}
+.st-log .k-warn i::before{content:"!"}
+.st-log span{min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.st-done{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:22px;align-items:start}
+.st-player{display:flex;flex-direction:column;gap:10px}
+.st-player video{width:100%;aspect-ratio:9/16;border-radius:16px;background:#000;border:1px solid var(--line-2)}
+.st-toggle{display:flex;gap:4px;padding:4px;border-radius:100px;background:rgba(0,0,0,.4);border:1px solid var(--line)}
+.st-toggle button{flex:1;border:0;background:none;padding:7px 10px;border-radius:100px;font-size:14px;color:var(--muted)}
+.st-toggle button.on{background:var(--accent);color:#fff}
+.st-report{display:flex;flex-direction:column;gap:14px;min-width:0}
+.st-report h3{font-size:28px}
+.st-report ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.st-report li{display:flex;gap:10px}
+.st-report li::before{content:"";width:6px;height:6px;margin-top:10px;border-radius:50%;background:var(--accent-2);flex:none}
+.st-check{font-size:14px;color:var(--accent-3);padding:10px 12px;border-radius:12px;background:rgba(240,86,28,.08);border:1px solid rgba(240,86,28,.3)}
+.st-dl{display:flex;gap:10px;flex-wrap:wrap}
+.st-report img{width:100%;border-radius:12px;border:1px solid var(--line)}
+.st-fail{margin:auto;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;max-width:520px}
+.st-fail h3{font-size:28px}
+.st-fail p{color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px}
+.st-recent{margin-top:28px}
+.st-recent h4{font-size:20px;margin-bottom:12px}
+.st-list{display:flex;gap:10px;flex-wrap:wrap}
+.st-list button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px;border-radius:12px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);text-align:left;max-width:260px}
+.st-list button b{font-weight:500;color:var(--cream);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+.st-list button small{font-size:12.5px;color:var(--muted)}
+.st-list button:hover{border-color:var(--accent-2)}
+@media (max-width:1020px){.studio{grid-template-columns:1fr}.st-done{grid-template-columns:1fr}.st-player{max-width:320px;margin:0 auto;width:100%}}
+@media (max-width:680px){.st-steps{grid-template-columns:repeat(3,1fr)}.st-run{padding:16px}}
+
+.st-setup{padding:24px;margin-bottom:20px;display:flex;flex-direction:column;gap:6px;border-color:rgba(255,125,48,.4)}
+.st-setup-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.st-setup-head h3{font-size:26px}.st-setup-head p{color:var(--muted);font-size:15px}
+.st-srow{display:grid;grid-template-columns:22px 1fr auto;gap:14px;align-items:center;padding:14px 4px;border-top:1px solid var(--line)}
+.st-srow i{width:12px;height:12px;border-radius:50%;background:var(--faint);justify-self:center}
+.st-srow.ok i{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.st-srow.busy i{background:var(--accent-2);animation:tw 1.2s ease-in-out infinite}
+.st-srow b{display:block;color:var(--cream);font-weight:500}
+.st-srow small{display:block;color:var(--muted);font-size:13.5px;overflow-wrap:anywhere}
+.st-srow.ok button{display:none}
+.st-srow button[disabled]{opacity:.4;pointer-events:none}
+.st-tokens{font-size:14px;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv.pre{opacity:1;transform:none;filter:none}
+  .curve .path{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="logo" href="#top" aria-label="Euphoria home">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l10-6.5-10-6.5z" fill="#fff"/></svg></span>
+      Euphoria
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#studio">Studio</a>
+      <a href="#how">How it works</a>
+      <a href="#demo">Demo</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#plans">Plans</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-light" href="#join"><span>Join early access</span>
+      <svg viewBox="0 0 16 16" fill="none"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
+  </div>
+</header>
+
+<main id="top">
+<!-- HERO -->
+<section class="hero">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="stars" id="stars"></div>
+  <div class="wrap hero-copy">
+    <span class="badge appear" style="animation-delay:.15s"><b>New</b> Built for Malayalam, Manglish and Hindi creators</span>
+    <h1 class="appear" style="animation-delay:.3s">Talking-head editing that speaks <span class="lang" id="langWord">Malayalam</span></h1>
+    <p class="sub appear" style="animation-delay:.45s">Drop in a raw take. Euphoria cuts the pauses, fillers and retakes, adds captions in your script, and hands back a 9:16 reel. To change the edit, change the words.</p>
+    <div class="cta-row appear" style="animation-delay:.6s">
+      <a class="btn btn-fire" href="#join">Join early access <svg viewBox="0 0 16 16" fill="none"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
+      <a class="btn btn-ghost" href="#studio">Edit your video</a>
+    </div>
+  </div>
+  <div class="cyl-stage appear" style="animation-delay:.2s;animation-duration:1.8s" aria-hidden="true">
+    <div class="cyl" id="cyl"></div>
+  </div>
+  <div class="floor"></div>
+  <div class="pills wrap">
+    <div class="pills-in appear" style="animation-delay:.8s">
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Auto-clean</span><i class="dot"></i>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Edit by text</span><i class="dot"></i>
+      <span><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="3" stroke="currentColor" stroke-width="2"/><path d="M7 13h4M13 13h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Captions in your script</span>
+    </div>
+  </div>
+</section>
+
+<!-- STUDIO -->
+<section class="sec" id="studio" style="padding-top:60px">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">Studio</span>
+      <h2>Upload a raw take. AI edits it.</h2>
+      <p>Cuts, captions in your language, motion graphics, split screens, text behind your head, colour grade and sound. Our AI plans it in one pass, this PC renders it, and you download the reel.</p>
+    </div>
+    <div class="card st-setup" id="stSetup" hidden>
+      <div class="st-setup-head"><h3>Set up this PC</h3><p>One time. Everything installs from here, no terminal needed.</p></div>
+      <div class="st-srow" id="suClaude"><i></i><div><b>AI engine</b><small data-d>Checking…</small></div><button class="chipbtn primary" type="button" data-a="claude">Install</button></div>
+      <div class="st-srow" id="suLogin"><i></i><div><b>Sign in to the AI engine</b><small data-d>Checking…</small></div><button class="chipbtn primary" type="button" data-a="login">Sign in</button></div>
+      <div class="st-srow" id="suTools"><i></i><div><b>Render tools</b><small data-d>Checking…</small></div><button class="chipbtn primary" type="button" data-a="tools">Install</button></div>
+    </div>
+    <div class="studio rv">
+      <form class="card st-form" id="stForm" novalidate>
+        <label class="drop-in" id="stDrop" for="stFile">
+          <input id="stFile" type="file" accept="video/*" hidden>
+          <span class="up"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <b id="stFileName">Drop your raw video here</b>
+          <small>or click to choose. Phone video is fine. Talk to camera, 20 seconds to 2 minutes.</small>
+        </label>
+        <div class="st-row">
+          <label for="stLang">Language</label>
+          <select id="stLang">
+            <option value="ml">Malayalam / Manglish</option>
+            <option value="hi">Hindi</option>
+            <option value="en">English</option>
+            <option value="ta">Tamil</option>
+            <option value="auto">Detect automatically</option>
+          </select>
+        </div>
+        <div class="st-row">
+          <label for="stCta">Comment keyword <span>optional</span></label>
+          <input id="stCta" type="text" maxlength="40" placeholder="e.g. TEAM">
+        </div>
+        <div class="st-row">
+          <label for="stNotes">Anything to show on screen? <span>optional</span></label>
+          <textarea id="stNotes" rows="2" maxlength="300" placeholder="e.g. my handle @yourname, a price like ₹999"></textarea>
+        </div>
+        <button class="btn btn-fire st-go" id="stGo" type="submit">Edit with AI <svg viewBox="0 0 16 16" fill="none"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <p class="st-health" id="stHealth">Checking the editor…</p>
+      </form>
+
+      <div class="card st-run" id="stRun">
+        <div class="st-empty" id="stEmpty">
+          <div class="st-steps-preview">
+            <span>Reading</span><span>Planning</span><span>Cutting</span><span>Graphics</span><span>Rendering</span><span>Sound</span>
+          </div>
+          <p>Your reel will appear here. The AI plans the whole edit in one pass; this PC renders the rest. A 40-second take takes about 10 to 20 minutes, and you can watch every step.</p>
+        </div>
+        <div class="st-live" id="stLive" hidden>
+          <div class="st-top">
+            <div><span class="st-status" id="stStatus">Queued</span><h3 id="stPhase">Waiting to start</h3></div>
+            <div class="st-meta"><span id="stTime">0:00</span><button class="chipbtn" id="stCancel" type="button">Cancel</button></div>
+          </div>
+          <ol class="st-steps" id="stSteps"></ol>
+          <div class="st-log" id="stLog" aria-live="polite"></div>
+        </div>
+        <div class="st-done" id="stDone" hidden>
+          <div class="st-player">
+            <div class="st-toggle" role="tablist">
+              <button type="button" class="on" data-kind="final" role="tab" aria-selected="true">Edited</button>
+              <button type="button" data-kind="raw" role="tab" aria-selected="false">Raw</button>
+            </div>
+            <video id="stVideo" controls playsinline preload="metadata"></video>
+          </div>
+          <div class="st-report">
+            <h3>Your reel is ready</h3>
+            <ul id="stSummary"></ul>
+            <p class="st-check" id="stCheck" hidden></p>
+            <p class="st-tokens" id="stTokens"></p>
+            <div class="st-dl">
+              <a class="btn btn-fire" id="stDl" href="#">Download reel</a>
+              <a class="btn btn-ghost" id="stDlM" href="#">High-quality master</a>
+            </div>
+            <img id="stSheet" alt="One frame per second of the finished reel" hidden>
+            <button class="chipbtn" id="stNew" type="button">Edit another video</button>
+          </div>
+        </div>
+        <div class="st-fail" id="stFail" hidden>
+          <h3>The edit stopped</h3>
+          <p id="stErr"></p>
+          <div class="st-dl"><button class="btn btn-fire" id="stRetry" type="button">Retry</button><button class="chipbtn" id="stNew2" type="button">Start over</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="st-recent" id="stRecent" hidden>
+      <h4>Recent edits</h4>
+      <div class="st-list" id="stList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="sec" id="problem">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">The problem</span>
+      <h2>Great takes, buried in a messy timeline</h2>
+      <p>Every first take has pauses, “umm, athu, matlab” and lines you said twice. Cleaning it by hand eats the evening, and most editors were built for English.</p>
+    </div>
+    <div class="prob-grid">
+      <article class="card prob rv" data-io>
+        <div class="vis">
+          <span class="vis-label">Raw take, illustration</span>
+          <span class="vis-big">Hours</span>
+          <div class="tl">
+            <div class="tl-row"><b style="flex:5"></b><b class="bad" style="flex:1.2"></b><b style="flex:3"></b><b class="bad" style="flex:.8"></b><b style="flex:4"></b></div>
+            <div class="tl-row"><b style="flex:2.5"></b><b class="bad" style="flex:2.2"></b><b style="flex:3.5"></b><b class="bad" style="flex:1"></b><b style="flex:2"></b></div>
+            <div class="tl-tags"><span>umm</span><span class="ml">അത്</span><span class="hi">मतलब</span><span>long pause</span><span>retake</span></div>
+          </div>
+        </div>
+        <div class="txt"><h3>Cleanup eats your evening</h3><p>Scrubbing a timeline for every pause and filler takes far longer than recording did.</p></div>
+      </article>
+      <article class="card prob rv" data-io style="transition-delay:.1s">
+        <div class="vis">
+          <span class="vis-label">Language support</span>
+          <div class="ring">
+            <svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="68" stroke="rgba(255,255,255,.08)" stroke-width="10" fill="none"/><circle class="ring-arc" cx="75" cy="75" r="68" stroke="url(#rg)" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="427" stroke-dashoffset="330" transform="rotate(-90 75 75)"/><defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" stop-color="#ffb070"/><stop offset="1" stop-color="#f0561c"/></linearGradient></defs></svg>
+            <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z" fill="#fff"/></svg></div>
+          </div>
+          <span class="lang-chip" style="left:14px;bottom:28px"><span class="y">✓</span>English</span>
+          <span class="lang-chip ml" style="right:16px;top:44px;animation-delay:-1.5s"><span class="x">✕</span>മലയാളം</span>
+          <span class="lang-chip" style="right:18px;bottom:40px;animation-delay:-3s"><span class="x">✕</span>Manglish</span>
+          <span class="lang-chip hi" style="left:18px;top:70px;animation-delay:-2s"><span class="x">✕</span>हिन्दी</span>
+        </div>
+        <div class="txt"><h3>Tools that don’t speak your language</h3><p>English-first editors stumble on Malayalam speech, code-mixed lines and Indian scripts in captions.</p></div>
+      </article>
+      <article class="card prob rv" data-io style="transition-delay:.2s">
+        <div class="vis">
+          <span class="vis-label">Viewers still watching, illustration</span>
+          <div class="drop-pin">Viewers leave here</div>
+          <div class="curve">
+            <svg viewBox="0 0 300 170" preserveAspectRatio="none">
+              <defs><linearGradient id="cf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0561c" stop-opacity=".45"/><stop offset="1" stop-color="#f0561c" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 18 C40 22 60 30 80 70 S120 100 160 104 S240 118 300 128 L300 170 L0 170Z" fill="url(#cf)"/>
+              <path class="path" d="M0 18 C40 22 60 30 80 70 S120 100 160 104 S240 118 300 128" fill="none" stroke="#ff7d30" stroke-width="3"/>
+              <circle cx="80" cy="70" r="5" fill="#fff"/>
+              <g fill="rgba(255,246,240,.4)" font-size="10" font-family="Hanken Grotesk, sans-serif"><text x="2" y="166">0s</text><text x="140" y="166">30s</text><text x="280" y="166">60s</text></g>
+            </svg>
+          </div>
+        </div>
+        <div class="txt"><h3>No idea where viewers leave</h3><p>You see the views, but not the moment people swipe away, or what to change in the next video.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM -->
+<section class="sec" id="how" style="padding-top:40px">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">How Euphoria fixes it</span>
+      <h2>An editor that reads your words, then cuts the video</h2>
+      <p>Euphoria transcribes your take word by word. The AI writes an edit list that can only point at words you actually said, and FFmpeg renders the cut. Nothing is invented, and every cut can be undone.</p>
+      <a class="btn btn-fire" href="#demo">See it on a sample <svg viewBox="0 0 16 16" fill="none"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
+    </div>
+    <div class="stats">
+      <div class="card glow stat rv" data-io><span class="k">Languages at launch</span><span class="v" data-count="3">3</span><p>Malayalam, Manglish and Hindi, with English mixed in the way people really talk.</p></div>
+      <div class="card glow stat rv" data-io style="transition-delay:.08s"><span class="k">Reel-ready export</span><span class="v" data-type="9:16">9:16</span><p>Vertical crop with burned-in captions, ready for Reels and Shorts.</p></div>
+      <div class="card glow stat rv" data-io style="transition-delay:.16s"><span class="k">To auto-clean a take</span><span class="v" data-count="1">1</span><p>One click cuts long pauses, fillers and retakes. You review before you render.</p></div>
+      <div class="card glow stat rv" data-io style="transition-delay:.24s"><span class="k">Invented words</span><span class="v" data-countdown="0">0</span><p>Every edit maps to a real word in your transcript, so the AI can’t put words in your mouth.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="sec" id="features" style="padding-top:40px">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">What it does</span>
+      <h2>From raw take to ready-to-post, in your language</h2>
+      <p>Built for creators first, and just as useful for teachers, coaching institutes and local businesses who talk to camera.</p>
+    </div>
+    <div class="feat-grid">
+      <article class="card glow feat rv" data-io>
+        <h3>Auto-clean</h3>
+        <div class="icon3d"><div class="slab"></div><div class="glyph"><svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="ig1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd0a8"/><stop offset=".5" stop-color="#ff7d30"/><stop offset="1" stop-color="#f0561c"/></linearGradient></defs><circle cx="18" cy="46" r="8" stroke="url(#ig1)" stroke-width="5"/><circle cx="46" cy="46" r="8" stroke="url(#ig1)" stroke-width="5"/><path d="M23 40L48 10M41 40L16 10" stroke="url(#ig1)" stroke-width="5" stroke-linecap="round"/></svg></div></div>
+        <p>Long pauses, “umm”, “athu”, “like” and fumbled retakes come out automatically. The last good take stays.</p>
+      </article>
+      <article class="card glow feat rv" data-io style="transition-delay:.1s">
+        <h3>Edit by text</h3>
+        <div class="icon3d"><div class="slab"></div><div class="glyph"><svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="ig2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd0a8"/><stop offset=".5" stop-color="#ff7d30"/><stop offset="1" stop-color="#f0561c"/></linearGradient></defs><path d="M10 18h30M10 32h20M10 46h26" stroke="url(#ig2)" stroke-width="5" stroke-linecap="round"/><path d="M50 12v40M44 12h12M44 52h12" stroke="url(#ig2)" stroke-width="4.5" stroke-linecap="round"/></svg></div></div>
+        <p>Strike a word or a sentence in the transcript and it’s gone from the video. Click it again to bring it back.</p>
+      </article>
+      <article class="card glow feat rv" data-io style="transition-delay:.2s">
+        <h3>Native captions</h3>
+        <div class="icon3d"><div class="slab"></div><div class="glyph"><span class="ml">അ</span></div></div>
+        <p>Captions in Malayalam script with Noto Sans Malayalam, timed to each word and burned into the reel.</p>
+      </article>
+    </div>
+
+    <div class="stack rv">
+      <div class="stack-l">
+        <h3>More reels, less timeline</h3>
+        <p>Record the way you talk. Euphoria does the cleanup, and you spend your time on the next idea instead of on the scrub bar.</p>
+        <div><a class="btn btn-fire" href="#join">Get early access <svg viewBox="0 0 16 16" fill="none"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a></div>
+      </div>
+      <div class="stack-r">
+        <div class="mini"><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 8 8M11 5c-1 4-4 7-7 8M13 20l4-9 4 9M14.5 17h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h4>Made for Indian languages</h4><p>Speech recognition tuned for Malayalam, with filler lists for Malayalam, Hindi and English and support for code-mixed sentences.</p></div>
+        <div class="mini"><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h13" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><h4>The words are the timeline</h4><p>No tracks or keyframes to learn. If you can edit a message, you can edit a reel.</p></div>
+        <div class="mini"><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h4>You stay in control</h4><p>Suggested cuts are marked, not forced. Review them, restore any word, then render.</p></div>
+        <div class="mini"><span class="ic"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="12" rx="2" stroke="#fff" stroke-width="2"/><path d="M8 20h8M12 16v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><h4>Runs on your own PC</h4><p>The current build works offline on your computer, so your raw footage stays with you.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="sec" id="demo">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">Try it</span>
+      <h2>Edit the words. The video follows.</h2>
+      <p>This is a sample Manglish take. Orange underlines are cuts Euphoria suggests. Click any word or pause to cut it or bring it back.</p>
+    </div>
+    <div class="demo rv">
+      <div class="card demo-main">
+        <div class="demo-top">
+          <span class="file"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M10 9.5v5l4-2.5-4-2.5z" fill="currentColor"/></svg><b>sample_take_ml.mp4</b> Sample clip</span>
+          <div class="demo-actions">
+            <button class="chipbtn primary" id="autoBtn" type="button">Auto-clean</button>
+            <button class="chipbtn" id="resetBtn" type="button">Restore all</button>
+          </div>
+        </div>
+        <div class="transcript ml" id="transcript" aria-label="Sample transcript, click words to cut or restore"></div>
+        <div class="legend">
+          <span><i style="background:rgba(255,125,48,.6)"></i>Suggested cut</span>
+          <span><i style="background:rgba(255,255,255,.3)"></i>Kept</span>
+          <span><i style="background:transparent;border:1px dashed rgba(255,125,48,.7)"></i>Pause</span>
+        </div>
+        <div class="bar">
+          <div class="bar-track" id="barTrack"></div>
+          <div class="bar-meta"><span id="metaOrig">Original 0:00</span><span id="metaNew">After edit 0:00</span></div>
+        </div>
+      </div>
+      <div class="demo-side">
+        <div class="card glow result">
+          <span class="lbl">Sample edit length</span>
+          <span class="big" id="bigLen">0:00 <small>from 0:00</small></span>
+          <div class="row" id="resultChips"></div>
+        </div>
+        <div class="card edl">
+          <div class="h"><span>Edit list the AI writes</span><span>JSON</span></div>
+          <pre id="edl"></pre>
+        </div>
+      </div>
+    </div>
+    <p class="note">Sample timings for illustration. In the app, timings come from the real transcript of your video.</p>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="sec" id="roadmap">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">Where it’s going</span>
+      <h2>A growth partner, not just an editor</h2>
+      <p>Next, Euphoria connects to your Instagram and YouTube analytics, finds where viewers drop off and what top creators in your niche do differently, and edits your next video to fix it.</p>
+    </div>
+    <div class="bento">
+      <article class="card c-l rv" data-io>
+        <div class="art">
+          <span class="status"><i></i>Next up</span>
+          <svg class="full" viewBox="0 0 520 240" preserveAspectRatio="none">
+            <defs><linearGradient id="rf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7d30" stop-opacity=".35"/><stop offset="1" stop-color="#ff7d30" stop-opacity="0"/></linearGradient></defs>
+            <path d="M20 60 C80 64 110 70 150 130 S240 160 300 166 S420 180 500 186" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-dasharray="5 6" fill="none"/>
+            <path d="M20 60 C80 62 120 66 160 82 S260 104 320 110 S430 124 500 130 L500 240 L20 240Z" fill="url(#rf)"/>
+            <path class="path" d="M20 60 C80 62 120 66 160 82 S260 104 320 110 S430 124 500 130" stroke="#ff7d30" stroke-width="3" fill="none" style="stroke-dasharray:700;stroke-dashoffset:700;transition:stroke-dashoffset 2.4s cubic-bezier(.44,0,.56,1)"/>
+            <rect x="140" y="36" width="34" height="200" fill="rgba(240,86,28,.12)"/>
+            <g font-family="Hanken Grotesk, sans-serif" font-size="12"><text x="186" y="52" fill="#ffb070">Drop-off found</text><text x="330" y="100" fill="#ffd8b8">Next video, fixed</text><text x="330" y="184" fill="rgba(255,246,240,.45)">Last video</text></g>
+          </svg>
+        </div>
+        <div class="body"><h3>Retention-driven editing</h3><p>Reads your retention curve, marks the moments people swipe away, and tightens those spots in your next edit. YouTube gives the full curve; for Instagram, upload a screenshot of the in-app graph.</p></div>
+      </article>
+      <article class="card c-l rv" data-io style="transition-delay:.1s">
+        <div class="art">
+          <span class="status"><i></i>Next up</span>
+          <div class="bubble me">Why did my last reel do worse?</div>
+          <div class="bubble ai ml">ആദ്യത്തെ 3 സെക്കൻഡിൽ ഹുക്ക് ഇല്ല. ഈ niche-ലെ മുൻനിര creators ആദ്യം തന്നെ ചോദ്യം ചോദിക്കുന്നു.</div>
+        </div>
+        <div class="body"><h3>Growth coach</h3><p>Compares your stats with public videos from successful creators in your niche and explains the gap in your language. For a brand-new niche, it learns from neighbouring ones.</p></div>
+      </article>
+      <article class="card c-s rv" data-io>
+        <div class="art">
+          <span class="status planned"><i></i>Planned</span>
+          <div class="heat-pin">Likely drop</div>
+          <div class="heat"></div>
+          <div class="heat-ax"><span>0s</span><span>15s</span><span>30s</span><span>45s</span></div>
+        </div>
+        <div class="body"><h3>Drop-off prediction</h3><p>Flags weak moments before you post.</p></div>
+      </article>
+      <article class="card c-s rv" data-io style="transition-delay:.08s">
+        <div class="art">
+          <span class="status planned"><i></i>Planned</span>
+          <div class="cm">
+            <span class="ml">അടുത്തത് editing tips ചെയ്യാമോ?<em>request</em></span>
+            <span>Bhai part 2 kab aayega?<em>request</em></span>
+            <span>Audio konjam low aanu<em>fix</em></span>
+          </div>
+        </div>
+        <div class="body"><h3>Comment mining</h3><p>Reads Malayalam, Hindi and code-mixed comments to find what to make next.</p></div>
+      </article>
+      <article class="card c-s rv" data-io style="transition-delay:.16s">
+        <div class="art">
+          <span class="status planned"><i></i>Planned</span>
+          <div class="bench"><div style="height:46%"></div><div style="height:70%"></div><div class="you" style="height:58%"></div><div style="height:84%"></div><div style="height:64%"></div></div>
+        </div>
+        <div class="body"><h3>Regional benchmarks</h3><p>Anonymised patterns from Indian-language creators that global tools don’t have.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="sec" id="process">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">How you use it</span>
+      <h2>From raw take to reel in three steps</h2>
+      <p>No timeline, no plugins, no export settings to guess.</p>
+    </div>
+    <div class="proc">
+      <article class="card step s1 rv">
+        <div class="art">
+          <div class="drop"><div class="up"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+          <div class="file-fly"><span class="th"></span><span>raw_take.mp4</span></div>
+        </div>
+        <div class="s-body"><h3><span class="num">1</span>Drop in your raw take</h3><p>Upload a talking-head video and pick the language, or let Euphoria detect it. It transcribes every word with timestamps.</p></div>
+      </article>
+      <article class="card step rv">
+        <div class="art">
+          <div class="ba">
+            <div class="lab"><span>Before</span><span>After</span></div>
+            <div class="trk"><b style="flex:3"></b><b class="x" style="flex:1"></b><b style="flex:2"></b><b class="x" style="flex:1.4"></b><b style="flex:3"></b><b class="x" style="flex:.8"></b><b style="flex:2"></b></div>
+            <div class="trk after"><b style="flex:3"></b><b style="flex:2"></b><b style="flex:3"></b><b style="flex:2"></b></div>
+            <div class="tags"><span>Retake removed</span><span>Fillers</span><span>Pauses</span><span>Captions</span></div>
+          </div>
+          <div class="scan"></div>
+        </div>
+        <div class="s-body"><h3><span class="num">2</span>Review the cut</h3><p>Check the suggested cuts in the transcript, strike or restore words, or type what you want changed.</p></div>
+      </article>
+      <article class="card step rv" style="transition-delay:.1s">
+        <div class="art">
+          <div class="phones">
+            <div class="phone"><div class="cap ml">ഇന്ന് ഒരു <span class="on">ടിപ്പ്</span></div><div class="ui"><i></i><i></i><i></i></div></div>
+            <div class="phone"><div class="cap hi">पहले <span class="on">हुक</span>, फिर कहानी</div><div class="ui"><i></i><i></i><i></i></div></div>
+            <div class="phone"><div class="cap">Try <span class="on">this</span> first</div><div class="ui"><i></i><i></i><i></i></div></div>
+          </div>
+        </div>
+        <div class="s-body"><h3><span class="num">3</span>Post the reel</h3><p>Render a 9:16 MP4 with captions and evened-out audio, ready for Reels and Shorts.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCE -->
+<section class="sec" id="who" style="padding-top:40px">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">Who it’s for</span>
+      <h2>Anyone who talks to camera in their own language</h2>
+    </div>
+    <div class="aud">
+      <article class="card glow rv" data-io><span class="who">First</span><h3>Creators</h3><p>Malayalam and Manglish talking-head creators posting Reels and Shorts.</p><ul><li>Clean takes without a timeline</li><li>Captions your audience can read</li><li>Soon: know what to shoot next</li></ul></article>
+      <article class="card glow rv" data-io style="transition-delay:.08s"><span class="who">Also</span><h3>Educators</h3><p>Teachers and coaching institutes recording lessons and short explainers.</p><ul><li>Turn a long lesson into short clips</li><li>Captions in the language you teach in</li><li>Soon: see where students get confused</li></ul></article>
+      <article class="card glow rv" data-io style="transition-delay:.16s"><span class="who">Also</span><h3>Small businesses</h3><p>Shops and local brands making product and offer videos in-house.</p><ul><li>No editor to hire for every video</li><li>Same workflow for every post</li><li>Ready for Reels, Shorts and WhatsApp</li></ul></article>
+    </div>
+  </div>
+  <div class="loop rv" aria-label="The growth loop">
+    <div class="loop-track" id="loopTrack"></div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section class="sec" id="plans">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">Plans</span>
+      <h2>Start free, grow when you’re ready</h2>
+      <p>Pricing will be set with our early-access creators. Join now and help shape it.</p>
+    </div>
+    <div class="plans">
+      <article class="card plan rv" data-io>
+        <h3>Free</h3><p class="for">For trying Euphoria on your own takes</p>
+        <div class="price">₹0</div>
+        <ul><li>Free editing minutes every month</li><li>Auto-clean and edit by text</li><li>Captions in Malayalam, Hindi and English</li><li>9:16 export</li></ul>
+        <a class="btn" href="#join">Join early access</a>
+      </article>
+      <article class="card plan hot rv" data-io style="transition-delay:.08s">
+        <h3>Creator <span>Early access</span></h3><p class="for">For creators posting every week</p>
+        <div class="price word">Coming soon</div><p class="price-note">Priced for Indian creators</p>
+        <ul><li>More editing minutes</li><li>Chat edits, like “make a 30-second reel”</li><li>Word-by-word highlighted captions</li><li>First access to retention-driven editing</li></ul>
+        <a class="btn btn-fire" href="#join">Get early access <svg viewBox="0 0 16 16" fill="none"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
+      </article>
+      <article class="card plan rv" data-io style="transition-delay:.16s">
+        <h3>Teams</h3><p class="for">For coaching institutes, schools and agencies</p>
+        <div class="price word">Let’s talk</div>
+        <ul><li>Shared workspace for your team</li><li>Several creators or teachers</li><li>Help setting up your workflow</li></ul>
+        <a class="btn" href="#join">Talk to us</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq">
+  <div class="wrap faq">
+    <div class="faq-l rv">
+      <span class="tag">FAQ</span>
+      <h2>Questions, answered</h2>
+      <p>Something else on your mind? Ask us when you join early access.</p>
+    </div>
+    <div class="faq-r rv" id="faqList">
+      <div class="qa open"><button type="button" aria-expanded="true">Which languages does it support?<span class="pm"></span></button><div class="ans"><div><p>Malayalam and Manglish first, with Hindi and English. Code-mixed sentences, where you switch languages mid-line, are expected and handled.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Can the AI change what I said?<span class="pm"></span></button><div class="ans"><div><p>No. The AI only writes an edit list that points at words already in your transcript. A validator rejects anything else, and captions come from the transcript, never from generated text.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Do I need to learn video editing?<span class="pm"></span></button><div class="ans"><div><p>No. You edit the transcript like text. Strike what you don’t want, restore what you do, and render.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Are my videos used to train AI?<span class="pm"></span></button><div class="ans"><div><p>No. Your videos are used only to make your edit. The current build runs on your own computer.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">When do analytics and retention editing arrive?<span class="pm"></span></button><div class="ans"><div><p>They’re next on the roadmap, after the editor. Early-access creators will get them first and help us test them.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Who is building Euphoria?<span class="pm"></span></button><div class="ans"><div><p>Team Euphoria, a student team from Kerala, building under the AI BHOOMI programme.</p></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<section class="sec" style="padding-top:20px">
+  <div class="wrap"><div class="head rv" style="margin-bottom:44px"><span class="tag">Made for where you post</span><h2>One take, every vertical feed</h2></div></div>
+  <div class="plat rv"><div class="plat-track" id="platA"></div><div class="plat-track rev" id="platB"></div></div>
+</section>
+
+<!-- CTA -->
+<section class="sec" id="join" style="padding-top:40px">
+  <div class="wrap">
+    <div class="cta rv zoom">
+      <div class="rays"></div>
+      <div class="stars" id="stars2"></div>
+      <h2>Your next reel is one take away</h2>
+      <p>Join early access and be among the first creators to edit in Malayalam, Manglish and Hindi with Euphoria.</p>
+      <form class="wl" id="wl" novalidate>
+        <label for="wlEmail" class="sr" style="position:absolute;left:-9999px">Email</label>
+        <input id="wlEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+        <button class="btn btn-fire" type="submit">Join</button>
+      </form>
+      <p class="wl-msg" id="wlMsg" role="status"></p>
+      <p class="fine">Free to join.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="about">
+        <a class="logo" href="#top"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l10-6.5-10-6.5z" fill="#fff"/></svg></span>Euphoria</a>
+        <p>AI video editing for Indian-language talking-head creators. Built by Team Euphoria under the AI BHOOMI programme, Kochi.</p>
+      </div>
+      <div><h4>Product</h4><ul><li><a href="#how">How it works</a></li><li><a href="#demo">Demo</a></li><li><a href="#roadmap">Roadmap</a></li><li><a href="#plans">Plans</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#who">Who it’s for</a></li><li><a href="#faq">FAQ</a></li><li><a href="#join">Early access</a></li></ul></div>
+    </div>
+    <div class="legal"><span>© 2026 Team Euphoria</span><span>Made in Kerala</span></div>
+  </div>
+  <div class="giant" aria-hidden="true"><span>Euphoria</span></div>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Nav state */
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', scrollY > 30);
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  /* Stars */
+  function stars(el, n){ if(!el) return; for(let i=0;i<n;i++){ const s=document.createElement('i'); s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(-Math.random()*4)+'s'; s.style.animationDuration=(3+Math.random()*3)+'s'; el.appendChild(s);} }
+  stars(document.getElementById('stars'), 34); stars(document.getElementById('stars2'), 22);
+
+  /* Rotating language word */
+  const words=[['Malayalam','ml'],['Manglish',''],['Hindi',''],['മലയാളം','ml'],['हिन्दी','hi']];
+  const lw=document.getElementById('langWord'); let wi=0;
+  if(!reduce) setInterval(()=>{ wi=(wi+1)%words.length; lw.animate([{opacity:1,transform:'translateY(0)',filter:'blur(0)'},{opacity:0,transform:'translateY(-18px)',filter:'blur(6px)'}],{duration:320,easing:'ease-in'}).onfinish=()=>{ lw.textContent=words[wi][0]; lw.className='lang '+words[wi][1]; lw.animate([{opacity:0,transform:'translateY(18px)',filter:'blur(6px)'},{opacity:1,transform:'translateY(0)',filter:'blur(0)'}],{duration:520,easing:'cubic-bezier(.2,.9,.25,1.06)'}); }; }, 2600);
+
+  /* 3D reel cylinder */
+  const reels=[
+    {cap:'ഇന്ന് നമുക്ക് ഒരു <span class="on">കാര്യം</span> പറയാം',cls:'ml',chip:'Malayalam captions',bg:['#7a3517','#1e0e07'],skin:'#c98a63',hair:'#1a0e08',top:'#3b2a6b'},
+    {cap:'आज की टिप <span class="on">बहुत</span> आसान है',cls:'hi',chip:'Hindi captions',bg:['#2d4a5e','#0e1418'],skin:'#b77a55',hair:'#120a06',top:'#9a3b20'},
+    {cap:'Ithu <span class="on">try</span> cheyyu, seriously',cls:'',chip:'Fillers cut',bg:['#6e5320','#1b1306'],skin:'#d6a07a',hair:'#2a160a',top:'#1f4a3a'},
+    {cap:'ആദ്യം <span class="on">ഹുക്ക്</span> ശരിയാക്കണം',cls:'ml',chip:'Retake removed',bg:['#5b2a4a','#170a12'],skin:'#a8714e',hair:'#0d0805',top:'#c25a1f'},
+    {cap:'Three tips <span class="on">before</span> you post',cls:'',chip:'Pauses cut',bg:['#3c5a2e','#0f160b'],skin:'#c78f69',hair:'#3a2212',top:'#22324d'},
+    {cap:'पहले <span class="on">हुक</span>, फिर कहानी',cls:'hi',chip:'9:16 export',bg:['#80421d','#200f06'],skin:'#9c6646',hair:'#110905',top:'#e3dccf'},
+    {cap:'ഈ <span class="on">ടിപ്പ്</span> ശ്രദ്ധിക്കൂ',cls:'ml',chip:'Malayalam captions',bg:['#24405c','#0a1018'],skin:'#c1855f',hair:'#1c0f07',top:'#7d2a2a'},
+    {cap:'Class <span class="on">notes</span> in 60 seconds',cls:'',chip:'Edit by text',bg:['#6b3a2a','#1a0d08'],skin:'#b98059',hair:'#0f0a07',top:'#2f5b5b'},
+    {cap:'Ningalude <span class="on">doubt</span> comment cheyyu',cls:'',chip:'Manglish',bg:['#4a3a6b','#110c1a'],skin:'#d3a17c',hair:'#24150b',top:'#a3541f'},
+    {cap:'ബാക്കി ഞാൻ <span class="on">പറഞ്ഞുതരാം</span>',cls:'ml',chip:'Fillers cut',bg:['#7b5a28','#1c1408'],skin:'#a66d49',hair:'#0c0704',top:'#3e4f86'},
+    {cap:'Offer <span class="on">sirf</span> aaj tak',cls:'',chip:'Small business',bg:['#2e5248','#0b1513'],skin:'#c48b66',hair:'#1a0f08',top:'#b2351a'},
+    {cap:'Join the <span class="on">live</span> class',cls:'',chip:'Educators',bg:['#6a2c22','#190a08'],skin:'#b67b57',hair:'#2b170b',top:'#f0a34a'}
+  ];
+  const cyl=document.getElementById('cyl');
+  [...reels,...reels].forEach((r,i)=>{
+    const el=document.createElement('div'); el.className='reel'; el.style.setProperty('--a',(i*15)+'deg');
+    const bars=Array.from({length:28},(_,k)=>{const h=20+Math.abs(Math.sin(i*3+k*1.7))*80; const cut=(k%9===4||k%11===7);return `<span class="${cut?'cut':''}" style="height:${h}%"></span>`}).join('');
+    el.innerHTML=`<div class="scene" style="background:radial-gradient(90% 60% at 50% 30%,${r.bg[0]},${r.bg[1]})"></div>
+      <svg class="person" viewBox="0 0 200 240"><ellipse cx="100" cy="240" rx="96" ry="70" fill="${r.top}"/><rect x="86" y="128" width="28" height="40" rx="10" fill="${r.skin}"/><ellipse cx="100" cy="98" rx="44" ry="52" fill="${r.skin}"/><path d="M56 92c0-36 22-56 46-56s44 18 44 54c-6-16-20-28-44-28s-38 12-46 30z" fill="${r.hair}"/></svg>
+      <span class="chip"><i></i>${r.chip}</span>
+      <div class="cap ${r.cls}">${r.cap}</div>
+      <div class="wave">${bars}</div>`;
+    cyl.appendChild(el);
+  });
+  let rot=0, last=performance.now(), speed=6, scrollBoost=0, lastY=scrollY;
+  function spin(t){ const dt=Math.min(64,t-last)/1000; last=t; const dy=scrollY-lastY; lastY=scrollY; scrollBoost+= dy*0.02; scrollBoost*=0.92; rot-= (speed*dt + scrollBoost); cyl.style.setProperty('--rot',rot+'deg'); requestAnimationFrame(spin); }
+  if(!reduce) requestAnimationFrame(spin);
+
+  /* Reveal on scroll: only pre-hide what starts below the first screen */
+  const rvs=[...document.querySelectorAll('.rv')];
+  const vh=innerHeight;
+  if(!reduce && 'IntersectionObserver' in window){
+    rvs.forEach(el=>{ if(el.getBoundingClientRect().top>vh*0.95) el.classList.add('pre'); else el.classList.add('in'); });
+    const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.remove('pre'); e.target.classList.add('in'); trigger(e.target); io.unobserve(e.target);} }),{threshold:.14,rootMargin:'0px 0px -6% 0px'});
+    rvs.forEach(el=>{ if(el.classList.contains('pre')) io.observe(el); else trigger(el); });
+  } else { rvs.forEach(el=>{el.classList.add('in'); trigger(el,true);}); }
+
+  function trigger(el,instant){
+    el.querySelectorAll('[data-count]').forEach(n=>count(n,0,+n.dataset.count,instant));
+    el.querySelectorAll('[data-countdown]').forEach(n=>count(n,99,+n.dataset.countdown,instant));
+    el.querySelectorAll('[data-type]').forEach(n=>type(n,n.dataset.type,instant));
+    el.querySelectorAll('.ring-arc').forEach(a=>{ if(!instant) a.animate([{strokeDashoffset:427},{strokeDashoffset:330}],{duration:1600,easing:'cubic-bezier(.2,.9,.25,1)'}) });
+    el.querySelectorAll('.art .path').forEach(p=>{ p.style.strokeDashoffset=0; });
+  }
+  function count(n,from,to,instant){ if(instant){n.textContent=to;return;} const d=1400, s=performance.now(); const f=t=>{ const k=Math.min(1,(t-s)/d), e=1-Math.pow(1-k,3); n.textContent=Math.round(from+(to-from)*e); if(k<1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
+  function type(n,str,instant){ if(instant){n.textContent=str;return;} n.textContent=''; [...str].forEach((c,i)=>setTimeout(()=>{n.textContent+=c},180*i+200)); }
+
+  /* Growth loop ticker */
+  const loop=[['Plan','what to shoot'],['Edit','raw take to reel'],['Post','Reels and Shorts'],['Measure','analytics and comments'],['Learn','what worked, what didn’t']];
+  const lt=document.getElementById('loopTrack');
+  const loopHTML=loop.map(([a,b])=>`<div class="loop-item">${a}<small>${b}</small><span class="arw">→</span></div>`).join('');
+  lt.innerHTML=loopHTML+loopHTML+loopHTML+loopHTML;
+
+  /* Platforms ticker */
+  const plats=[['Instagram Reels','9:16'],['YouTube Shorts','9:16'],['WhatsApp Status','short clips'],['Facebook Reels','9:16'],['YouTube','long talks'],['Moj','9:16'],['Josh','9:16']];
+  const ph=plats.map(([a,b])=>`<div class="pl"><i></i>${a}<small>${b}</small></div>`).join('');
+  document.getElementById('platA').innerHTML=ph+ph;
+  document.getElementById('platB').innerHTML=[...plats].reverse().map(([a,b])=>`<div class="pl"><i></i>${a}<small>${b}</small></div>`).join('').repeat(2);
+
+  /* FAQ accordion */
+  document.querySelectorAll('.qa button').forEach(b=>b.addEventListener('click',()=>{
+    const qa=b.parentElement, open=!qa.classList.contains('open');
+    document.querySelectorAll('.qa').forEach(q=>{q.classList.remove('open');q.querySelector('button').setAttribute('aria-expanded','false');});
+    if(open){qa.classList.add('open');b.setAttribute('aria-expanded','true');}
+  }));
+
+  /* Demo: transcript editing (sample data, durations in seconds) */
+  const T=[
+    ['Umm,',0.7,'filler'],['ഹായ്',0.4],['എല്ലാവർക്കും,',0.8],['',1.6,'pause'],
+    ['ഇന്ന്',0.4],['നമുക്ക്',0.5],['reels',0.4],['edit',0.4],['ചെയ്യുന്നത്',0.7],['നോക്കാം.',0.6],
+    ['Athu,',0.6,'filler'],['ആദ്യം',0.5,'retake'],['hook…',0.6,'retake'],['',1.2,'pause'],
+    ['ആദ്യം',0.5],['ഹുക്ക്',0.4],['ശരിയാക്കണം.',0.8],
+    ['Like,',0.5,'filler'],['first',0.4],['മൂന്ന്',0.4],['സെക്കൻഡ്',0.5],['ആണ്',0.3],['എല്ലാം.',0.6],
+    ['',2.1,'pause'],['Matlab,',0.6,'filler'],['ബാക്കി',0.4],['ഞാൻ',0.3],['പറഞ്ഞുതരാം.',0.9]
+  ].map((w,i)=>({id:i,text:w[0],dur:w[1],kind:w[2]||'word',cut:false}));
+  const box=document.getElementById('transcript'), track=document.getElementById('barTrack');
+  T.forEach(w=>{
+    const s=document.createElement('span'); s.className='w'+(w.kind==='pause'?' pause':'')+(w.kind!=='word'?' sugg':''); s.tabIndex=0; s.setAttribute('role','button');
+    s.textContent= w.kind==='pause' ? `pause ${w.dur.toFixed(1)}s` : w.text;
+    s.title = w.kind==='word' ? 'Click to cut' : (w.kind==='retake' ? 'Retake, said again below' : w.kind==='filler' ? 'Filler word' : 'Long pause');
+    const tog=()=>{ w.cut=!w.cut; render(); };
+    s.addEventListener('click',tog); s.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();tog();} });
+    w.el=s; box.appendChild(s); box.appendChild(document.createTextNode(' '));
+    const b=document.createElement('b'); b.className='k-'+w.kind; b.style.flexGrow=w.dur; w.bar=b; track.appendChild(b);
+  });
+  const fmt=s=>{ s=Math.round(s*10)/10; const m=Math.floor(s/60), r=(s-m*60); return m+':'+(r<10?'0':'')+r.toFixed(1); };
+  const total=T.reduce((a,w)=>a+w.dur,0);
+  function ranges(keep){ const out=[]; let st=null; T.forEach((w,i)=>{ const k=keep(w); if(k&&st===null) st=i; if(!k&&st!==null){out.push([st,i-1]);st=null;} }); if(st!==null) out.push([st,T.length-1]); return out; }
+  function render(){
+    let kept=0; const counts={filler:0,pause:0,retake:0,word:0};
+    T.forEach(w=>{ w.el.classList.toggle('cut',w.cut); w.bar.classList.toggle('gone',w.cut); if(!w.cut) kept+=w.dur; else counts[w.kind]++; });
+    document.getElementById('metaOrig').textContent='Original '+fmt(total);
+    document.getElementById('metaNew').textContent='After edit '+fmt(kept);
+    document.getElementById('bigLen').innerHTML=fmt(kept)+' <small>from '+fmt(total)+'</small>';
+    const chips=[]; if(counts.filler) chips.push(counts.filler+' fillers cut'); if(counts.pause) chips.push(counts.pause+' pauses cut'); if(counts.retake) chips.push('1 retake removed'); if(counts.word) chips.push(counts.word+' words you cut');
+    if(!chips.length) chips.push('Nothing cut yet');
+    document.getElementById('resultChips').innerHTML=chips.map(c=>`<span>${c}</span>`).join('');
+    const keep=ranges(w=>!w.cut).map(([a,b])=>`    {<span class="s">"from_word"</span>: <span class="n">${a}</span>, <span class="s">"to_word"</span>: <span class="n">${b}</span>}`).join(',\n');
+    const rem=T.filter(w=>w.cut).length;
+    document.getElementById('edl').innerHTML=`{\n  <span class="s">"source"</span>: <span class="s">"sample_take_ml.mp4"</span>,\n  <span class="s">"keep"</span>: [\n${keep}\n  ],\n  <span class="s">"removed_words"</span>: <span class="n">${rem}</span>,\n  <span class="s">"captions"</span>: {<span class="s">"lang"</span>: <span class="s">"ml"</span>},\n  <span class="s">"format"</span>: {<span class="s">"aspect"</span>: <span class="s">"9:16"</span>}\n}`;
+  }
+  document.getElementById('autoBtn').addEventListener('click',()=>{ T.forEach(w=>{ if(w.kind!=='word') w.cut=true; }); render(); });
+  document.getElementById('resetBtn').addEventListener('click',()=>{ T.forEach(w=>w.cut=false); render(); });
+  render();
+  // Play auto-clean once when the demo scrolls into view
+  const demo=document.getElementById('demo');
+  if('IntersectionObserver' in window){ const dio=new IntersectionObserver(es=>{ if(es[0].isIntersecting){ dio.disconnect(); const sug=T.filter(w=>w.kind!=='word'); sug.forEach((w,i)=>setTimeout(()=>{ if(!w.cut){ w.cut=true; render(); } }, reduce?0:900+i*260)); } },{threshold:.35}); dio.observe(demo); }
+
+  /* Waitlist form (preview: not connected to a backend yet) */
+  const WAITLIST_ENDPOINT=''; // e.g. 'https://your-api.example.com/waitlist'
+  document.getElementById('wl').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const inp=document.getElementById('wlEmail'), msg=document.getElementById('wlMsg');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value.trim())){ msg.textContent='Enter an email address like name@example.com.'; inp.focus(); return; }
+    if(!WAITLIST_ENDPOINT){ msg.textContent='Sign-ups open soon. This preview isn’t connected to the waitlist yet.'; return; }
+    try{ const r=await fetch(WAITLIST_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:inp.value.trim()})}); msg.textContent = r.ok ? 'You’re on the list. We’ll email you when your spot opens.' : 'Couldn’t add you right now. Try again in a minute.'; }
+    catch(_){ msg.textContent='Couldn’t reach the server. Check your connection and try again.'; }
+  });
+})();
+</script>
+<script>
+/* Studio: upload → AI edits on the Euphoria backend → live progress → result */
+(() => {
+  const $ = id => document.getElementById(id);
+  const form = $('stForm'), file = $('stFile'), drop = $('stDrop'), go = $('stGo'), health = $('stHealth');
+  const STEPS = ['Reading', 'Planning', 'Cutting', 'Graphics', 'Rendering', 'Sound'];
+  const stepOf = p => { p = (p || '').toLowerCase();
+    if (/done/.test(p)) return 6; if (/sound|finish/.test(p)) return 5; if (/render/.test(p)) return 4;
+    if (/graphic/.test(p)) return 3; if (/cut/.test(p)) return 2; if (/plan/.test(p)) return 1; return 0; };
+  let online = false, cur = null, seen = 0, timer = null, started = 0, picked = null;
+  $('stSteps').innerHTML = STEPS.map(s => `<li>${s}</li>`).join('');
+
+  const api = (path, opts) => fetch(path, opts).then(async r => {
+    if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail || m; } catch (_) {} throw new Error(m); }
+    return r.json();
+  });
+
+  function setHealth(text, cls) { health.textContent = text; health.className = 'st-health ' + (cls || ''); }
+  let setupTimer = null;
+  async function check() {
+    try {
+      const h = await api('/api/reels/health');
+      online = true;
+      if (!h.ready) { setHealth('Finish the setup above to start editing.', 'bad'); go.disabled = true; showSetup(); return; }
+      $('stSetup').hidden = true; clearInterval(setupTimer); setupTimer = null;
+      setHealth('AI editor is ready', 'ok'); go.disabled = !picked; loadRecent();
+    } catch (_) {
+      online = false; go.disabled = true;
+      setHealth('The studio runs in the Euphoria app on your computer. Start run.bat and open 127.0.0.1:8000/site', 'bad');
+    }
+  }
+  function row(id, ok, busy, text, btnOff) {
+    const r = $(id); r.className = 'st-srow' + (ok ? ' ok' : busy ? ' busy' : '');
+    r.querySelector('[data-d]').textContent = text; r.querySelector('button').disabled = !!btnOff || busy;
+  }
+  async function setupPoll() {
+    let s; try { s = await api('/api/setup/status'); } catch (_) { return; }
+    const c = s.claude, l = s.login, t = s.tools;
+    row('suClaude', c.installed, c.running, c.installed ? `Installed ${c.version || ''}` : (c.log.slice(-1)[0] || 'Not installed yet. Install runs in a new window.'));
+    row('suLogin', l.signed_in, l.running, l.signed_in ? `Signed in (${l.method})` : (l.log.slice(-1)[0] || 'Uses your AI account (Pro or Max plan). A browser window opens to sign in.'), !c.installed);
+    row('suTools', t.ready, t.running, t.ready ? 'Ready' : t.running ? (t.log.slice(-1)[0] || 'Installing…') : (t.error ? 'Failed: ' + t.error : 'Headless browser, OpenCV, fonts, cut-out model (~250 MB, a few minutes).'));
+    if (s.ready) check();
+  }
+  function showSetup() {
+    $('stSetup').hidden = false; setupPoll();
+    if (!setupTimer) setupTimer = setInterval(setupPoll, 3000);
+  }
+  document.querySelectorAll('#stSetup button').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    try { await api('/api/setup/' + b.dataset.a, { method: 'POST' }); } catch (e) { setHealth(e.message, 'bad'); }
+    setTimeout(setupPoll, 800);
+  }));
+
+  function pick(f) {
+    if (!f) return;
+    if (!/^video\//.test(f.type) && !/\.(mp4|mov|m4v|webm|mkv|avi)$/i.test(f.name)) { setHealth('That file isn’t a video. Choose an mp4 or mov.', 'bad'); return; }
+    picked = f; $('stFileName').textContent = f.name; drop.classList.add('has'); go.disabled = !online;
+  }
+  file.addEventListener('change', () => pick(file.files[0]));
+  ['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', ev => pick(ev.dataTransfer.files[0]));
+
+  form.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    if (!picked || !online) return;
+    go.disabled = true; go.firstChild.textContent = 'Uploading… ';
+    const fd = new FormData();
+    fd.append('file', picked); fd.append('language', $('stLang').value);
+    fd.append('cta', $('stCta').value.trim()); fd.append('notes', $('stNotes').value.trim());
+    try { const m = await api('/api/reels', { method: 'POST', body: fd }); open(m.id); }
+    catch (e) { setHealth('Upload failed: ' + e.message, 'bad'); }
+    finally { go.firstChild.textContent = 'Edit with AI '; go.disabled = false; }
+  });
+
+  function view(which) { ['stEmpty', 'stLive', 'stDone', 'stFail'].forEach(id => $(id).hidden = id !== which); }
+  function open(id, scroll = true) {
+    cur = id; seen = 0; $('stLog').innerHTML = ''; started = 0; view('stLive');
+    try { localStorage.setItem('euphoria-reel', id); } catch (_) {}
+    clearInterval(timer); poll(); timer = setInterval(poll, 2000);
+    if (scroll) $('studio').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function addLog(lines) {
+    const box = $('stLog'), atEnd = box.scrollTop + box.clientHeight > box.scrollHeight - 40;
+    for (const l of lines) {
+      const d = document.createElement('div'); d.className = 'ln k-' + l.k;
+      d.innerHTML = '<i></i><span></span>'; d.lastChild.textContent = l.x; box.appendChild(d);
+    }
+    while (box.children.length > 300) box.firstChild.remove();
+    if (atEnd) box.scrollTop = box.scrollHeight;
+  }
+  const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+  async function poll() {
+    if (!cur) return;
+    let m; try { m = await api(`/api/reels/${cur}?since=${seen}`); } catch (e) { if (/No such reel/.test(e.message)) reset(); return; }
+    if (seen === 0) $('stLog').innerHTML = '';
+    addLog(m.log || []); seen = m.log_n || seen;
+    started = m.started || m.created; const end = m.finished || Date.now() / 1000;
+    $('stTime').textContent = fmt(end - started);
+    const labels = { queued: 'Queued', preparing: 'Preparing', editing: 'AI is planning', rendering: 'Rendering', done: 'Done', failed: 'Stopped', cancelled: 'Cancelled' };
+    $('stStatus').textContent = labels[m.status] || m.status;
+    $('stPhase').textContent = m.status === 'queued' && m.queue_ahead ? `Waiting for ${m.queue_ahead} other edit${m.queue_ahead > 1 ? 's' : ''}` : (m.phase || '');
+    const k = stepOf(m.phase);
+    [...$('stSteps').children].forEach((li, i) => { li.className = i < k ? 'done' : i === k ? 'now' : ''; });
+    if (m.status === 'done') { clearInterval(timer); showDone(m); }
+    else if (m.status === 'failed' || m.status === 'cancelled') { clearInterval(timer); $('stErr').textContent = m.error || 'The edit was cancelled.'; view('stFail'); }
+  }
+
+  function showDone(m) {
+    view('stDone');
+    const v = $('stVideo'); v.src = `/api/reels/${m.id}/video?kind=final`;
+    document.querySelectorAll('.st-toggle button').forEach(b => {
+      b.classList.toggle('on', b.dataset.kind === 'final'); b.setAttribute('aria-selected', b.dataset.kind === 'final');
+      b.onclick = () => { document.querySelectorAll('.st-toggle button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); });
+        v.src = `/api/reels/${m.id}/video?kind=${b.dataset.kind}`; v.play().catch(() => {}); };
+    });
+    $('stDl').href = `/api/reels/${m.id}/video?kind=final&download=1`;
+    $('stDlM').href = `/api/reels/${m.id}/video?kind=master&download=1`;
+    const r = m.report || {};
+    $('stSummary').innerHTML = ''; (r.summary || ['Cuts, captions, graphics, grade and sound are done.']).forEach(s => { const li = document.createElement('li'); li.textContent = s; $('stSummary').appendChild(li); });
+    const checks = [...(r.guessed_words || []).map(w => 'Caption word guessed: ' + w), ...(r.claims_to_check || []).map(c => 'Check this claim: ' + c)];
+    $('stCheck').hidden = !checks.length; $('stCheck').textContent = checks.join(' · ');
+    const tk = m.tokens; $('stTokens').textContent = tk ? `The AI used ${(tk.input + tk.output).toLocaleString()} tokens for this reel (one planning call).` : '';
+    const img = $('stSheet'); img.hidden = true; img.onload = () => img.hidden = false; img.src = `/api/reels/${m.id}/image/final_sheet.jpg`;
+    loadRecent();
+  }
+
+  $('stCancel').addEventListener('click', async () => { if (cur) { try { await api(`/api/reels/${cur}/cancel`, { method: 'POST' }); } catch (_) {} poll(); } });
+  $('stRetry').addEventListener('click', async () => { if (!cur) return; try { await api(`/api/reels/${cur}/retry`, { method: 'POST' }); open(cur); } catch (e) { $('stErr').textContent = e.message; } });
+  function reset() { clearInterval(timer); cur = null; view('stEmpty'); try { localStorage.removeItem('euphoria-reel'); } catch (_) {} }
+  $('stNew').addEventListener('click', reset); $('stNew2').addEventListener('click', reset);
+
+  async function loadRecent() {
+    let list; try { list = await api('/api/reels'); } catch (_) { return; }
+    $('stRecent').hidden = !list.length;
+    $('stList').innerHTML = '';
+    list.slice(0, 8).forEach(m => {
+      const b = document.createElement('button'); b.type = 'button';
+      b.innerHTML = '<b></b><small></small>'; b.firstChild.textContent = m.name;
+      b.lastChild.textContent = ({ done: 'Ready', failed: 'Stopped', cancelled: 'Cancelled', queued: 'Queued' }[m.status] || 'Editing…') + ' · ' + new Date(m.created * 1000).toLocaleString();
+      b.addEventListener('click', () => open(m.id)); $('stList').appendChild(b);
+    });
+  }
+
+  check().then(() => {
+    if (!online) return;
+    let last = null; try { last = localStorage.getItem('euphoria-reel'); } catch (_) {}
+    if (last) open(last, false);
+  });
+})();
+</script>
+</body>
+</html>

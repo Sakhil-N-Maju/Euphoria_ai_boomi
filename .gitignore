@@ -1,0 +1,28 @@
+# Secrets
+.env
+**/.env
+
+# Bundled runtimes and downloaded models (large; set up locally)
+tools/
+models/
+
+# Runtime data: uploaded jobs, rendered reels, downloaded fonts/tools
+app/data/
+
+# Python
+__pycache__/
+*.pyc
+*.bak*
+
+# LUTs (third-party, not redistributed)
+app/luts/*.cube
+
+# OS / editor
+Thumbs.db
+.DS_Store
+desktop.ini
+.vscode/
+.idea/
+
+# Scratch preview frames
+deck_frames/

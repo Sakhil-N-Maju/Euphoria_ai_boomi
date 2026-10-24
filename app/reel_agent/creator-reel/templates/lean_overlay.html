@@ -1,0 +1,179 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- GRAPHICS LAYER. Copy to the job folder as overlay.html, then edit the THEME, BACKTEXT, HEADLINE and BEATS sections.
+     Every draw(t) must depend only on t (and the frame number), so frames render the same every time. -->
+<style>
+@font-face{font-family:IT;src:url(fonts/inter-tight/files/inter-tight-latin-500-normal.woff2);font-weight:500}
+@font-face{font-family:IT;src:url(fonts/inter-tight/files/inter-tight-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:IT;src:url(fonts/inter-tight/files/inter-tight-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:IT;src:url(fonts/inter-tight/files/inter-tight-latin-800-normal.woff2);font-weight:800}
+@font-face{font-family:IS;src:url(fonts/instrument-serif/files/instrument-serif-latin-400-italic.woff2);font-style:italic}
+@font-face{font-family:JB;src:url(fonts/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2);font-weight:500}
+/* other scripts: Malayalam, Hindi/Marathi (Devanagari), Tamil, Arabic */
+@font-face{font-family:LOC;src:url(fonts/anek-malayalam/files/anek-malayalam-malayalam-700-normal.woff2);font-weight:700}
+@font-face{font-family:LOC;src:url(fonts/anek-malayalam/files/anek-malayalam-malayalam-800-normal.woff2);font-weight:800}
+@font-face{font-family:LOC;src:url(fonts/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-700-normal.woff2);font-weight:700 800}
+@font-face{font-family:LOC;src:url(fonts/noto-sans-tamil/files/noto-sans-tamil-tamil-700-normal.woff2);font-weight:700 800}
+@font-face{font-family:LOC;src:url(fonts/noto-sans-arabic/files/noto-sans-arabic-arabic-700-normal.woff2);font-weight:700 800}
+/* ===== THEME (change these) ===== */
+:root{--txt:#F5F2EC;--mut:#8C9A88;--dim:#5B6658;--acc:#C6F432;--accrgb:198,244,50;--card:#0F1511;--line2:rgba(255,255,255,.16)}  /* Euphoria look: green-black + lime */
+html,body{margin:0;background:transparent}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:IT,LOC,sans-serif;-webkit-font-smoothing:antialiased;color:var(--txt)}
+.abs{position:absolute}.layer{position:absolute;inset:0;display:none}
+#card{position:absolute;inset:0;display:none;background:url(bg.png) center/cover}
+#pipf{position:absolute;display:none;box-sizing:border-box}
+#shade{position:absolute;left:0;right:0;top:960px;height:960px;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,.30) 35%,rgba(0,0,0,.62) 100%)}
+#tshade{position:absolute;left:0;right:0;top:0;height:560px;background:linear-gradient(to top,rgba(0,0,0,0),rgba(0,0,0,.42))}
+#cap{position:absolute;left:0;top:0;width:1080px;display:flex;justify-content:center}
+#capin{display:inline-flex;flex-direction:column;transform-origin:center center}
+.row{display:block;white-space:nowrap;line-height:1.02}.row.pre{text-align:left}.row.post{text-align:right}.row.mid{text-align:center}
+.w{display:inline-block;margin:0 .12em;text-shadow:0 4px 20px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.45)}
+.sm{font:700 50px IT,LOC}.bg{font:800 112px IT,LOC;letter-spacing:-0.02em}.bg.serif{font:italic 400 150px IS,LOC}.bg.loc{font:800 104px LOC,IT}
+.in{font:700 60px IT,LOC}.in.big{font:800 70px IT,LOC}.in.big.serif{font:italic 400 86px IS,LOC}
+.pillcap{background:rgba(12,12,14,.82);border-radius:22px;padding:10px 20px 14px}
+.pillcap .w{font:800 62px IT,LOC;text-shadow:none;border-radius:12px;padding:0 8px}
+.acc{color:var(--acc)}
+#hl{position:absolute;left:0;right:0;top:236px;text-align:center;font:700 56px IT,LOC;letter-spacing:-0.01em;text-shadow:0 3px 18px rgba(0,0,0,.5)}
+#back{position:absolute;inset:0;display:none}
+.giant{position:absolute;left:0;right:0;text-align:center;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:12px;border-radius:44px;padding:12px 26px;font:700 32px IT,LOC;white-space:nowrap}
+.glass{background:rgba(24,24,28,.92);border:1.5px solid var(--line2);border-radius:26px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.block{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 70px}
+.block .big{font:800 150px/0.95 IT,LOC;letter-spacing:-0.04em}
+.block .sub{font:700 48px IT,LOC;margin-top:28px;opacity:.85}
+.sticker{position:absolute;font:800 44px IT,LOC;padding:10px 24px;border-radius:14px;background:var(--acc);color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.lbl{font:500 26px JB;color:var(--acc);letter-spacing:.08em}
+.mono{font-family:JB}
+.pcard{background:rgba(13,19,15,.93);border:1.5px solid rgba(var(--accrgb),.16);border-radius:28px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.lime{background:var(--acc);color:#0B0F0A;border-radius:16px;padding:0 20px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+#hl{top:176px!important;font:800 66px/1.18 IT,LOC!important}
+#hl .lime{display:inline-block;margin-top:10px;font-size:76px}
+</style></head><body>
+<div id="stage">
+  <div id="back"></div>
+  <div id="card"></div>
+  <div id="pipf"></div>
+  <div id="shade"></div>
+  <div id="tshade"></div>
+  <div id="layers"></div>
+  <div id="hl"></div>
+  <div id="cap"><div id="capin"></div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const C=x=>Math.max(0,Math.min(1,x)), P=(t,a,d)=>C((t-a)/d), lerp=(a,b,x)=>a+(b-a)*x;
+const eo=x=>1-Math.pow(1-x,3), eo5=x=>1-Math.pow(1-x,5), eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eb=(x,s=1.6)=>{x=C(x);const c=s+1;return 1+c*Math.pow(x-1,3)+s*Math.pow(x-1,2)};
+const EASE={eo,eo5,eio,eb,lin:x=>x};
+const show=(el,v)=>{if(el)el.style.display=v?'block':'none'};
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const pop=(t,tk,d=0.34)=>[eb(P(t,tk,d)),C(P(t,tk,d)*2.6)];           // [scale, opacity] for a pop-in at time tk
+const ent=(t,tk,d=0.3)=>eo5(P(t,tk,d));                              // 0..1 smooth entrance
+function setT(el,o,tr,blur){el.style.opacity=o;el.style.transform=tr||'';el.style.filter=blur?`blur(${blur}px)`:''}
+function add(parent,html){const d=document.createElement('div');d.innerHTML=html.trim();const el=d.firstChild;$(parent).appendChild(el);return el}
+let CFG={},SUBS=[],cur=-1,curMode='',FR=0;
+
+/* ================= LEAN MODE: everything below is driven by PLAN (written by build_plan.py) ================= */
+const PLAN=/*PLAN*/{"beats":[]}/*END*/;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+if(PLAN.accent){document.documentElement.style.setProperty('--acc',PLAN.accent)}
+const BACKTEXT=PLAN.back?[{t0:0,t1:PLAN.back.until,text:esc(PLAN.back.text),top:PLAN.back.top,size:PLAN.back.size,color:PLAN.accent||'#C6F432',glowAt:PLAN.back.glow}]:[];
+const HEADLINE=PLAN.headline?{text:`${esc(PLAN.headline.l1)}${PLAN.headline.l2?`<br><span class="lime">${esc(PLAN.headline.l2)}</span>`:''}`,until:PLAN.headline.until}:{text:'',until:0};
+function capStyle(t){for(const c of (PLAN.caps||[])){if(t>=c[0]&&t<c[1])return {m:c[2],y:c[3]}}return {m:'pill',y:1290}}
+const fmtN=(v,b)=>{const d=b.decimals||0;let x=v.toFixed(d);if(b.commas)x=Number(x).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});return (b.prefix||'')+x+(b.suffix||'')};
+const inout=(t,b,el,dy=40)=>{const e=ent(t,b.t0,0.38),o=1-eo(P(t,b.t1-0.22,0.22));setT(el,e*o,`translateY(${(1-e)*dy}px)`,(1-e)*8)};
+const LBL=(b)=>b.label?`<div class="abs lbl" style="left:64px;top:132px">// ${esc(b.label)}</div>`:'';
+const CARD='left:60px;top:182px;width:960px;height:640px';
+const COMP={
+ counter:{build(b,el){el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>
+   <div class="abs" data-n style="left:60px;width:960px;top:300px;text-align:center;font:800 230px/1 IT;color:var(--acc);letter-spacing:-0.04em;text-shadow:0 0 60px rgba(var(--accrgb),.35)">0</div>
+   <div class="abs" style="left:60px;width:960px;top:560px;text-align:center;font:700 54px IT,LOC;color:var(--txt)">${esc(b.text||'')}</div>
+   <svg class="abs" style="left:120px;top:660px" width="840" height="120"><path data-p d="M0 110 C 220 104, 420 90, 560 60 S 760 14, 840 6" stroke="var(--acc)" stroke-width="6" fill="none" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>`},
+  draw(t,b,el){inout(t,b,el);const u=eo(P(t,b.k[0],0.95));el.querySelector('[data-n]').textContent=fmtN((b.from||0)+((b.value||0)-(b.from||0))*u,b);el.querySelector('[data-p]').style.strokeDashoffset=1-u}},
+ list:{build(b,el){const it=b.items||[];const h=Math.min(118,560/Math.max(1,it.length));el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>`+it.map((x,i)=>`<div class="abs row-i" style="left:110px;top:${222+i*h}px;height:${h}px;display:flex;align-items:center;gap:30px;transform-origin:left center"><span class="mono" style="font:500 30px JB;color:var(--acc);width:56px">${String(i+1).padStart(2,'0')}</span><span style="font:700 ${h>100?54:44}px IT,LOC;color:var(--txt)">${esc(x.text)}</span></div>`).join('')},
+  draw(t,b,el){inout(t,b,el);el.querySelectorAll('.row-i').forEach((r,i)=>{const [s,o]=pop(t,b.k[i]??b.t0,0.32);setT(r,o,`translateX(${(1-o)*-30}px) scale(${s})`)})}},
+ checklist:{build(b,el){const it=b.items||[];const h=Math.min(118,560/Math.max(1,it.length));el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>`+it.map((x,i)=>`<div class="abs row-i" style="left:110px;top:${222+i*h}px;height:${h}px;display:flex;align-items:center;gap:30px"><svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="26" stroke="rgba(255,255,255,.18)" stroke-width="4" fill="none"/><circle data-c cx="29" cy="29" r="26" fill="var(--acc)" opacity="0"/><path data-k d="M17 30 L25 38 L41 21" stroke="#0B0F0A" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg><span data-x style="font:700 ${h>100?52:42}px IT,LOC;color:#6E776B">${esc(x.text)}</span></div>`).join('')},
+  draw(t,b,el){inout(t,b,el);el.querySelectorAll('.row-i').forEach((r,i)=>{const k=b.k[i]??b.t0;const u=eo(P(t,k,0.3));r.querySelector('[data-c]').setAttribute('opacity',u);r.querySelector('[data-k]').style.strokeDashoffset=1-eo(P(t,k+0.08,0.28));r.querySelector('[data-x]').style.color=u>0.5?'var(--txt)':'#6E776B'})}},
+ toggle:{build(b,el){const tile=(x,lft)=>`<div class="abs pcard" style="left:${lft}px;top:300px;width:260px;height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px"><div style="width:110px;height:110px;border-radius:30px;background:rgba(var(--accrgb),.12);display:grid;place-items:center;font:800 54px IT;color:var(--acc)">${esc((x||'?').trim().slice(0,1).toUpperCase())}</div><div style="font:700 40px IT,LOC">${esc(x)}</div></div>`;
+   el.innerHTML=LBL(b)+tile(b.left,90)+tile(b.right,730)+`<div class="abs" style="left:370px;top:426px;width:340px;height:8px;border-radius:4px;background:rgba(255,255,255,.12)"><div data-f style="height:8px;border-radius:4px;background:var(--acc);width:0"></div></div><div class="abs" data-d style="left:360px;top:414px;width:32px;height:32px;border-radius:50%;background:var(--acc);box-shadow:0 0 30px var(--acc)"></div><div class="abs mono" data-s style="left:0;right:0;top:640px;text-align:center;font:500 34px JB;letter-spacing:.12em;color:#8C9A88">NOT CONNECTED</div>`},
+  draw(t,b,el){inout(t,b,el);const u=eio(P(t,b.k[0],0.7));el.querySelector('[data-f]').style.width=(u*340)+'px';el.querySelector('[data-d]').style.left=(360+u*318)+'px';const s=el.querySelector('[data-s]');const on=u>=1;s.textContent=on?'CONNECTED':'NOT CONNECTED';s.style.color=on?'var(--acc)':'#8C9A88'}},
+ typing:{build(b,el){el.innerHTML=LBL(b)+`<div class="abs pcard" style="left:60px;top:300px;width:960px;min-height:260px;padding:46px 54px;box-sizing:border-box"><span data-x style="font:700 58px/1.3 IT,LOC;color:var(--txt);white-space:pre-wrap"></span><span data-c style="display:inline-block;width:5px;height:64px;background:var(--acc);vertical-align:-10px;margin-left:6px"></span></div>`},
+  draw(t,b,el){inout(t,b,el);const txt=b.text||'';const n=Math.floor(C((t-b.k[0])*20/Math.max(1,txt.length))*txt.length);el.querySelector('[data-x]').textContent=[...txt].slice(0,n).join('');el.querySelector('[data-c]').style.opacity=(Math.floor(t*2.5)%2||n<txt.length)?1:0}},
+ strike:{build(b,el){el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div><div class="abs" style="left:60px;width:960px;top:300px;text-align:center"><span data-o style="position:relative;display:inline-block;font:800 150px/1 IT,LOC;color:var(--txt)">${esc(b.old)}<span data-l style="position:absolute;left:-10px;right:-10px;top:52%;height:14px;border-radius:7px;background:#FF4D3D;transform-origin:left center;transform:scaleX(0)"></span></span></div><div class="abs" data-n style="left:60px;width:960px;top:560px;text-align:center"><span class="lime" style="font:800 110px/1.15 IT,LOC">${esc(b.new)}</span></div>`},
+  draw(t,b,el){inout(t,b,el);el.querySelector('[data-l]').style.transform=`scaleX(${eo(P(t,b.k[0],0.3))})`;el.querySelector('[data-o]').style.opacity=1-0.45*P(t,b.k[0]+0.2,0.3);const [s,o]=pop(t,b.k[0]+0.35,0.4);setT(el.querySelector('[data-n]'),o,`scale(${s})`)}},
+ steps:{build(b,el){const it=(b.items||[]).slice(0,4);const n=it.length||1,w=Math.min(250,(900-(n-1)*24)/n),x0=540-(n*w+(n-1)*24)/2;
+   el.innerHTML=LBL(b)+`<div class="abs pcard" style="left:390px;top:200px;width:300px;height:150px;display:grid;place-items:center;font:800 56px IT,LOC;color:var(--acc)">${esc(b.text||'')}</div><svg class="abs" style="left:0;top:350px" width="1080" height="200">${it.map((x,i)=>{const cx=x0+i*(w+24)+w/2;return `<path data-l d="M540 0 C 540 90, ${cx} 70, ${cx} 190" stroke="var(--acc)" stroke-width="5" fill="none" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>`}).join('')}</svg>`+it.map((x,i)=>`<div class="abs pcard st-i" style="left:${x0+i*(w+24)}px;top:550px;width:${w}px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0 12px;box-sizing:border-box;text-align:center"><span class="mono" style="font:500 26px JB;color:var(--acc)">${String(i+1).padStart(2,'0')}</span><span style="font:700 38px/1.1 IT,LOC">${esc(x.text)}</span></div>`).join('')},
+  draw(t,b,el){inout(t,b,el);el.querySelectorAll('[data-l]').forEach((p,i)=>p.style.strokeDashoffset=1-eo(P(t,(b.k[i]??b.t0)-0.25,0.3)));el.querySelectorAll('.st-i').forEach((r,i)=>{const [s,o]=pop(t,b.k[i]??b.t0,0.34);setT(r,o,`scale(${s})`)})}},
+ bars:{build(b,el){const it=(b.items||[]).slice(0,5);const mx=Math.max(...it.map(x=>+x.value||0),1);const h=Math.min(120,560/Math.max(1,it.length));
+   el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>`+it.map((x,i)=>`<div class="abs br-i" style="left:110px;top:${226+i*h}px;width:860px"><div style="display:flex;justify-content:space-between;font:700 38px IT,LOC;margin-bottom:10px"><span>${esc(x.text)}</span><span data-v class="mono" style="color:var(--acc)">0</span></div><div style="height:22px;border-radius:11px;background:rgba(255,255,255,.1)"><div data-b style="height:22px;border-radius:11px;background:var(--acc);width:0"></div></div></div>`).join('');el._mx=mx},
+  draw(t,b,el){inout(t,b,el);el.querySelectorAll('.br-i').forEach((r,i)=>{const x=b.items[i];const u=eo(P(t,b.k[i]??b.t0,0.7));r.querySelector('[data-b]').style.width=(u*(+x.value||0)/el._mx*100)+'%';r.querySelector('[data-v]').textContent=fmtN(u*(+x.value||0),{decimals:x.decimals||0,suffix:x.suffix||'',prefix:x.prefix||''})})}},
+ statement:{build(b,el){el.innerHTML=`<div class="block"><div class="big" data-t style="font-size:${(b.text||'').length>10?120:170}px">${esc(b.text)}</div>${b.sub?`<div style="margin-top:34px"><span class="lime" data-s style="display:inline-block;font:800 64px/1.2 IT,LOC">${esc(b.sub)}</span></div>`:''}</div>`},
+  draw(t,b,el){const e=ent(t,b.t0,0.4),o=1-eo(P(t,b.t1-0.2,0.2));setT(el,e*o,`scale(${1.06-0.06*e})`,(1-e)*10);const [s,op]=pop(t,b.k[0]??b.t0+0.3,0.4);const sb=el.querySelector('[data-s]');if(sb)setT(sb,op,`scale(${s})`)}},
+ sticker:{build(b,el){el.innerHTML=`<div class="abs pcard" data-c style="left:60px;top:560px;width:360px;padding:22px 28px;box-sizing:border-box;transform-origin:left center"><div class="lbl" style="font-size:22px">${esc(b.label||'')}</div><div data-n style="font:800 84px/1.05 IT;color:var(--acc);margin-top:6px">0</div><svg width="300" height="40"><path data-p d="M0 36 C 80 34, 160 28, 210 16 S 280 4, 300 2" stroke="var(--acc)" stroke-width="4" fill="none" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>`},
+  draw(t,b,el){const [s,o]=pop(t,b.t0,0.4);const out=1-eo(P(t,b.t1-0.2,0.2));setT(el.querySelector('[data-c]'),o*out,`scale(${s})`);const u=eo(P(t,b.k[0]??b.t0,0.9));el.querySelector('[data-n]').textContent=fmtN((b.value||0)*u,b);el.querySelector('[data-p]').style.strokeDashoffset=1-u}},
+ cta:{build(b,el){el.innerHTML=`<div class="abs pcard" style="left:90px;top:220px;width:900px;height:130px;display:flex;align-items:center;gap:22px;padding:0 26px;box-sizing:border-box;border-radius:65px"><div style="width:78px;height:78px;border-radius:50%;background:rgba(var(--accrgb),.18);flex:none"></div><span data-x style="flex:1;font:700 52px IT,LOC;color:var(--txt)"></span><span data-c style="width:4px;height:56px;background:var(--acc)"></span><div style="width:84px;height:84px;border-radius:50%;background:var(--acc);display:grid;place-items:center;flex:none"><svg width="40" height="40" viewBox="0 0 24 24"><path d="M4 12h14M12 5l7 7-7 7" stroke="#0B0F0A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="abs mono" style="left:0;right:0;top:170px;text-align:center;font:500 26px JB;color:var(--acc);letter-spacing:.1em">// ${esc(b.label||'COMMENT THE WORD')}</div><div class="abs" data-w style="left:0;right:0;top:420px;text-align:center"><span class="lime" style="font:800 120px/1.15 IT,LOC">${esc(b.keyword||'')}</span></div>`},
+  draw(t,b,el){const e=ent(t,b.t0,0.4);setT(el,e,`translateY(${(1-e)*-40}px)`);const kw=b.keyword||'';const n=Math.floor(C((t-(b.k[0]??b.t0+0.4))*8/Math.max(1,kw.length))*kw.length);el.querySelector('[data-x]').textContent=kw.slice(0,n);el.querySelector('[data-c]').style.opacity=Math.floor(t*2.5)%2?1:0;const [s,o]=pop(t,(b.k[0]??b.t0)+kw.length/8+0.2,0.45);setT(el.querySelector('[data-w]'),o,`scale(${s})`)}}
+};
+const BEATS=(PLAN.beats||[]).map((b,i)=>{const c=COMP[b.type];if(!c)return null;const id='b'+i;const o={t0:b.t0,t1:b.t1,build:el=>c.build(b,el),draw:(t,el)=>c.draw(t,b,el)};if(b.type==='statement')o.card=id;else o.layer=id;return o}).filter(Boolean);
+/* ============================================== */
+
+// ---------- layouts (pip.json, shared with composite.py) ----------
+function pipAt(t){const K=CFG.pip.keys,S=CFG.pip.states;let i=0;for(let j=0;j<K.length;j++)if(K[j][0]<=t)i=j;
+  if(i>=K.length-1)return{s:S[K[i][1]],name:K[i][1]};const a=K[i],b=K[i+1];
+  if(b[2]==='step'||b[0]===a[0]||a[1]===b[1])return{s:S[a[1]],name:a[1]};
+  const u=(EASE[b[2]||'eio'])((t-a[0])/(b[0]-a[0]));return{s:S[a[1]].map((v,k)=>v+(S[b[1]][k]-v)*u),name:a[1]+'>'+b[1],u}}
+const isFull=s=>s[0]<0.5&&s[1]<0.5&&s[2]>1079&&s[3]>1919;
+function drawPip(t){const p=pipAt(t),s=p.s,el=$('pipf');if(isFull(s)){show(el,0);return p}
+  show(el,1);const[x,y,w,h,r]=s;let ph=0;if(/^phone/.test(p.name)&&!/>(?!phone)/.test(p.name))ph=1;else if(/^phone.*>/.test(p.name))ph=1-p.u;
+  const bw=13*ph;Object.assign(el.style,{left:(x-bw)+'px',top:(y-bw)+'px',width:(w+2*bw)+'px',height:(h+2*bw)+'px',borderRadius:(r+bw)+'px',
+  border:bw>0.5?`${bw}px solid #1a1a1e`:'1.5px solid rgba(255,255,255,.14)',
+  boxShadow:ph>0?`0 0 0 1.5px rgba(255,255,255,.18),0 0 140px rgba(var(--accrgb),${.32*ph}),0 40px 80px rgba(0,0,0,.6)`:'0 30px 70px rgba(0,0,0,.55)'});return p}
+
+// ---------- captions ----------
+const isLoc=s=>/[ऀ-෿؀-ۿ]/.test(s.replace(/-.*$/,''));
+function buildCap(ch,mode){const inn=$('capin');inn.innerHTML='';inn.style.transform='none';inn.className='';
+  const W=ch.w.map((w,i)=>({...w,i}));const mk=(w,cls)=>`<span class="w ${cls}${w.a&&mode!=='pill'?' acc':''}" data-i="${w.i}">${w.x}</span>`;
+  const big=W.filter(w=>w.big).map(w=>w.i);
+  if(mode==='pill'){inn.className='pillcap';inn.innerHTML=`<div class="row mid">${W.map(w=>mk(w,'')).join('')}</div>`}
+  else if(mode==='st'&&big.length){const b0=Math.min(...big),b1=Math.max(...big);const pre=W.filter(w=>w.i<b0),mid=W.filter(w=>w.i>=b0&&w.i<=b1),post=W.filter(w=>w.i>b1);
+    inn.innerHTML=(pre.length?`<div class="row pre">${pre.map(w=>mk(w,'sm')).join('')}</div>`:'')+`<div class="row mid">${mid.map(w=>mk(w,'bg'+(w.serif&&!isLoc(w.x)?' serif':(isLoc(w.x)?' loc':'')))).join('')}</div>`+(post.length?`<div class="row post">${post.map(w=>mk(w,'sm')).join('')}</div>`:'')}
+  else if(mode==='st'){inn.innerHTML=`<div class="row mid">${W.map(w=>mk(w,'in big')).join('')}</div>`}
+  else{inn.innerHTML=`<div class="row mid">${W.map(w=>mk(w,'in'+(w.big?' big':'')+(w.big&&w.serif&&!isLoc(w.x)?' serif':''))).join('')}</div>`}
+  const r=inn.getBoundingClientRect();inn.dataset.sc=Math.min(1,980/r.width);inn.dataset.h=r.height}
+function setCap(t){let k=SUBS.findIndex(s=>t>=s.s&&t<s.e);const st=capStyle(t),cap=$('cap'),inn=$('capin');
+  if(k!==cur||st.m!==curMode){cur=k;curMode=st.m;if(k>=0)buildCap(SUBS[k],st.m);else{inn.innerHTML='';inn.className=''}}
+  if(k<0||st.m==='none'){cap.style.display=st.m==='none'?'none':'flex';return}cap.style.display='flex';
+  const sc=+inn.dataset.sc,h=+inn.dataset.h;cap.style.top=(st.y-h/2)+'px';const ch=SUBS[k];const cin=eo(P(t,ch.s,0.14));
+  inn.style.transform=`scale(${sc*(0.96+0.04*cin)})`;
+  inn.querySelectorAll('.w').forEach(sp=>{const w=ch.w[+sp.dataset.i];const tk=+sp.dataset.i?w.t-0.05:ch.s;
+    if(st.m==='pill'){const on=t>=tk;const nx=ch.w[+sp.dataset.i+1];const active=on&&(!nx||t<nx.t-0.05);
+      sp.style.opacity=on?1:0.35;sp.style.background=active?'var(--acc)':'transparent';sp.style.color=active?'#0B0F0A':(w.a?'var(--acc)':'#fff');return}
+    const p=eo(P(t,tk,0.16));const isBig=sp.classList.contains('bg')||sp.classList.contains('big');const s=isBig?0.72+0.28*eb(P(t,tk,0.3)):0.9+0.1*p;
+    sp.style.opacity=p;sp.style.filter=p<1?`blur(${(1-p)*9}px)`:'';sp.style.transform=`translateY(${(1-p)*18}px) scale(${s})`;
+    if(isBig){const gl=1-C(P(t,tk+0.15,0.6));sp.style.textShadow=w.a?`0 0 ${20+26*gl}px rgba(var(--accrgb),${0.55+0.3*gl}),0 4px 20px rgba(0,0,0,.5)`:`0 0 ${20+26*gl}px rgba(255,255,255,${0.18+0.3*gl}),0 4px 20px rgba(0,0,0,.5)`}})}
+
+// ---------- back layer: big words behind the person ----------
+function buildBack(){BACKTEXT.forEach((b,i)=>{b.el=add('back',`<div class="giant" style="top:${b.top}px;font:800 ${b.size}px/1 IT,LOC;letter-spacing:-0.04em;color:${b.color||'#F7F2EA'}">${b.text}</div>`)})}
+function drawBack(t){BACKTEXT.forEach(b=>{const on=t>=b.t0&&t<b.t1;b.el.style.display=on?'block':'none';if(!on)return;
+  const [s,o]=pop(t,b.t0,0.5);const out=1-eo(P(t,b.t1-0.22,0.22));const g=b.glowAt?Math.max(0,1-Math.abs(t-b.glowAt)/0.5):0;
+  b.el.style.transform=`scale(${b.t0<0.05?1.06-0.06*eo(P(t,0,2.2)):s})`;b.el.style.opacity=(b.t0<0.05?1:o)*out;
+  b.el.style.textShadow=`0 0 ${30+50*g}px rgba(var(--accrgb),${0.12+0.5*g})`;if(g>0)b.el.style.color=`color-mix(in srgb, var(--acc) ${g*100}%, ${b.color||'#F7F2EA'})`})}
+
+function renderFrame(t,f,mode){FR=f;const back=mode==='back';
+  for(const el of $('stage').children){if(el.id!=='back')el.style.visibility=back?'hidden':'visible'}
+  $('back').style.display=back?'block':'none';if(back){drawBack(t);return true}
+  const card=BEATS.find(b=>b.card&&t>=b.t0&&t<b.t1);show($('card'),!!card);
+  for(const b of BEATS){const el=$(b.card||b.layer);const on=t>=b.t0&&t<b.t1;show(el,on);if(on&&b.draw)b.draw(t,el)}
+  if(card){const L=$(card.card);$('card').style.opacity=L.style.opacity===''?1:L.style.opacity;L.style.opacity=1}
+  const p=drawPip(t);if(card&&+($('card').style.opacity)>0.99)show($('pipf'),0);
+  $('shade').style.opacity=isFull(p.s)&&!card?1:0;
+  const hl=$('hl');show(hl,HEADLINE.text&&t<HEADLINE.until+0.05);const ho=1-eo(P(t,HEADLINE.until-0.2,0.2));hl.style.opacity=ho;$('tshade').style.opacity=HEADLINE.text&&t<HEADLINE.until?ho:0;
+  setCap(t);return true}
+window.init=async function(cfg){CFG=cfg;SUBS=cfg.subs;$('hl').innerHTML=HEADLINE.text;buildBack();
+  for(const b of BEATS){const id=b.card||b.layer;if(!$(id))add(b.card?'card':'layers',`<div class="layer" id="${id}"></div>`);if(b.build)b.build($(id))}
+  for(const w of ['500','600','700','800'])await document.fonts.load(`${w} 100px IT`);
+  for(const w of ['700','800'])await document.fonts.load(`${w} 100px LOC`,'മലയാളം हिन्दी தமிழ் عربي');
+  await document.fonts.load('italic 100px IS');await document.fonts.load('500 30px JB');await document.fonts.ready;
+  await Promise.all([...document.images].map(im=>im.complete?1:new Promise(r=>{im.onload=r;im.onerror=r})));return true};
+window.renderFrame=renderFrame;
+</script></body></html>
