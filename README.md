@@ -11,9 +11,9 @@ Made end to end by Euphoria (no manual editing). Click a preview to open the vid
 | Talking head · Malayalam | Talking head · title intro | No talking head · Devices | No talking head · Presenter | No talking head · Editorial | No talking head · Explainer |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | [![Malayalam talking head](docs/samples/talking-head-malayalam.gif)](docs/samples/talking-head-malayalam.mp4) | [![Talking head with title](docs/samples/talking-head-title.gif)](docs/samples/talking-head-title.mp4) | [![Devices look](docs/samples/faceless-devices.gif)](docs/samples/faceless-devices.mp4) | [![Presenter look](docs/samples/faceless-presenter.gif)](docs/samples/faceless-presenter.mp4) | [![Editorial look](docs/samples/faceless-editorial.gif)](docs/samples/faceless-editorial.mp4) | [![Explainer](docs/samples/faceless-explainer.gif)](docs/samples/faceless-explainer.mp4) |
-| Malayalam word-by-word captions, panels that build with the words | Title card, Malayalam + English captions | Phones, code, timelines and graphs from a topic, ElevenLabs voice | Cartoon host who talks along, numbered app windows | Notepad, huge type, magnifier, polaroids | Kinetic text and how-it-works graphics |
+| Big word behind the speaker, title cards, Malayalam captions, panels that build with the words | Title card, Malayalam + English captions | Phones, code, timelines and graphs from a topic, ElevenLabs voice | Cartoon host who talks along, numbered app windows | Notepad, huge type, magnifier, polaroids | Kinetic text and how-it-works graphics |
 
-Samples are the first 30 s at 540×960 (`docs/samples/`).
+Samples are up to the first 30 s at 540×960 (`docs/samples/`).
 
 **Demo:** _TODO — add live demo link_ · **Demo video:** _TODO — add 2-minute recording link_
 
