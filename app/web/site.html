@@ -110,6 +110,9 @@ section{position:relative}
 .cyl{position:absolute;left:50%;top:0;width:var(--cw);height:var(--ch);margin-left:calc(var(--cw) / -2);transform-style:preserve-3d;transform:translateZ(var(--lift)) rotateY(var(--rot,0deg))}
 .reel{position:absolute;inset:0;border-radius:18px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(var(--a)) translateZ(calc(var(--R) * -1));border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
 .reel .scene{position:absolute;inset:0}
+.reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0705;display:block}
+.reel.has-video::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 22%)}
+.reel .chip{z-index:2}
 .reel .person{position:absolute;left:50%;bottom:-2%;width:96%;transform:translateX(-50%)}
 .reel .cap{position:absolute;left:10px;right:10px;bottom:15%;text-align:center;font-weight:600;font-size:17px;line-height:1.35;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.7)}
 .reel .cap .on{color:#ffd23a}
@@ -498,6 +501,24 @@ footer{position:relative;overflow:hidden;padding-top:90px}
 .st-fail p{color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px}
 .st-recent{margin-top:28px}
 .st-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.st-pair>*{min-width:0}.st-pair select{width:100%;min-width:0;text-overflow:ellipsis}
+.st-styles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border:0;margin:0;padding:0}
+.st-styles legend{font-size:14px;color:var(--text);margin-bottom:8px;padding:0}
+.st-style{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px 12px 13px;border-radius:14px;border:1px solid var(--line-2);background:rgba(0,0,0,.25);cursor:pointer;transition:border-color .25s,background .25s}
+.st-style input{position:absolute;opacity:0;pointer-events:none}
+.st-style b{font-weight:500;color:var(--cream);font-size:15px}
+.st-style small{font-size:12.5px;color:var(--muted);line-height:1.35}
+.st-style:hover{border-color:rgba(255,236,224,.35)}
+.st-style:has(input:checked){border-color:var(--accent-2);background:rgba(240,86,28,.10);box-shadow:inset 0 0 0 1px var(--accent-2)}
+.st-style:has(input:focus-visible){outline:2px solid var(--accent-3);outline-offset:2px}
+.st-range{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+.st-range input{width:84px;font:inherit;font-size:15px;color:var(--cream);background:rgba(0,0,0,.35);border:1px solid var(--line-2);border-radius:10px;padding:7px 10px}
+[data-for]{display:none}
+.st-form [hidden]{display:none!important}
+.st-form[data-style="talking_head"] [data-for~="talking_head"],.st-form[data-style="product"] [data-for~="product"],.st-form[data-style="faceless"] [data-for~="faceless"]{display:flex}
+.st-form [data-for].st-pair{display:none}
+.st-form[data-style="talking_head"] .st-pair[data-for~="talking_head"],.st-form[data-style="product"] .st-pair[data-for~="product"],.st-form[data-style="faceless"] .st-pair[data-for~="faceless"]{display:grid}
+@media (max-width:700px){.st-styles{grid-template-columns:1fr}}
 .st-edit{grid-column:1/-1;margin-top:6px;border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:14px}
 .st-tabs{display:flex;gap:6px;flex-wrap:wrap}
 .st-tabs button{padding:8px 14px;border-radius:100px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);font-size:14px;color:var(--muted)}
@@ -621,13 +642,61 @@ footer{position:relative;overflow:hidden;padding-top:90px}
       <div class="st-srow" id="suTools"><i></i><div><b>Render tools</b><small data-d>Checking…</small></div><button class="chipbtn primary" type="button" data-a="tools">Install</button></div>
     </div>
     <div class="studio rv">
-      <form class="card st-form" id="stForm" novalidate>
-        <label class="drop-in" id="stDrop" for="stFile">
+      <form class="card st-form" id="stForm" data-style="talking_head" novalidate>
+        <fieldset class="st-styles" id="stStyles">
+          <legend>What are you editing?</legend>
+          <label class="st-style"><input type="radio" name="stStyle" value="talking_head" checked><b>Talking head</b><small>You, talking to the camera. Split screens, captions, punch-ins.</small></label>
+          <label class="st-style"><input type="radio" name="stStyle" value="product"><b>Product</b><small>A screen recording of your app, website or product. Launch-video look.</small></label>
+          <label class="st-style"><input type="radio" name="stStyle" value="faceless"><b>No talking head</b><small>Only a topic or script. We make the whole video.</small></label>
+        </fieldset>
+        <label class="drop-in" id="stDrop" for="stFile" data-for="talking_head product">
           <input id="stFile" type="file" accept="video/*" hidden>
           <span class="up"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <b id="stFileName">Drop your raw video here</b>
-          <small>or click to choose. Phone video is fine. Talk to camera, 20 seconds to 2 minutes.</small>
+          <small id="stDropHint">or click to choose. Phone video is fine. Talk to camera, 20 seconds to 2 minutes.</small>
         </label>
+        <div class="st-row" data-for="faceless">
+          <label for="stText">Your script, or the topic <span>the words on screen come from here</span></label>
+          <textarea id="stText" rows="5" maxlength="6000" placeholder="e.g. Why do most reels lose viewers in 3 seconds? Because the hook is slow..."></textarea>
+        </div>
+        <div class="st-pair" data-for="faceless">
+          <div class="st-row">
+            <label for="stTextMode">The text above is</label>
+            <select id="stTextMode">
+              <option value="exact">My exact script</option>
+              <option value="write">A topic: AI writes the script</option>
+            </select>
+          </div>
+          <div class="st-row">
+            <label for="stVoice">Voice</label>
+            <select id="stVoice">
+              <option value="none">No voice (text + sound)</option>
+              <option value="upload">My voice-over (upload)</option>
+              <option value="elevenlabs">ElevenLabs voice (AI)</option>
+              <option value="windows">Computer voice (Windows, English)</option>
+            </select>
+          </div>
+        </div>
+        <div class="st-row" data-for="faceless" id="stVoiceRow" hidden>
+          <label for="stVoiceFile">Voice-over file <span>mp3, wav, m4a or a video</span></label>
+          <input id="stVoiceFile" type="file" accept="audio/*,video/*">
+        </div>
+        <div class="st-row" data-for="product">
+          <label for="stPVoice">Voice-over</label>
+          <select id="stPVoice">
+            <option value="recording">Sound from my recording</option>
+            <option value="elevenlabs">AI narration (ElevenLabs): AI writes a line per scene</option>
+          </select>
+        </div>
+        <div class="st-row" data-for="product faceless" id="stVoiceIdRow" hidden>
+          <label for="stVoiceId">ElevenLabs voice ID <span>optional: ElevenLabs → Voices → My Voices → ID. Empty = a default voice from your account</span></label>
+          <input id="stVoiceId" type="text" maxlength="40" placeholder="paste a voice ID (or leave empty)" autocomplete="off">
+          <small class="st-hint" id="stElHint" hidden>Not set up yet: add ELEVENLABS_API_KEY to app/.env and restart the app.</small>
+        </div>
+        <div class="st-row" data-for="product faceless">
+          <label for="stLook">Look</label>
+          <select id="stLook"></select>
+        </div>
         <div class="st-row">
           <label for="stLang">Language</label>
           <select id="stLang">
@@ -638,7 +707,7 @@ footer{position:relative;overflow:hidden;padding-top:90px}
             <option value="auto">Detect automatically</option>
           </select>
         </div>
-        <div class="st-pair">
+        <div class="st-pair" data-for="talking_head">
           <div class="st-row">
             <label for="stScript">Captions</label>
             <select id="stScript">
@@ -656,7 +725,7 @@ footer{position:relative;overflow:hidden;padding-top:90px}
             </select>
           </div>
         </div>
-        <div class="st-row">
+        <div class="st-row" data-for="talking_head">
           <label for="stCut">What to cut</label>
           <select id="stCut">
             <option value="gaps">Only gaps and umms (keep everything I said)</option>
@@ -667,9 +736,13 @@ footer{position:relative;overflow:hidden;padding-top:90px}
           <label for="stCta">Comment keyword <span>optional</span></label>
           <input id="stCta" type="text" maxlength="40" placeholder="e.g. TEAM">
         </div>
-        <div class="st-row">
-          <label for="stNotes">Anything to show on screen? <span>optional</span></label>
-          <textarea id="stNotes" rows="2" maxlength="300" placeholder="e.g. my handle @yourname, a price like ₹999"></textarea>
+        <div class="st-row" data-for="talking_head product">
+          <label for="stNotes" id="stNotesLbl">Anything to show on screen? <span>optional</span></label>
+          <textarea id="stNotes" rows="2" maxlength="600" placeholder="e.g. my handle @yourname, a price like ₹999"></textarea>
+        </div>
+        <div class="st-row" data-for="product faceless">
+          <label for="stMusic">Background music <span>optional, mp3/wav (use music you have the rights to)</span></label>
+          <input id="stMusic" type="file" accept="audio/*">
         </div>
         <button class="btn btn-fire st-go" id="stGo" type="submit">Edit with AI <svg viewBox="0 0 16 16" fill="none"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         <p class="st-health" id="stHealth">Checking the editor…</p>
@@ -680,7 +753,7 @@ footer{position:relative;overflow:hidden;padding-top:90px}
           <div class="st-steps-preview">
             <span>Reading</span><span>Planning</span><span>Cutting</span><span>Graphics</span><span>Rendering</span><span>Sound</span>
           </div>
-          <p>Your reel will appear here. The AI plans the whole edit in one pass; this PC renders the rest. A 40-second take takes about 10 to 20 minutes, and you can watch every step.</p>
+          <p>Your reel will appear here. The AI plans the whole edit in one pass; this PC renders the rest. A 40-second take takes a few minutes, and you can watch every step. A later fix re-renders only the part it touches.</p>
         </div>
         <div class="st-live" id="stLive" hidden>
           <div class="st-top">
@@ -713,7 +786,7 @@ footer{position:relative;overflow:hidden;padding-top:90px}
           <div class="st-edit" id="stEdit">
             <p class="st-q" id="stQ" hidden></p>
             <div class="st-tabs" role="tablist">
-              <button type="button" class="on" data-pane="stPWords">Fix words &amp; cuts</button>
+              <button type="button" class="on" data-pane="stPWords" id="stTabWords">Fix words &amp; cuts</button>
               <button type="button" data-pane="stPAsk">Ask for a change</button>
               <button type="button" data-pane="stPVers">Versions</button>
             </div>
@@ -737,6 +810,13 @@ footer{position:relative;overflow:hidden;padding-top:90px}
             <div class="st-pane st-ask" id="stPAsk" hidden>
               <p class="st-hint">Say what to change, in English or Malayalam. Only that changes: cuts, captions, graphics and sound you don't mention stay exactly the same. One small AI call.</p>
               <textarea id="stAsk" maxlength="1000" placeholder="e.g. remove the KERALA screen and keep my face there"></textarea>
+              <div class="st-range">
+                <span>Only between</span><input id="stT0" type="number" min="0" step="0.1" placeholder="from s" aria-label="From second">
+                <button class="chipbtn" type="button" id="stT0Now">now</button>
+                <span>and</span><input id="stT1" type="number" min="0" step="0.1" placeholder="to s" aria-label="To second">
+                <button class="chipbtn" type="button" id="stT1Now">now</button>
+                <span>seconds of the edited reel. Optional: everything outside stays exactly as it is.</span>
+              </div>
               <div class="st-ex">
                 <button type="button">Remove the first graphic</button>
                 <button type="button">Change the hook to "AI Boomi day 1"</button>
@@ -1157,34 +1237,44 @@ footer{position:relative;overflow:hidden;padding-top:90px}
   const lw=document.getElementById('langWord'); let wi=0;
   if(!reduce) setInterval(()=>{ wi=(wi+1)%words.length; lw.animate([{opacity:1,transform:'translateY(0)',filter:'blur(0)'},{opacity:0,transform:'translateY(-18px)',filter:'blur(6px)'}],{duration:320,easing:'ease-in'}).onfinish=()=>{ lw.textContent=words[wi][0]; lw.className='lang '+words[wi][1]; lw.animate([{opacity:0,transform:'translateY(18px)',filter:'blur(6px)'},{opacity:1,transform:'translateY(0)',filter:'blur(0)'}],{duration:520,easing:'cubic-bezier(.2,.9,.25,1.06)'}); }; }, 2600);
 
-  /* 3D reel cylinder */
-  const reels=[
-    {cap:'ഇന്ന് നമുക്ക് ഒരു <span class="on">കാര്യം</span> പറയാം',cls:'ml',chip:'Malayalam captions',bg:['#7a3517','#1e0e07'],skin:'#c98a63',hair:'#1a0e08',top:'#3b2a6b'},
-    {cap:'आज की टिप <span class="on">बहुत</span> आसान है',cls:'hi',chip:'Hindi captions',bg:['#2d4a5e','#0e1418'],skin:'#b77a55',hair:'#120a06',top:'#9a3b20'},
-    {cap:'Ithu <span class="on">try</span> cheyyu, seriously',cls:'',chip:'Fillers cut',bg:['#6e5320','#1b1306'],skin:'#d6a07a',hair:'#2a160a',top:'#1f4a3a'},
-    {cap:'ആദ്യം <span class="on">ഹുക്ക്</span> ശരിയാക്കണം',cls:'ml',chip:'Retake removed',bg:['#5b2a4a','#170a12'],skin:'#a8714e',hair:'#0d0805',top:'#c25a1f'},
-    {cap:'Three tips <span class="on">before</span> you post',cls:'',chip:'Pauses cut',bg:['#3c5a2e','#0f160b'],skin:'#c78f69',hair:'#3a2212',top:'#22324d'},
-    {cap:'पहले <span class="on">हुक</span>, फिर कहानी',cls:'hi',chip:'9:16 export',bg:['#80421d','#200f06'],skin:'#9c6646',hair:'#110905',top:'#e3dccf'},
-    {cap:'ഈ <span class="on">ടിപ്പ്</span> ശ്രദ്ധിക്കൂ',cls:'ml',chip:'Malayalam captions',bg:['#24405c','#0a1018'],skin:'#c1855f',hair:'#1c0f07',top:'#7d2a2a'},
-    {cap:'Class <span class="on">notes</span> in 60 seconds',cls:'',chip:'Edit by text',bg:['#6b3a2a','#1a0d08'],skin:'#b98059',hair:'#0f0a07',top:'#2f5b5b'},
-    {cap:'Ningalude <span class="on">doubt</span> comment cheyyu',cls:'',chip:'Manglish',bg:['#4a3a6b','#110c1a'],skin:'#d3a17c',hair:'#24150b',top:'#a3541f'},
-    {cap:'ബാക്കി ഞാൻ <span class="on">പറഞ്ഞുതരാം</span>',cls:'ml',chip:'Fillers cut',bg:['#7b5a28','#1c1408'],skin:'#a66d49',hair:'#0c0704',top:'#3e4f86'},
-    {cap:'Offer <span class="on">sirf</span> aaj tak',cls:'',chip:'Small business',bg:['#2e5248','#0b1513'],skin:'#c48b66',hair:'#1a0f08',top:'#b2351a'},
-    {cap:'Join the <span class="on">live</span> class',cls:'',chip:'Educators',bg:['#6a2c22','#190a08'],skin:'#b67b57',hair:'#2b170b',top:'#f0a34a'}
+  /* 3D reel cylinder: real reels rendered by Euphoria (app/web/media, served at /site/media, made from /assets) */
+  const clips=[
+    {src:'/site/media/test2.mp4',poster:'/site/media/test2.jpg',chips:['Malayalam captions','On-screen graphics','Made with Euphoria'],dur:27},
+    {src:'/site/media/devices.mp4',poster:'/site/media/devices.jpg',chips:['No face needed','Phones, code & graphs','AI voice-over'],dur:30},
+    {src:'/site/media/test1.mp4',poster:'/site/media/test1.jpg',chips:['Word-by-word captions','Talking head','9:16 export'],dur:27},
+    {src:'/site/media/presenter.mp4',poster:'/site/media/presenter.jpg',chips:['Cartoon presenter','From a topic','AI voice-over'],dur:30},
+    {src:'/site/media/test3.mp4',poster:'/site/media/test3.jpg',chips:['Malayalam + English captions','Title card intro','On-screen graphics'],dur:38},
+    {src:'/site/media/editorial.mp4',poster:'/site/media/editorial.jpg',chips:['Editorial look','Script to video','No camera'],dur:30},
+    {src:'/site/media/test.mp4',poster:'/site/media/test.jpg',chips:['Title card intro','Malayalam captions','9:16 export'],dur:19},
+    {src:'/site/media/rag.mp4',poster:'/site/media/rag.jpg',chips:['Explainer graphics','From a topic','Kinetic captions'],dur:30}
   ];
   const cyl=document.getElementById('cyl');
-  [...reels,...reels].forEach((r,i)=>{
-    const el=document.createElement('div'); el.className='reel'; el.style.setProperty('--a',(i*15)+'deg');
-    const bars=Array.from({length:28},(_,k)=>{const h=20+Math.abs(Math.sin(i*3+k*1.7))*80; const cut=(k%9===4||k%11===7);return `<span class="${cut?'cut':''}" style="height:${h}%"></span>`}).join('');
-    el.innerHTML=`<div class="scene" style="background:radial-gradient(90% 60% at 50% 30%,${r.bg[0]},${r.bg[1]})"></div>
-      <svg class="person" viewBox="0 0 200 240"><ellipse cx="100" cy="240" rx="96" ry="70" fill="${r.top}"/><rect x="86" y="128" width="28" height="40" rx="10" fill="${r.skin}"/><ellipse cx="100" cy="98" rx="44" ry="52" fill="${r.skin}"/><path d="M56 92c0-36 22-56 46-56s44 18 44 54c-6-16-20-28-44-28s-38 12-46 30z" fill="${r.hair}"/></svg>
-      <span class="chip"><i></i>${r.chip}</span>
-      <div class="cap ${r.cls}">${r.cap}</div>
-      <div class="wave">${bars}</div>`;
-    cyl.appendChild(el);
-  });
-  let rot=0, last=performance.now(), speed=6, scrollBoost=0, lastY=scrollY;
-  function spin(t){ const dt=Math.min(64,t-last)/1000; last=t; const dy=scrollY-lastY; lastY=scrollY; scrollBoost+= dy*0.02; scrollBoost*=0.92; rot-= (speed*dt + scrollBoost); cyl.style.setProperty('--rot',rot+'deg'); requestAnimationFrame(spin); }
+  const cards=[];
+  for(let i=0;i<24;i++){
+    /* talking heads (test2, test1, test3, test) alternate with faceless reels, so neighbours never share a clip
+       or a speaker (test/test1 same speaker sit four apart); 24 % 8 == 0 so the wrap 23->0 is also safe */
+    const ci = i%clips.length, c=clips[ci];
+    const round = Math.floor(i/clips.length);
+    const el=document.createElement('div'); el.className='reel has-video'; el.style.setProperty('--a',(i*15)+'deg');
+    el.innerHTML=`<video muted loop playsinline preload="none" poster="${c.poster}" aria-hidden="true" tabindex="-1"><source src="${c.src}" type="video/mp4"></video>
+      <span class="chip"><i></i>${c.chips[round%c.chips.length]}</span>`;
+    const v=el.querySelector('video');
+    v.dataset.start=((round*5)%c.dur).toFixed(1);   /* stagger so repeats of one clip show different moments */
+    cyl.appendChild(el); cards.push({el,v,a:i*15,on:false});
+  }
+  function syncVideos(rotDeg){
+    for(const c of cards){
+      const d=((c.a+rotDeg)%360+540)%360-180;        /* 0 = facing viewer */
+      const want=Math.abs(d)<80;
+      if(want===c.on) continue; c.on=want;
+      if(want){
+        if(c.v.preload==='none'){ c.v.preload='auto'; c.v.addEventListener('loadedmetadata',()=>{ c.v.currentTime=+c.v.dataset.start; },{once:true}); c.v.load(); }
+        const pr=c.v.play(); if(pr) pr.catch(()=>{});
+      } else c.v.pause();
+    }
+  }
+  let rot=0, lastSync=0, last=performance.now(), speed=6, scrollBoost=0, lastY=scrollY;
+  function spin(t){ const dt=Math.min(64,t-last)/1000; last=t; const dy=scrollY-lastY; lastY=scrollY; scrollBoost+= dy*0.02; scrollBoost*=0.92; rot-= (speed*dt + scrollBoost); cyl.style.setProperty('--rot',rot+'deg'); if(t-lastSync>200){ lastSync=t; syncVideos(rot); } requestAnimationFrame(spin); }
   if(!reduce) requestAnimationFrame(spin);
 
   /* Reveal on scroll: only pre-hide what starts below the first screen */
@@ -1289,6 +1379,42 @@ footer{position:relative;overflow:hidden;padding-top:90px}
     if (/done/.test(p)) return 6; if (/sound|finish/.test(p)) return 5; if (/render/.test(p)) return 4;
     if (/graphic/.test(p)) return 3; if (/cut/.test(p)) return 2; if (/plan/.test(p)) return 1; return 0; };
   let online = false, cur = null, seen = 0, timer = null, started = 0, picked = null;
+  // ---- edit style: talking head / product (screen recording) / no talking head (topic or script) ----
+  const LOOKS = { product: [['dark', 'Dark glow (navy)'], ['light', 'Light (pastel)']], faceless: [['crimson', 'Devices — phones, code, graphs (dark)'], ['midnight', 'Story — neon stick figures (navy)'], ['paper', 'Editorial — notepads, big type (paper)'], ['violet', 'Presenter — cartoon host + app windows']] };
+  const HINTS = {
+    talking_head: ['Drop your raw video here', 'or click to choose. Phone video is fine. Talk to camera, 20 seconds to 2 minutes.',
+                   'Anything to show on screen? <span>optional</span>', 'e.g. my handle @yourname, a price like ₹999'],
+    product: ['Drop your screen recording here', 'or click to choose. A recording of your app, website or product (with or without your voice), up to a few minutes.',
+              'Product name, what it does, the button text <span>helps the titles</span>', 'e.g. Taskly — the calm to-do app. Button: Try it free']
+  };
+  const styleNow = () => form.dataset.style;
+  let elevenReady = true;
+  function syncVoiceId() {
+    const st = styleNow(), el = (st === 'faceless' && $('stVoice').value === 'elevenlabs') || (st === 'product' && $('stPVoice').value === 'elevenlabs');
+    $('stVoiceIdRow').hidden = !el; $('stElHint').hidden = !el || elevenReady;
+  }
+  $('stPVoice').addEventListener('change', syncVoiceId);
+  function ready() {
+    if (styleNow() === 'faceless') return $('stText').value.trim().split(/\s+/).filter(Boolean).length >= 2 || ($('stVoice').value === 'upload' && $('stVoiceFile').files.length > 0);
+    return !!picked;
+  }
+  function syncGo() { go.disabled = !online || !ready(); }
+  function setStyle(st) {
+    form.dataset.style = st;
+    const h = HINTS[st];
+    if (h) { if (!picked) $('stFileName').textContent = h[0]; $('stDropHint').textContent = h[1]; $('stNotesLbl').innerHTML = h[2]; $('stNotes').placeholder = h[3]; }
+    if (LOOKS[st]) $('stLook').innerHTML = LOOKS[st].map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+    $('stVoiceRow').hidden = $('stVoice').value !== 'upload';
+    syncVoiceId();
+    try { localStorage.setItem('euphoria-style', st); } catch (_) {}
+    syncGo();
+  }
+  document.querySelectorAll('input[name="stStyle"]').forEach(r => r.addEventListener('change', () => r.checked && setStyle(r.value)));
+  $('stVoice').addEventListener('change', () => { $('stVoiceRow').hidden = $('stVoice').value !== 'upload'; syncVoiceId(); syncGo(); });
+  ['stText', 'stVoiceFile'].forEach(id => $(id).addEventListener('input', syncGo));
+  $('stVoiceFile').addEventListener('change', syncGo);
+  try { const st = localStorage.getItem('euphoria-style'); const r = st && document.querySelector(`input[name="stStyle"][value="${st}"]`); if (r) { r.checked = true; } } catch (_) {}
+  setStyle((document.querySelector('input[name="stStyle"]:checked') || {}).value || 'talking_head');
   $('stSteps').innerHTML = STEPS.map(s => `<li>${s}</li>`).join('');
 
   const api = (path, opts) => fetch(path, opts).then(async r => {
@@ -1304,7 +1430,8 @@ footer{position:relative;overflow:hidden;padding-top:90px}
       online = true;
       if (!h.ready) { setHealth('Finish the setup above to start editing.', 'bad'); go.disabled = true; showSetup(); return; }
       $('stSetup').hidden = true; clearInterval(setupTimer); setupTimer = null;
-      setHealth('AI editor is ready', 'ok'); go.disabled = !picked; loadRecent();
+      elevenReady = !!h.elevenlabs; syncVoiceId();
+      setHealth('AI editor is ready', 'ok'); syncGo(); loadRecent();
     } catch (_) {
       online = false; go.disabled = true;
       setHealth('The studio runs in the Euphoria app on your computer. Start run.bat and open 127.0.0.1:8000/site', 'bad');
@@ -1335,7 +1462,7 @@ footer{position:relative;overflow:hidden;padding-top:90px}
   function pick(f) {
     if (!f) return;
     if (!/^video\//.test(f.type) && !/\.(mp4|mov|m4v|webm|mkv|avi)$/i.test(f.name)) { setHealth('That file isn’t a video. Choose an mp4 or mov.', 'bad'); return; }
-    picked = f; $('stFileName').textContent = f.name; drop.classList.add('has'); go.disabled = !online;
+    picked = f; $('stFileName').textContent = f.name; drop.classList.add('has'); syncGo();
   }
   file.addEventListener('change', () => pick(file.files[0]));
   ['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
@@ -1344,15 +1471,22 @@ footer{position:relative;overflow:hidden;padding-top:90px}
 
   form.addEventListener('submit', async ev => {
     ev.preventDefault();
-    if (!picked || !online) return;
+    if (!online || !ready()) return;
     go.disabled = true; go.firstChild.textContent = 'Uploading… ';
-    const fd = new FormData();
-    fd.append('file', picked); fd.append('language', $('stLang').value);
-    fd.append('cta', $('stCta').value.trim()); fd.append('notes', $('stNotes').value.trim());
-    fd.append('script', $('stScript').value); fd.append('pace', $('stPace').value); fd.append('cut_mode', $('stCut').value);
+    const st = styleNow(), fd = new FormData();
+    fd.append('style', st); fd.append('language', $('stLang').value); fd.append('cta', $('stCta').value.trim());
+    if (st !== 'faceless') { fd.append('file', picked); fd.append('notes', $('stNotes').value.trim()); }
+    if (st === 'talking_head') { fd.append('script', $('stScript').value); fd.append('pace', $('stPace').value); fd.append('cut_mode', $('stCut').value); }
+    if (st !== 'talking_head') { fd.append('look', $('stLook').value); if ($('stMusic').files[0]) fd.append('music', $('stMusic').files[0]); }
+    if (st === 'product') fd.append('voice', $('stPVoice').value);
+    if (!$('stVoiceIdRow').hidden && $('stVoiceId').value.trim()) fd.append('voice_id', $('stVoiceId').value.trim());
+    if (st === 'faceless') {
+      fd.append('script_text', $('stText').value.trim()); fd.append('script_mode', $('stTextMode').value); fd.append('voice', $('stVoice').value);
+      if ($('stVoice').value === 'upload' && $('stVoiceFile').files[0]) fd.append('voice_file', $('stVoiceFile').files[0]);
+    }
     try { const m = await api('/api/reels', { method: 'POST', body: fd }); open(m.id); }
     catch (e) { setHealth('Upload failed: ' + e.message, 'bad'); }
-    finally { go.firstChild.textContent = 'Edit with AI '; go.disabled = false; }
+    finally { go.firstChild.textContent = 'Edit with AI '; syncGo(); }
   });
 
   function view(which) { ['stEmpty', 'stLive', 'stDone', 'stFail'].forEach(id => $(id).hidden = id !== which); }
@@ -1476,11 +1610,18 @@ footer{position:relative;overflow:hidden;padding-top:90px}
     $('stAskGo').addEventListener('click', async () => {
       const q = $('stAsk').value.trim(); if (!q) { $('stAsk').focus(); return; }
       $('stAskGo').disabled = true;
-      try { await api(`/api/reels/${rid}/revise`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ request: q }) });
-        $('stAsk').value = ''; open(rid); }
+      const t0 = $('stT0').value.trim(), t1 = $('stT1').value.trim(), body = { request: q };
+      if (t0 !== '' || t1 !== '') {
+        if (t0 === '' || t1 === '' || isNaN(+t0) || isNaN(+t1)) { $('stQ').hidden = false; $('stQ').textContent = 'Fill both seconds of the range, or leave both empty.'; $('stAskGo').disabled = false; return; }
+        body.t0 = +t0; body.t1 = +t1;
+      }
+      try { await api(`/api/reels/${rid}/revise`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        $('stAsk').value = ''; $('stT0').value = ''; $('stT1').value = ''; open(rid); }
       catch (e) { $('stQ').hidden = false; $('stQ').textContent = e.message; }
       finally { $('stAskGo').disabled = false; }
     });
+    $('stT0Now').addEventListener('click', () => { const v = $('stVideo'); $('stT0').value = Math.max(0, v.currentTime - 0.5).toFixed(1); });
+    $('stT1Now').addEventListener('click', () => { const v = $('stVideo'); $('stT1').value = (v.currentTime + 0.5).toFixed(1); });
     document.querySelectorAll('.st-tabs button').forEach(b => b.addEventListener('click', () => {
       document.querySelectorAll('.st-tabs button').forEach(x => x.classList.toggle('on', x === b));
       ['stPWords', 'stPAsk', 'stPVers'].forEach(id => $(id).hidden = id !== b.dataset.pane);
@@ -1516,7 +1657,10 @@ footer{position:relative;overflow:hidden;padding-top:90px}
       if (rid !== m.id) clear();
       rid = m.id;
       try { words = await api(`/api/reels/${rid}/words`); } catch (_) { words = []; }
-      $('stEdit').hidden = !words.length; draw(); vers();
+      // product reels have no word list: changes go through "Ask for a change"
+      $('stEdit').hidden = false; $('stTabWords').hidden = !words.length;
+      if (!words.length && !$('stPWords').hidden) $('stEdit').querySelector('[data-pane="stPAsk"]').click();
+      draw(); vers();
     }
     return { load };
   })();
@@ -1533,7 +1677,8 @@ footer{position:relative;overflow:hidden;padding-top:90px}
     list.slice(0, 8).forEach(m => {
       const b = document.createElement('button'); b.type = 'button';
       b.innerHTML = '<b></b><small></small>'; b.firstChild.textContent = m.name;
-      b.lastChild.textContent = ({ done: 'Ready', failed: 'Stopped', cancelled: 'Cancelled', queued: 'Queued' }[m.status] || 'Editing…') + ' · ' + new Date(m.created * 1000).toLocaleString();
+      b.lastChild.textContent = ({ talking_head: 'Talking head · ', product: 'Product · ', faceless: 'No talking head · ' }[m.style] || '') +
+        ({ done: 'Ready', failed: 'Stopped', cancelled: 'Cancelled', queued: 'Queued' }[m.status] || 'Editing…') + ' · ' + new Date(m.created * 1000).toLocaleString();
       b.addEventListener('click', () => open(m.id)); $('stList').appendChild(b);
     });
   }

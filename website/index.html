@@ -110,6 +110,9 @@ section{position:relative}
 .cyl{position:absolute;left:50%;top:0;width:var(--cw);height:var(--ch);margin-left:calc(var(--cw) / -2);transform-style:preserve-3d;transform:translateZ(var(--lift)) rotateY(var(--rot,0deg))}
 .reel{position:absolute;inset:0;border-radius:18px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(var(--a)) translateZ(calc(var(--R) * -1));border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
 .reel .scene{position:absolute;inset:0}
+.reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0705;display:block}
+.reel.has-video::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 22%)}
+.reel .chip{z-index:2}
 .reel .person{position:absolute;left:50%;bottom:-2%;width:96%;transform:translateX(-50%)}
 .reel .cap{position:absolute;left:10px;right:10px;bottom:15%;text-align:center;font-weight:600;font-size:17px;line-height:1.35;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.7)}
 .reel .cap .on{color:#ffd23a}
@@ -1059,34 +1062,40 @@ footer{position:relative;overflow:hidden;padding-top:90px}
   const lw=document.getElementById('langWord'); let wi=0;
   if(!reduce) setInterval(()=>{ wi=(wi+1)%words.length; lw.animate([{opacity:1,transform:'translateY(0)',filter:'blur(0)'},{opacity:0,transform:'translateY(-18px)',filter:'blur(6px)'}],{duration:320,easing:'ease-in'}).onfinish=()=>{ lw.textContent=words[wi][0]; lw.className='lang '+words[wi][1]; lw.animate([{opacity:0,transform:'translateY(18px)',filter:'blur(6px)'},{opacity:1,transform:'translateY(0)',filter:'blur(0)'}],{duration:520,easing:'cubic-bezier(.2,.9,.25,1.06)'}); }; }, 2600);
 
-  /* 3D reel cylinder */
-  const reels=[
-    {cap:'ഇന്ന് നമുക്ക് ഒരു <span class="on">കാര്യം</span> പറയാം',cls:'ml',chip:'Malayalam captions',bg:['#7a3517','#1e0e07'],skin:'#c98a63',hair:'#1a0e08',top:'#3b2a6b'},
-    {cap:'आज की टिप <span class="on">बहुत</span> आसान है',cls:'hi',chip:'Hindi captions',bg:['#2d4a5e','#0e1418'],skin:'#b77a55',hair:'#120a06',top:'#9a3b20'},
-    {cap:'Ithu <span class="on">try</span> cheyyu, seriously',cls:'',chip:'Fillers cut',bg:['#6e5320','#1b1306'],skin:'#d6a07a',hair:'#2a160a',top:'#1f4a3a'},
-    {cap:'ആദ്യം <span class="on">ഹുക്ക്</span> ശരിയാക്കണം',cls:'ml',chip:'Retake removed',bg:['#5b2a4a','#170a12'],skin:'#a8714e',hair:'#0d0805',top:'#c25a1f'},
-    {cap:'Three tips <span class="on">before</span> you post',cls:'',chip:'Pauses cut',bg:['#3c5a2e','#0f160b'],skin:'#c78f69',hair:'#3a2212',top:'#22324d'},
-    {cap:'पहले <span class="on">हुक</span>, फिर कहानी',cls:'hi',chip:'9:16 export',bg:['#80421d','#200f06'],skin:'#9c6646',hair:'#110905',top:'#e3dccf'},
-    {cap:'ഈ <span class="on">ടിപ്പ്</span> ശ്രദ്ധിക്കൂ',cls:'ml',chip:'Malayalam captions',bg:['#24405c','#0a1018'],skin:'#c1855f',hair:'#1c0f07',top:'#7d2a2a'},
-    {cap:'Class <span class="on">notes</span> in 60 seconds',cls:'',chip:'Edit by text',bg:['#6b3a2a','#1a0d08'],skin:'#b98059',hair:'#0f0a07',top:'#2f5b5b'},
-    {cap:'Ningalude <span class="on">doubt</span> comment cheyyu',cls:'',chip:'Manglish',bg:['#4a3a6b','#110c1a'],skin:'#d3a17c',hair:'#24150b',top:'#a3541f'},
-    {cap:'ബാക്കി ഞാൻ <span class="on">പറഞ്ഞുതരാം</span>',cls:'ml',chip:'Fillers cut',bg:['#7b5a28','#1c1408'],skin:'#a66d49',hair:'#0c0704',top:'#3e4f86'},
-    {cap:'Offer <span class="on">sirf</span> aaj tak',cls:'',chip:'Small business',bg:['#2e5248','#0b1513'],skin:'#c48b66',hair:'#1a0f08',top:'#b2351a'},
-    {cap:'Join the <span class="on">live</span> class',cls:'',chip:'Educators',bg:['#6a2c22','#190a08'],skin:'#b67b57',hair:'#2b170b',top:'#f0a34a'}
+  /* 3D reel cylinder: real reels rendered by Euphoria (website/media, made from /assets) */
+  const clips=[
+    {src:'media/test2.mp4',poster:'media/test2.jpg',chips:['Malayalam captions','On-screen graphics','Made with Euphoria'],dur:27},
+    {src:'media/test1.mp4',poster:'media/test1.jpg',chips:['Word-by-word captions','Talking head','9:16 export'],dur:27},
+    {src:'media/test3.mp4',poster:'media/test3.jpg',chips:['Malayalam + English captions','Title card intro','On-screen graphics'],dur:38},
+    {src:'media/test.mp4',poster:'media/test.jpg',chips:['Title card intro','Malayalam captions','9:16 export'],dur:19}
   ];
   const cyl=document.getElementById('cyl');
-  [...reels,...reels].forEach((r,i)=>{
-    const el=document.createElement('div'); el.className='reel'; el.style.setProperty('--a',(i*15)+'deg');
-    const bars=Array.from({length:28},(_,k)=>{const h=20+Math.abs(Math.sin(i*3+k*1.7))*80; const cut=(k%9===4||k%11===7);return `<span class="${cut?'cut':''}" style="height:${h}%"></span>`}).join('');
-    el.innerHTML=`<div class="scene" style="background:radial-gradient(90% 60% at 50% 30%,${r.bg[0]},${r.bg[1]})"></div>
-      <svg class="person" viewBox="0 0 200 240"><ellipse cx="100" cy="240" rx="96" ry="70" fill="${r.top}"/><rect x="86" y="128" width="28" height="40" rx="10" fill="${r.skin}"/><ellipse cx="100" cy="98" rx="44" ry="52" fill="${r.skin}"/><path d="M56 92c0-36 22-56 46-56s44 18 44 54c-6-16-20-28-44-28s-38 12-46 30z" fill="${r.hair}"/></svg>
-      <span class="chip"><i></i>${r.chip}</span>
-      <div class="cap ${r.cls}">${r.cap}</div>
-      <div class="wave">${bars}</div>`;
-    cyl.appendChild(el);
-  });
-  let rot=0, last=performance.now(), speed=6, scrollBoost=0, lastY=scrollY;
-  function spin(t){ const dt=Math.min(64,t-last)/1000; last=t; const dy=scrollY-lastY; lastY=scrollY; scrollBoost+= dy*0.02; scrollBoost*=0.92; rot-= (speed*dt + scrollBoost); cyl.style.setProperty('--rot',rot+'deg'); requestAnimationFrame(spin); }
+  const cards=[];
+  for(let i=0;i<24;i++){
+    /* order test2, test1, test3, test: neighbours never share a clip or a speaker (test/test1 same speaker
+       sit two apart); 24 % 4 == 0 so the wrap 23->0 is also safe */
+    const ci = i%clips.length, c=clips[ci];
+    const round = Math.floor(i/clips.length);
+    const el=document.createElement('div'); el.className='reel has-video'; el.style.setProperty('--a',(i*15)+'deg');
+    el.innerHTML=`<video muted loop playsinline preload="none" poster="${c.poster}" aria-hidden="true" tabindex="-1"><source src="${c.src}" type="video/mp4"></video>
+      <span class="chip"><i></i>${c.chips[round%c.chips.length]}</span>`;
+    const v=el.querySelector('video');
+    v.dataset.start=((round*5)%c.dur).toFixed(1);   /* stagger so repeats of one clip show different moments */
+    cyl.appendChild(el); cards.push({el,v,a:i*15,on:false});
+  }
+  function syncVideos(rotDeg){
+    for(const c of cards){
+      const d=((c.a+rotDeg)%360+540)%360-180;        /* 0 = facing viewer */
+      const want=Math.abs(d)<80;
+      if(want===c.on) continue; c.on=want;
+      if(want){
+        if(c.v.preload==='none'){ c.v.preload='auto'; c.v.addEventListener('loadedmetadata',()=>{ c.v.currentTime=+c.v.dataset.start; },{once:true}); c.v.load(); }
+        const pr=c.v.play(); if(pr) pr.catch(()=>{});
+      } else c.v.pause();
+    }
+  }
+  let rot=0, lastSync=0, last=performance.now(), speed=6, scrollBoost=0, lastY=scrollY;
+  function spin(t){ const dt=Math.min(64,t-last)/1000; last=t; const dy=scrollY-lastY; lastY=scrollY; scrollBoost+= dy*0.02; scrollBoost*=0.92; rot-= (speed*dt + scrollBoost); cyl.style.setProperty('--rot',rot+'deg'); if(t-lastSync>200){ lastSync=t; syncVideos(rot); } requestAnimationFrame(spin); }
   if(!reduce) requestAnimationFrame(spin);
 
   /* Reveal on scroll: only pre-hide what starts below the first screen */

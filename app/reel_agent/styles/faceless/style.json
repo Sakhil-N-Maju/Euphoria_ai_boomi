@@ -1,0 +1,356 @@
+{
+ "id": "faceless",
+ "name": "No talking head",
+ "aliases": {
+  "light": "paper",
+  "dark": "crimson",
+  "ink": "crimson",
+  "devices": "crimson",
+  "story": "midnight",
+  "editorial": "paper",
+  "presenter": "violet"
+ },
+ "looks": {
+  "paper": {
+   "label": "Editorial (notepads, big type and paper objects - the 'STRUCTURE' references)",
+   "bg": "paper",
+   "accent": "#E3342F",
+   "palette": [
+    "#E3342F",
+    "#141414",
+    "#2F6BFF",
+    "#E3342F"
+   ],
+   "cards": [
+    [
+     "#141414",
+     "#F3F1EC"
+    ],
+    [
+     "#E3342F",
+     "#FFFFFF"
+    ],
+    [
+     "#F3F1EC",
+     "#141414"
+    ]
+   ],
+   "theme": {
+    "txt": "#141414",
+    "accrgb": "227,52,47",
+    "pcard": "#FFFFFF",
+    "ink": "#FFFFFF",
+    "line2": "rgba(0,0,0,.12)",
+    "pba": ".0",
+    "mut2": "#9A968E",
+    "capc": "#141414",
+    "boxtxt": "#FFFFFF",
+    "gpanel": "#FFFFFF",
+    "gborder": "rgba(0,0,0,.08)"
+   },
+   "captions": {
+    "face": [
+     "leftbig",
+     600
+    ],
+    "panel": [
+     "left",
+     250
+    ],
+    "card": [
+     "left",
+     250
+    ],
+    "cta": [
+     "left",
+     250
+    ],
+    "accent_flags": "*",
+    "scene": [
+     "left",
+     220
+    ]
+   },
+   "layout": {
+    "panelY": "470px",
+    "statPad": "0px",
+    "sceneY": "420px",
+    "sceneS": "1"
+   },
+   "caption_len": [
+    9,
+    58
+   ],
+   "scenes": [
+    "notepad",
+    "bigtype",
+    "magnify",
+    "polaroids",
+    "statement"
+   ]
+  },
+  "crimson": {
+   "label": "Devices (dark glass phones, code and graphs - the 'ugoki' references)",
+   "bg": "crimson",
+   "accent": "#FF3B30",
+   "palette": [
+    "#FF3B30",
+    "#FF8A3D",
+    "#FF3B30",
+    "#F2F2F2"
+   ],
+   "cards": [
+    [
+     "#0B0606",
+     "#FF3B30"
+    ],
+    [
+     "#E0261C",
+     "#FFFFFF"
+    ],
+    [
+     "#0B0606",
+     "#FFFFFF"
+    ]
+   ],
+   "theme": {
+    "txt": "#FFFFFF",
+    "accrgb": "255,59,48",
+    "pcard": "linear-gradient(180deg,rgba(46,22,22,.92),rgba(14,8,8,.94))",
+    "ink": "#FFFFFF",
+    "pba": ".28",
+    "pgl": "40px",
+    "pga": ".18",
+    "mut2": "#7A6A6A",
+    "capc": "#FFFFFF",
+    "boxtxt": "#FFFFFF"
+   },
+   "captions": {
+    "face": [
+     "bigbox",
+     880
+    ],
+    "panel": [
+     "box",
+     1240
+    ],
+    "card": [
+     "box",
+     1240
+    ],
+    "cta": [
+     "box",
+     1420
+    ],
+    "accent_flags": "*",
+    "scene": [
+     "box",
+     1420
+    ]
+   },
+   "layout": {
+    "panelY": "210px",
+    "statPad": "320px",
+    "sceneY": "300px",
+    "sceneS": "1"
+   },
+   "caption_len": [
+    5,
+    30
+   ],
+   "scenes": [
+    "phone",
+    "code",
+    "timeline",
+    "graph",
+    "glowword",
+    "typing",
+    "counter",
+    "statement"
+   ],
+   "cta_scene": "commentcta"
+  },
+  "midnight": {
+   "label": "Story (neon stick-figure scenes - the 'Two salesmen' reference)",
+   "bg": "midnight",
+   "accent": "#5EE6B0",
+   "palette": [
+    "#5EE6B0",
+    "#FF7A3D",
+    "#7CB7FF",
+    "#FF7A3D"
+   ],
+   "cards": [
+    [
+     "#0A1220",
+     "#5EE6B0"
+    ],
+    [
+     "#0A1220",
+     "#FF7A3D"
+    ],
+    [
+     "#0A1220",
+     "#EAF2FF"
+    ]
+   ],
+   "theme": {
+    "txt": "#EAF2FF",
+    "accrgb": "94,230,176",
+    "pcard": "rgba(9,16,30,.72)",
+    "ink": "#0A1220",
+    "pbw": "2.5px",
+    "pba": ".9",
+    "pgl": "34px",
+    "pga": ".35",
+    "mut2": "#5C6B85",
+    "capc": "#EAF2FF",
+    "boxtxt": "#0A1220"
+   },
+   "captions": {
+    "face": [
+     "leftbig",
+     700
+    ],
+    "panel": [
+     "left",
+     1290
+    ],
+    "card": [
+     "left",
+     1290
+    ],
+    "cta": [
+     "left",
+     1290
+    ],
+    "accent_flags": "*",
+    "scene": [
+     "left",
+     1300
+    ]
+   },
+   "layout": {
+    "panelY": "250px",
+    "statPad": "300px",
+    "sceneY": "260px",
+    "sceneS": "1.12"
+   },
+   "caption_len": [
+    7,
+    44
+   ],
+   "scenes": [
+    "figures",
+    "tags",
+    "speech",
+    "icons",
+    "statement"
+   ]
+  },
+  "violet": {
+   "label": "Presenter (a cartoon host with app windows - the 'pov Claude & me' reference)",
+   "bg": "violet",
+   "accent": "#6D4AFF",
+   "palette": [
+    "#6D4AFF",
+    "#141414",
+    "#6D4AFF",
+    "#FF5A8A"
+   ],
+   "cards": [
+    [
+     "#6D4AFF",
+     "#FFFFFF"
+    ],
+    [
+     "#0E0E12",
+     "#FFFFFF"
+    ],
+    [
+     "#F2F1F6",
+     "#141414"
+    ]
+   ],
+   "theme": {
+    "txt": "#141414",
+    "accrgb": "109,74,255",
+    "pcard": "#FFFFFF",
+    "ink": "#FFFFFF",
+    "line2": "rgba(0,0,0,.10)",
+    "pba": ".0",
+    "mut2": "#A3A0B2",
+    "capc": "#141414",
+    "boxtxt": "#FFFFFF",
+    "gpanel": "#FFFFFF",
+    "gborder": "rgba(0,0,0,.08)"
+   },
+   "captions": {
+    "face": [
+     "bigbox",
+     880
+    ],
+    "panel": [
+     "box",
+     1010
+    ],
+    "card": [
+     "box",
+     1010
+    ],
+    "cta": [
+     "box",
+     1010
+    ],
+    "accent_flags": "*",
+    "scene": [
+     "box",
+     1010
+    ]
+   },
+   "layout": {
+    "panelY": "230px",
+    "statPad": "300px",
+    "sceneY": "120px",
+    "sceneS": ".9"
+   },
+   "caption_len": [
+    5,
+    30
+   ],
+   "scenes": [
+    "window",
+    "phone",
+    "icons",
+    "statement"
+   ],
+   "host": true,
+   "cta_scene": "commentcta"
+  }
+ },
+ "captions": {
+  "face": [
+   "st",
+   960
+  ],
+  "panel": [
+   "in",
+   1560
+  ],
+  "card": [
+   "in",
+   1560
+  ],
+  "cta": [
+   "in",
+   1560
+  ],
+  "accent_flags": "^*~"
+ },
+ "words_per_second": 2.6,
+ "hold_captions": true,
+ "grade": 0,
+ "zoom": false,
+ "punch_ins": false,
+ "sfx": true
+}

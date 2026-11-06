@@ -8,7 +8,11 @@ W=(os.environ.get('REEL_HOME') or os.getcwd()); os.chdir(W)
 p=probe(inp); print('input',p)
 sc=min(1.0,mx/min(p['w'],p['h']))
 w=int(p['w']*sc)//2*2; h=int(p['h']*sc)//2*2
-ff('-i',inp,'-vf',f'scale={w}:{h}:flags=lanczos,fps=30,format=yuv420p','-c:v','libx264','-preset','veryfast','-crf','14','-c:a','aac','-b:a','256k','-ar','48000','src.mp4')
+if p['audio']:
+    ff('-i',inp,'-vf',f'scale={w}:{h}:flags=lanczos,fps=30,format=yuv420p','-c:v','libx264','-preset','veryfast','-crf','14','-g','30','-c:a','aac','-b:a','256k','-ar','48000','src.mp4')
+else:   # screen recordings often have no sound: add silence so every later step has an audio track
+    ff('-i',inp,'-f','lavfi','-i','anullsrc=r=48000:cl=stereo','-map','0:v','-map','1:a','-vf',f'scale={w}:{h}:flags=lanczos,fps=30,format=yuv420p',
+       '-c:v','libx264','-preset','veryfast','-crf','14','-g','30','-c:a','aac','-b:a','128k','-shortest','src.mp4')
 ff('-i','src.mp4','-vn','-ac','1','-ar','16000','audio16k.wav')
 ff('-i','src.mp4','-vf','fps=1/2,scale=200:-1,tile=8x4','-frames:v','1','contact.jpg')
 q=probe('src.mp4'); json.dump(q,open('src.json','w')); print('normalised',q)

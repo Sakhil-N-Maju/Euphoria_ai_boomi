@@ -12,9 +12,12 @@ Everything runs on the creator's PC inside the job folder (the current folder). 
 | `"$PY" $S/subs.py subs.txt` | Caption chunks (see format below) | `subs.json` |
 | `"$PY" $S/masks.py [t0 t1 ...]` | Person cut-out masks (only for ranges that need text behind the person; it's ~0.6 s per frame) | `masks/*.png` |
 | `"$PY" $S/make_bg.py dark\|light` | Background for split screens and cards | `bg.png` |
-| `"$PY" $S/render_overlay.py ov all 0/2` + `1/2` (run both at once) | Graphics layer from `overlay.html` | `ov/*.png`, `ov_back/*.png` |
+| `"$PY" $S/render_overlay.py ov all 0/2` + `1/2` (run both at once) | Graphics layer from `overlay.html`; identical / unchanged frames are reused from the cache | `ovcache/*.png`, `ov_map.json` |
+| `"$PY" $S/activity.py` | Product style: where and how much the screen changes per 0.5 s | `activity.json` |
+| `"$PY" $S/product_build.py edit_plan.json` | Product style: scenes, speed-ups, auto-zoom camera, window layout, titles, outro | `edit.json`, `camera.json`, `pip.json`, `overlay.html`, ... |
+| `"$PY" $S/faceless_prep.py script.txt [--voice f]` | Faceless style: background still + voice or a script timed at reading speed | `src.mp4`, `words.json` |
 | `"$PY" $S/composite.py test ov 15,120,300 sheet.jpg` | Test frames → contact sheet (look at it!) | `sheet.jpg` |
-| `"$PY" $S/composite.py full ov base_ov.mp4` | Full video: cuts, zoom, colour grade, subject pop, text behind person, layouts, graphics. Takes ~4–8 min for 40 s; run it in the background and poll | `base_ov.mp4` |
+| `"$PY" $S/composite.py full ov base_ov.mp4 [--workers N]` | Full video: cuts, zoom, colour grade, subject pop, text behind person, layouts, graphics. Renders only chunks whose content changed (`vcache/`), in parallel workers, then joins them losslessly. First render ~2-3x faster than before; a small fix re-renders only its seconds | `base_ov.mp4` |
 | `"$PY" $S/sfx.py` | Sound effects from `sfx_events.json` | `sfx.wav` |
 | `"$PY" $S/finish.py <name>` | Voice processing, mix at −14 LUFS, master + <30 MB file, check images | outputs folder |
 

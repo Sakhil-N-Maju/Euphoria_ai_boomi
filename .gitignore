@@ -26,3 +26,10 @@ desktop.ini
 
 # Scratch preview frames
 deck_frames/
+
+# Local only: third-party reference reels and their frame sheets, full-size renders, scratch
+assets/style/
+assets/output/
+app/reel_agent/styles/*/refs/
+Claude outputs/
+_tmp_demo/

@@ -1,0 +1,10 @@
+{
+ "id": "talking_head",
+ "name": "Talking head",
+ "bg": "neutral",
+ "accent": "#FFD43B",
+ "theme": {"txt": "#FFFFFF", "accrgb": "255,212,59", "pcard": "rgba(18,18,20,.93)", "ink": "#121212"},
+ "captions": {"face": ["st", 1290], "panel": ["in", 862], "card": ["in", 1500], "cta": ["in", 1320], "accent_flags": "^*~"},
+ "grade": 0.6, "tint": null, "pop": 0.84,
+ "zoom": true, "punch_ins": true, "sfx": true
+}

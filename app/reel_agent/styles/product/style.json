@@ -1,0 +1,11 @@
+{
+ "id": "product",
+ "name": "Product / screen recording",
+ "looks": {
+  "dark": {"bg": "glow_dark", "accent": "#4F8BFF", "theme": {"txt": "#FFFFFF", "accrgb": "79,139,255", "pcard": "rgba(16,20,32,.92)", "ink": "#FFFFFF"}},
+  "light": {"bg": "glow_light", "accent": "#2F6BFF", "theme": {"txt": "#111318", "accrgb": "47,107,255", "pcard": "rgba(255,255,255,.95)", "ink": "#FFFFFF"}}
+ },
+ "window": {"max_w": 1000, "max_h": 1180, "center_y": 1030, "radius": 28, "shadow": 0.5},
+ "zoom_max": 2.2, "outro_s": 2.6, "captions": {"face": ["pill", 1600]},
+ "sfx": true
+}

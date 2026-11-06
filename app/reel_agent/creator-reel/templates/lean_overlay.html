@@ -16,7 +16,7 @@
 @font-face{font-family:LOC;src:url(fonts/noto-sans-tamil/files/noto-sans-tamil-tamil-700-normal.woff2);font-weight:700 800}
 @font-face{font-family:LOC;src:url(fonts/noto-sans-arabic/files/noto-sans-arabic-arabic-700-normal.woff2);font-weight:700 800}
 /* ===== THEME (change these) ===== */
-:root{--txt:#F5F2EC;--mut:#8C9A88;--dim:#5B6658;--acc:#C6F432;--accrgb:198,244,50;--card:#0F1511;--line2:rgba(255,255,255,.16)}  /* Euphoria look: green-black + lime */
+:root{--txt:#F5F2EC;--mut:#8C9A88;--dim:#5B6658;--acc:#C6F432;--accrgb:198,244,50;--card:#0F1511;--line2:rgba(255,255,255,.16);--pcard:rgba(13,19,15,.93);--ink:#0B0F0A;--pbw:1.5px;--pba:.16;--pgl:0px;--pga:0;--mut2:#6E776B;--capc:#fff;--boxtxt:#fff;--panelY:470px;--statPad:0px}  /* Euphoria look: green-black + lime */
 html,body{margin:0;background:transparent}
 #stage{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:IT,LOC,sans-serif;-webkit-font-smoothing:antialiased;color:var(--txt)}
 .abs{position:absolute}.layer{position:absolute;inset:0;display:none}
@@ -44,10 +44,28 @@ html,body{margin:0;background:transparent}
 .sticker{position:absolute;font:800 44px IT,LOC;padding:10px 24px;border-radius:14px;background:var(--acc);color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .lbl{font:500 26px JB;color:var(--acc);letter-spacing:.08em}
 .mono{font-family:JB}
-.pcard{background:rgba(13,19,15,.93);border:1.5px solid rgba(var(--accrgb),.16);border-radius:28px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
-.lime{background:var(--acc);color:#0B0F0A;border-radius:16px;padding:0 20px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.pcard{background:var(--pcard);border:var(--pbw) solid rgba(var(--accrgb),var(--pba));border-radius:28px;box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 var(--pgl) rgba(var(--accrgb),var(--pga))}
+.lime{background:var(--acc);color:var(--ink);border-radius:16px;padding:0 20px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 #hl{top:176px!important;font:800 66px/1.18 IT,LOC!important}
 #hl .lime{display:inline-block;margin-top:10px;font-size:76px}
+/* style presets (talking head / product / faceless): only used when the plan sets them */
+.faceless #layers .layer{top:var(--panelY);bottom:auto;height:1920px}.faceless #layers{transform:scale(1.12);transform-origin:50% 22%}
+.faceless #hl{top:560px!important;font:800 92px/1.1 IT,LOC!important;letter-spacing:-0.03em;color:var(--txt);text-shadow:none!important;padding:0 60px}.faceless #hl .lime{font-size:96px;margin-top:18px;padding:4px 26px}.faceless .block{padding-bottom:var(--statPad)}
+.faceless .lbl{font:500 24px JB;letter-spacing:.16em;text-transform:uppercase}.kick-n{color:var(--txt);opacity:.55;position:absolute;right:64px;top:0;font:500 24px JB;letter-spacing:.12em}
+.nbadge{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:14px;background:var(--acc);color:var(--ink);font:800 32px IT;flex:none}
+.capleft .row{white-space:normal!important;text-align:left!important;width:920px}
+.capleft .w{font:700 66px/1.14 IT,LOC;letter-spacing:-0.02em;margin:0 .26em 0 0;color:var(--capc);text-shadow:none!important}
+.capleft .w.acc{font:italic 400 80px/1 IS,LOC;color:var(--acc);letter-spacing:0}
+.capbox .w{font:800 62px/1.25 IT,LOC;color:var(--capc);padding:0 12px;border-radius:12px;margin:0 .06em}
+.capbox .w.hot{background:var(--acc);color:var(--boxtxt);text-shadow:none!important}
+.capbig .row{white-space:normal!important;width:960px;text-align:center}.capbig .w{font:800 104px/1.12 IT,LOC;letter-spacing:-0.035em;padding:0 16px;border-radius:18px}
+.capleft.big .w{font-size:98px;line-height:1.08;letter-spacing:-0.03em}.capleft.big .w.acc{font-size:116px}.faceless #shade,.faceless #tshade{display:none}
+.faceless .w{text-shadow:none!important}.faceless .sm{font-size:64px}.faceless .in{font-size:72px}.faceless .in.big{font-size:100px;letter-spacing:-0.02em}.faceless .bg{font-size:150px}.faceless .bg.serif{font-size:190px}
+.kw{display:inline-block;margin:0 .14em;white-space:nowrap}
+.ttl{position:absolute;left:60px;right:60px;text-align:center;font:800 92px/1.05 IT,LOC;letter-spacing:-0.035em;color:var(--txt)}
+.ttl .acc{color:var(--acc)}.ttl .ser{font:italic 400 108px/1 IS,LOC;letter-spacing:0}
+.ttl-sub{position:absolute;left:80px;right:80px;text-align:center;font:600 42px/1.25 IT,LOC;color:var(--txt);opacity:.72}
+.btnp{display:inline-flex;align-items:center;gap:16px;padding:22px 44px;border-radius:60px;background:var(--acc);color:var(--ink);font:800 44px IT,LOC}
 </style></head><body>
 <div id="stage">
   <div id="back"></div>
@@ -65,6 +83,8 @@ const C=x=>Math.max(0,Math.min(1,x)), P=(t,a,d)=>C((t-a)/d), lerp=(a,b,x)=>a+(b-
 const eo=x=>1-Math.pow(1-x,3), eo5=x=>1-Math.pow(1-x,5), eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 const eb=(x,s=1.6)=>{x=C(x);const c=s+1;return 1+c*Math.pow(x-1,3)+s*Math.pow(x-1,2)};
 const EASE={eo,eo5,eio,eb,lin:x=>x};
+// on/off tests in 1/120 s steps: times sit on that grid, so a frame exactly on a start/end time is decided the same way every time
+const GQ=x=>Math.round(x*120), IN=(t,a,b)=>GQ(t)>=GQ(a)&&GQ(t)<GQ(b);
 const show=(el,v)=>{if(el)el.style.display=v?'block':'none'};
 function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const pop=(t,tk,d=0.34)=>[eb(P(t,tk,d)),C(P(t,tk,d)*2.6)];           // [scale, opacity] for a pop-in at time tk
@@ -77,12 +97,16 @@ let CFG={},SUBS=[],cur=-1,curMode='',FR=0;
 const PLAN=/*PLAN*/{"beats":[]}/*END*/;
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 if(PLAN.accent){document.documentElement.style.setProperty('--acc',PLAN.accent)}
+if(PLAN.theme){for(const [k,v] of Object.entries(PLAN.theme))document.documentElement.style.setProperty('--'+k,v)}
 const BACKTEXT=PLAN.back?[{t0:0,t1:PLAN.back.until,text:esc(PLAN.back.text),top:PLAN.back.top,size:PLAN.back.size,color:PLAN.accent||'#C6F432',glowAt:PLAN.back.glow}]:[];
 const HEADLINE=PLAN.headline?{text:`${esc(PLAN.headline.l1)}${PLAN.headline.l2?`<br><span class="lime">${esc(PLAN.headline.l2)}</span>`:''}`,until:PLAN.headline.until}:{text:'',until:0};
-function capStyle(t){for(const c of (PLAN.caps||[])){if(t>=c[0]&&t<c[1])return {m:c[2],y:c[3]}}return {m:'pill',y:1290}}
+function capStyle(t){for(const c of (PLAN.caps||[])){if(IN(t,c[0],c[1]))return {m:c[2],y:c[3]}}return PLAN.capDefault||{m:'pill',y:1290}}
 const fmtN=(v,b)=>{const d=b.decimals||0;let x=v.toFixed(d);if(b.commas)x=Number(x).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});return (b.prefix||'')+x+(b.suffix||'')};
-const inout=(t,b,el,dy=40)=>{const e=ent(t,b.t0,0.38),o=1-eo(P(t,b.t1-0.22,0.22));setT(el,e*o,`translateY(${(1-e)*dy}px)`,(1-e)*8)};
-const LBL=(b)=>b.label?`<div class="abs lbl" style="left:64px;top:132px">// ${esc(b.label)}</div>`:'';
+const inout=(t,b,el,dy=40)=>{const e=ent(t,b.t0,0.38),o=1-eo(P(t,b.t1-0.22,0.22));
+  if(PLAN.faceless){const sc=eb(P(t,b.t0,0.5),1.2);setT(el,C(P(t,b.t0,0.3))*o,`translateY(${(1-e)*60}px) scale(${0.9+0.1*sc}) rotate(${(1-e)*-2.5}deg)`,(1-e)*6);return}
+  setT(el,e*o,`translateY(${(1-e)*dy}px)`,(1-e)*8)};
+const LBL=(b)=>PLAN.faceless&&b.num?`<div class="abs lbl" style="left:64px;right:64px;top:132px">// ${String(b.num).padStart(2,'0')}${b.label?' — '+esc(b.label):''}<span class="kick-n">${String(b.num).padStart(2,'0')}/${String(b.total).padStart(2,'0')}</span></div>`
+  :b.label?`<div class="abs lbl" style="left:64px;top:132px">// ${esc(b.label)}</div>`:'';
 const CARD='left:60px;top:182px;width:960px;height:640px';
 const COMP={
  counter:{build(b,el){el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>
@@ -90,15 +114,15 @@ const COMP={
    <div class="abs" style="left:60px;width:960px;top:560px;text-align:center;font:700 54px IT,LOC;color:var(--txt)">${esc(b.text||'')}</div>
    <svg class="abs" style="left:120px;top:660px" width="840" height="120"><path data-p d="M0 110 C 220 104, 420 90, 560 60 S 760 14, 840 6" stroke="var(--acc)" stroke-width="6" fill="none" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>`},
   draw(t,b,el){inout(t,b,el);const u=eo(P(t,b.k[0],0.95));el.querySelector('[data-n]').textContent=fmtN((b.from||0)+((b.value||0)-(b.from||0))*u,b);el.querySelector('[data-p]').style.strokeDashoffset=1-u}},
- list:{build(b,el){const it=b.items||[];const h=Math.min(118,560/Math.max(1,it.length));el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>`+it.map((x,i)=>`<div class="abs row-i" style="left:110px;top:${222+i*h}px;height:${h}px;display:flex;align-items:center;gap:30px;transform-origin:left center"><span class="mono" style="font:500 30px JB;color:var(--acc);width:56px">${String(i+1).padStart(2,'0')}</span><span style="font:700 ${h>100?54:44}px IT,LOC;color:var(--txt)">${esc(x.text)}</span></div>`).join('')},
+ list:{build(b,el){const it=b.items||[];const h=Math.min(118,560/Math.max(1,it.length));el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>`+it.map((x,i)=>`<div class="abs row-i" style="left:110px;top:${222+i*h}px;height:${h}px;display:flex;align-items:center;gap:30px;transform-origin:left center">${PLAN.faceless?`<span class="nbadge">${i+1}</span>`:`<span class="mono" style="font:500 30px JB;color:var(--acc);width:56px">${String(i+1).padStart(2,'0')}</span>`}<span style="font:700 ${h>100?54:44}px IT,LOC;color:var(--txt)">${esc(x.text)}</span></div>`).join('')},
   draw(t,b,el){inout(t,b,el);el.querySelectorAll('.row-i').forEach((r,i)=>{const [s,o]=pop(t,b.k[i]??b.t0,0.32);setT(r,o,`translateX(${(1-o)*-30}px) scale(${s})`)})}},
- checklist:{build(b,el){const it=b.items||[];const h=Math.min(118,560/Math.max(1,it.length));el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>`+it.map((x,i)=>`<div class="abs row-i" style="left:110px;top:${222+i*h}px;height:${h}px;display:flex;align-items:center;gap:30px"><svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="26" stroke="rgba(255,255,255,.18)" stroke-width="4" fill="none"/><circle data-c cx="29" cy="29" r="26" fill="var(--acc)" opacity="0"/><path data-k d="M17 30 L25 38 L41 21" stroke="#0B0F0A" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg><span data-x style="font:700 ${h>100?52:42}px IT,LOC;color:#6E776B">${esc(x.text)}</span></div>`).join('')},
-  draw(t,b,el){inout(t,b,el);el.querySelectorAll('.row-i').forEach((r,i)=>{const k=b.k[i]??b.t0;const u=eo(P(t,k,0.3));r.querySelector('[data-c]').setAttribute('opacity',u);r.querySelector('[data-k]').style.strokeDashoffset=1-eo(P(t,k+0.08,0.28));r.querySelector('[data-x]').style.color=u>0.5?'var(--txt)':'#6E776B'})}},
+ checklist:{build(b,el){const it=b.items||[];const h=Math.min(118,560/Math.max(1,it.length));el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>`+it.map((x,i)=>`<div class="abs row-i" style="left:110px;top:${222+i*h}px;height:${h}px;display:flex;align-items:center;gap:30px"><svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="26" stroke="rgba(255,255,255,.18)" stroke-width="4" fill="none"/><circle data-c cx="29" cy="29" r="26" fill="var(--acc)" opacity="0"/><path data-k d="M17 30 L25 38 L41 21" stroke="#0B0F0A" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg><span data-x style="font:700 ${h>100?52:42}px IT,LOC;color:var(--mut2)">${esc(x.text)}</span></div>`).join('')},
+  draw(t,b,el){inout(t,b,el);el.querySelectorAll('.row-i').forEach((r,i)=>{const k=b.k[i]??b.t0;const u=eo(P(t,k,0.3));r.querySelector('[data-c]').setAttribute('opacity',u);r.querySelector('[data-k]').style.strokeDashoffset=1-eo(P(t,k+0.08,0.28));r.querySelector('[data-x]').style.color=u>0.5?'var(--txt)':'var(--mut2)'})}},
  toggle:{build(b,el){const tile=(x,lft)=>`<div class="abs pcard" style="left:${lft}px;top:300px;width:260px;height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px"><div style="width:110px;height:110px;border-radius:30px;background:rgba(var(--accrgb),.12);display:grid;place-items:center;font:800 54px IT;color:var(--acc)">${esc((x||'?').trim().slice(0,1).toUpperCase())}</div><div style="font:700 40px IT,LOC">${esc(x)}</div></div>`;
    el.innerHTML=LBL(b)+tile(b.left,90)+tile(b.right,730)+`<div class="abs" style="left:370px;top:426px;width:340px;height:8px;border-radius:4px;background:rgba(255,255,255,.12)"><div data-f style="height:8px;border-radius:4px;background:var(--acc);width:0"></div></div><div class="abs" data-d style="left:360px;top:414px;width:32px;height:32px;border-radius:50%;background:var(--acc);box-shadow:0 0 30px var(--acc)"></div><div class="abs mono" data-s style="left:0;right:0;top:640px;text-align:center;font:500 34px JB;letter-spacing:.12em;color:#8C9A88">NOT CONNECTED</div>`},
-  draw(t,b,el){inout(t,b,el);const u=eio(P(t,b.k[0],0.7));el.querySelector('[data-f]').style.width=(u*340)+'px';el.querySelector('[data-d]').style.left=(360+u*318)+'px';const s=el.querySelector('[data-s]');const on=u>=1;s.textContent=on?'CONNECTED':'NOT CONNECTED';s.style.color=on?'var(--acc)':'#8C9A88'}},
+  draw(t,b,el){inout(t,b,el);const u=eio(P(t,b.k[0],0.7));el.querySelector('[data-f]').style.width=(u*340)+'px';el.querySelector('[data-d]').style.left=(360+u*318)+'px';const s=el.querySelector('[data-s]');const on=GQ(t)>=GQ(b.k[0]+0.7);s.textContent=on?'CONNECTED':'NOT CONNECTED';s.style.color=on?'var(--acc)':'#8C9A88'}},
  typing:{build(b,el){el.innerHTML=LBL(b)+`<div class="abs pcard" style="left:60px;top:300px;width:960px;min-height:260px;padding:46px 54px;box-sizing:border-box"><span data-x style="font:700 58px/1.3 IT,LOC;color:var(--txt);white-space:pre-wrap"></span><span data-c style="display:inline-block;width:5px;height:64px;background:var(--acc);vertical-align:-10px;margin-left:6px"></span></div>`},
-  draw(t,b,el){inout(t,b,el);const txt=b.text||'';const n=Math.floor(C((t-b.k[0])*20/Math.max(1,txt.length))*txt.length);el.querySelector('[data-x]').textContent=[...txt].slice(0,n).join('');el.querySelector('[data-c]').style.opacity=(Math.floor(t*2.5)%2||n<txt.length)?1:0}},
+  draw(t,b,el){inout(t,b,el);const txt=b.text||'';const n=Math.max(0,Math.min(txt.length,Math.floor((GQ(t)-GQ(b.k[0]))/6)));el.querySelector('[data-x]').textContent=[...txt].slice(0,n).join('');el.querySelector('[data-c]').style.opacity=(Math.floor((GQ(t)-GQ(b.t0))/48)%2||n<txt.length)?1:0}},
  strike:{build(b,el){el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div><div class="abs" style="left:60px;width:960px;top:300px;text-align:center"><span data-o style="position:relative;display:inline-block;font:800 150px/1 IT,LOC;color:var(--txt)">${esc(b.old)}<span data-l style="position:absolute;left:-10px;right:-10px;top:52%;height:14px;border-radius:7px;background:#FF4D3D;transform-origin:left center;transform:scaleX(0)"></span></span></div><div class="abs" data-n style="left:60px;width:960px;top:560px;text-align:center"><span class="lime" style="font:800 110px/1.15 IT,LOC">${esc(b.new)}</span></div>`},
   draw(t,b,el){inout(t,b,el);el.querySelector('[data-l]').style.transform=`scaleX(${eo(P(t,b.k[0],0.3))})`;el.querySelector('[data-o]').style.opacity=1-0.45*P(t,b.k[0]+0.2,0.3);const [s,o]=pop(t,b.k[0]+0.35,0.4);setT(el.querySelector('[data-n]'),o,`scale(${s})`)}},
  steps:{build(b,el){const it=(b.items||[]).slice(0,4);const n=it.length||1,w=Math.min(250,(900-(n-1)*24)/n),x0=540-(n*w+(n-1)*24)/2;
@@ -107,18 +131,24 @@ const COMP={
  bars:{build(b,el){const it=(b.items||[]).slice(0,5);const mx=Math.max(...it.map(x=>+x.value||0),1);const h=Math.min(120,560/Math.max(1,it.length));
    el.innerHTML=LBL(b)+`<div class="abs pcard" style="${CARD}"></div>`+it.map((x,i)=>`<div class="abs br-i" style="left:110px;top:${226+i*h}px;width:860px"><div style="display:flex;justify-content:space-between;font:700 38px IT,LOC;margin-bottom:10px"><span>${esc(x.text)}</span><span data-v class="mono" style="color:var(--acc)">0</span></div><div style="height:22px;border-radius:11px;background:rgba(255,255,255,.1)"><div data-b style="height:22px;border-radius:11px;background:var(--acc);width:0"></div></div></div>`).join('');el._mx=mx},
   draw(t,b,el){inout(t,b,el);el.querySelectorAll('.br-i').forEach((r,i)=>{const x=b.items[i];const u=eo(P(t,b.k[i]??b.t0,0.7));r.querySelector('[data-b]').style.width=(u*(+x.value||0)/el._mx*100)+'%';r.querySelector('[data-v]').textContent=fmtN(u*(+x.value||0),{decimals:x.decimals||0,suffix:x.suffix||'',prefix:x.prefix||''})})}},
- statement:{build(b,el){el.innerHTML=`<div class="block"><div class="big" data-t style="font-size:${(b.text||'').length>10?120:170}px">${esc(b.text)}</div>${b.sub?`<div style="margin-top:34px"><span class="lime" data-s style="display:inline-block;font:800 64px/1.2 IT,LOC">${esc(b.sub)}</span></div>`:''}</div>`},
+ statement:{build(b,el){if(b.bgc){el.style.background=b.bgc;if(b.fgc)el.style.color=b.fgc}el.innerHTML=`<div class="block"><div class="big" data-t style="font-size:${(b.text||'').length>10?120:170}px">${esc(b.text)}</div>${b.sub?`<div style="margin-top:34px"><span class="lime" data-s style="display:inline-block;font:800 64px/1.2 IT,LOC">${esc(b.sub)}</span></div>`:''}</div>`},
   draw(t,b,el){const e=ent(t,b.t0,0.4),o=1-eo(P(t,b.t1-0.2,0.2));setT(el,e*o,`scale(${1.06-0.06*e})`,(1-e)*10);const [s,op]=pop(t,b.k[0]??b.t0+0.3,0.4);const sb=el.querySelector('[data-s]');if(sb)setT(sb,op,`scale(${s})`)}},
  sticker:{build(b,el){el.innerHTML=`<div class="abs pcard" data-c style="left:60px;top:560px;width:360px;padding:22px 28px;box-sizing:border-box;transform-origin:left center"><div class="lbl" style="font-size:22px">${esc(b.label||'')}</div><div data-n style="font:800 84px/1.05 IT;color:var(--acc);margin-top:6px">0</div><svg width="300" height="40"><path data-p d="M0 36 C 80 34, 160 28, 210 16 S 280 4, 300 2" stroke="var(--acc)" stroke-width="4" fill="none" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>`},
   draw(t,b,el){const [s,o]=pop(t,b.t0,0.4);const out=1-eo(P(t,b.t1-0.2,0.2));setT(el.querySelector('[data-c]'),o*out,`scale(${s})`);const u=eo(P(t,b.k[0]??b.t0,0.9));el.querySelector('[data-n]').textContent=fmtN((b.value||0)*u,b);el.querySelector('[data-p]').style.strokeDashoffset=1-u}},
+ title:{build(b,el){const y=b.y!=null?b.y:({top:230,center:760,bottom:1380}[b.pos||'top']||230);const ws=String(b.text||'').split(/\s+/).filter(Boolean);const acc=new Set((b.accent||[]).map(Number));
+   el.innerHTML=`<div class="ttl" style="top:${y}px">${ws.map((w,i)=>`<span class="kw${acc.has(i)?' acc':''}${acc.has(i)&&b.serif?' ser':''}" data-i="${i}">${esc(w)}</span>`).join(' ')}</div>`+(b.sub?`<div class="ttl-sub" data-s style="top:${y+(ws.length>3?230:130)}px">${esc(b.sub)}</div>`:'')},
+  draw(t,b,el){const o=1-eo(P(t,b.t1-0.25,0.25));el.style.opacity=o;el.querySelectorAll('.kw').forEach((s,i)=>{const e=ent(t,(b.k[0]??b.t0)+i*0.09,0.42);setT(s,e,`translateY(${(1-e)*34}px) scale(${0.94+0.06*e})`,(1-e)*14)});const sb=el.querySelector('[data-s]');if(sb){const e=ent(t,(b.k[0]??b.t0)+0.35,0.5);setT(sb,e*0.72,`translateY(${(1-e)*20}px)`,(1-e)*8)}}},
+ outro:{build(b,el){el.innerHTML=`<div class="block"><div data-n style="font:800 128px/1 IT,LOC;letter-spacing:-0.04em;color:var(--txt)">${esc(b.text||'')}</div>${b.sub?`<div data-s style="margin-top:30px;font:600 46px/1.3 IT,LOC;color:var(--txt);opacity:.7">${esc(b.sub)}</div>`:''}${b.label?`<div data-b style="margin-top:70px"><span class="btnp">${esc(b.label)}</span></div>`:''}</div>`},
+  draw(t,b,el){const e=ent(t,b.t0,0.5);setT(el,e,`scale(${1.05-0.05*e})`,(1-e)*12);const [s,o]=pop(t,(b.k[0]??b.t0)+0.25,0.5);const n=el.querySelector('[data-n]');setT(n,o,`scale(${s})`);const sb=el.querySelector('[data-s]');if(sb){const u=ent(t,(b.k[0]??b.t0)+0.55,0.5);setT(sb,u*0.7,`translateY(${(1-u)*24}px)`)}const bt=el.querySelector('[data-b]');if(bt){const [s2,o2]=pop(t,(b.k[0]??b.t0)+0.9,0.45);setT(bt,o2,`scale(${s2})`)}}},
  cta:{build(b,el){el.innerHTML=`<div class="abs pcard" style="left:90px;top:220px;width:900px;height:130px;display:flex;align-items:center;gap:22px;padding:0 26px;box-sizing:border-box;border-radius:65px"><div style="width:78px;height:78px;border-radius:50%;background:rgba(var(--accrgb),.18);flex:none"></div><span data-x style="flex:1;font:700 52px IT,LOC;color:var(--txt)"></span><span data-c style="width:4px;height:56px;background:var(--acc)"></span><div style="width:84px;height:84px;border-radius:50%;background:var(--acc);display:grid;place-items:center;flex:none"><svg width="40" height="40" viewBox="0 0 24 24"><path d="M4 12h14M12 5l7 7-7 7" stroke="#0B0F0A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="abs mono" style="left:0;right:0;top:170px;text-align:center;font:500 26px JB;color:var(--acc);letter-spacing:.1em">// ${esc(b.label||'COMMENT THE WORD')}</div><div class="abs" data-w style="left:0;right:0;top:420px;text-align:center"><span class="lime" style="font:800 120px/1.15 IT,LOC">${esc(b.keyword||'')}</span></div>`},
-  draw(t,b,el){const e=ent(t,b.t0,0.4);setT(el,e,`translateY(${(1-e)*-40}px)`);const kw=b.keyword||'';const n=Math.floor(C((t-(b.k[0]??b.t0+0.4))*8/Math.max(1,kw.length))*kw.length);el.querySelector('[data-x]').textContent=kw.slice(0,n);el.querySelector('[data-c]').style.opacity=Math.floor(t*2.5)%2?1:0;const [s,o]=pop(t,(b.k[0]??b.t0)+kw.length/8+0.2,0.45);setT(el.querySelector('[data-w]'),o,`scale(${s})`)}}
+  draw(t,b,el){const e=ent(t,b.t0,0.4);setT(el,e,`translateY(${(1-e)*-40}px)`);const kw=b.keyword||'';const n=Math.max(0,Math.min(kw.length,Math.floor((GQ(t)-GQ(b.k[0]??b.t0+0.4))/15)));el.querySelector('[data-x]').textContent=kw.slice(0,n);el.querySelector('[data-c]').style.opacity=Math.floor((GQ(t)-GQ(b.t0))/48)%2?1:0;const [s,o]=pop(t,(b.k[0]??b.t0)+kw.length/8+0.2,0.45);setT(el.querySelector('[data-w]'),o,`scale(${s})`)}}
 };
-const BEATS=(PLAN.beats||[]).map((b,i)=>{const c=COMP[b.type];if(!c)return null;const id='b'+i;const o={t0:b.t0,t1:b.t1,build:el=>c.build(b,el),draw:(t,el)=>c.draw(t,b,el)};if(b.type==='statement')o.card=id;else o.layer=id;return o}).filter(Boolean);
+/*SCENES*/
+const BEATS=(PLAN.beats||[]).map((b,i)=>{const c=COMP[b.type];if(!c)return null;const id='b'+i;const o={t0:b.t0,t1:b.t1,raw:b,build:el=>c.build(b,el),draw:(t,el)=>c.draw(t,b,el)};if(b.type==='statement'||b.type==='outro'||c.card)o.card=id;else if(c.full)o.scene=id;else o.layer=id;return o}).filter(Boolean);
 /* ============================================== */
 
 // ---------- layouts (pip.json, shared with composite.py) ----------
-function pipAt(t){const K=CFG.pip.keys,S=CFG.pip.states;let i=0;for(let j=0;j<K.length;j++)if(K[j][0]<=t)i=j;
+function pipAt(t){const K=CFG.pip.keys,S=CFG.pip.states;let i=0;for(let j=0;j<K.length;j++)if(GQ(K[j][0])<=GQ(t))i=j;
   if(i>=K.length-1)return{s:S[K[i][1]],name:K[i][1]};const a=K[i],b=K[i+1];
   if(b[2]==='step'||b[0]===a[0]||a[1]===b[1])return{s:S[a[1]],name:a[1]};
   const u=(EASE[b[2]||'eio'])((t-a[0])/(b[0]-a[0]));return{s:S[a[1]].map((v,k)=>v+(S[b[1]][k]-v)*u),name:a[1]+'>'+b[1],u}}
@@ -138,15 +168,21 @@ function buildCap(ch,mode){const inn=$('capin');inn.innerHTML='';inn.style.trans
   else if(mode==='st'&&big.length){const b0=Math.min(...big),b1=Math.max(...big);const pre=W.filter(w=>w.i<b0),mid=W.filter(w=>w.i>=b0&&w.i<=b1),post=W.filter(w=>w.i>b1);
     inn.innerHTML=(pre.length?`<div class="row pre">${pre.map(w=>mk(w,'sm')).join('')}</div>`:'')+`<div class="row mid">${mid.map(w=>mk(w,'bg'+(w.serif&&!isLoc(w.x)?' serif':(isLoc(w.x)?' loc':'')))).join('')}</div>`+(post.length?`<div class="row post">${post.map(w=>mk(w,'sm')).join('')}</div>`:'')}
   else if(mode==='st'){inn.innerHTML=`<div class="row mid">${W.map(w=>mk(w,'in big')).join('')}</div>`}
+  else if(mode==='left'||mode==='leftbig'){inn.className='capleft'+(mode==='leftbig'?' big':'');inn.innerHTML=`<div class="row">${W.map(w=>mk(w,'')).join('')}</div>`}
+  else if(mode==='box'||mode==='bigbox'){inn.className='capbox'+(mode==='bigbox'?' capbig':'');let hot=W.filter(w=>w.a).map(w=>w.i);
+    if(!hot.length){const c=W.filter(w=>w.x.replace(/[^\p{L}\p{N}]/gu,'').length>=4);if(c.length)hot=[c[c.length-1].i]}
+    inn.innerHTML=`<div class="row mid">${W.map(w=>`<span class="w${hot.includes(w.i)?' hot':''}" data-i="${w.i}">${w.x}</span>`).join('')}</div>`}
   else{inn.innerHTML=`<div class="row mid">${W.map(w=>mk(w,'in'+(w.big?' big':'')+(w.big&&w.serif&&!isLoc(w.x)?' serif':''))).join('')}</div>`}
   const r=inn.getBoundingClientRect();inn.dataset.sc=Math.min(1,980/r.width);inn.dataset.h=r.height}
-function setCap(t){let k=SUBS.findIndex(s=>t>=s.s&&t<s.e);const st=capStyle(t),cap=$('cap'),inn=$('capin');
+const capOf=(t,k)=>k>=0&&SUBS[k].m?{m:SUBS[k].m,y:SUBS[k].y}:capStyle(t);   // a caption line keeps one place for its whole life
+function setCap(t){let k=SUBS.findIndex(s=>IN(t,s.s,s.e));const st=capOf(t,k),cap=$('cap'),inn=$('capin');
   if(k!==cur||st.m!==curMode){cur=k;curMode=st.m;if(k>=0)buildCap(SUBS[k],st.m);else{inn.innerHTML='';inn.className=''}}
   if(k<0||st.m==='none'){cap.style.display=st.m==='none'?'none':'flex';return}cap.style.display='flex';
-  const sc=+inn.dataset.sc,h=+inn.dataset.h;cap.style.top=(st.y-h/2)+'px';const ch=SUBS[k];const cin=eo(P(t,ch.s,0.14));
+  const left=st.m==='left'||st.m==='leftbig';cap.style.justifyContent=left?'flex-start':'center';cap.style.paddingLeft=left?'80px':'0';cap.style.boxSizing='border-box';
+  const sc=left?1:+inn.dataset.sc,h=+inn.dataset.h;cap.style.top=(left?st.y:st.y-h/2)+'px';inn.style.transformOrigin=left?'left top':'center center';const ch=SUBS[k];const cin=eo(P(t,ch.s,0.14));
   inn.style.transform=`scale(${sc*(0.96+0.04*cin)})`;
   inn.querySelectorAll('.w').forEach(sp=>{const w=ch.w[+sp.dataset.i];const tk=+sp.dataset.i?w.t-0.05:ch.s;
-    if(st.m==='pill'){const on=t>=tk;const nx=ch.w[+sp.dataset.i+1];const active=on&&(!nx||t<nx.t-0.05);
+    if(st.m==='pill'){const on=GQ(t)>=GQ(tk);const nx=ch.w[+sp.dataset.i+1];const active=on&&(!nx||GQ(t)<GQ(nx.t-0.05));
       sp.style.opacity=on?1:0.35;sp.style.background=active?'var(--acc)':'transparent';sp.style.color=active?'#0B0F0A':(w.a?'var(--acc)':'#fff');return}
     const p=eo(P(t,tk,0.16));const isBig=sp.classList.contains('bg')||sp.classList.contains('big');const s=isBig?0.72+0.28*eb(P(t,tk,0.3)):0.9+0.1*p;
     sp.style.opacity=p;sp.style.filter=p<1?`blur(${(1-p)*9}px)`:'';sp.style.transform=`translateY(${(1-p)*18}px) scale(${s})`;
@@ -154,7 +190,7 @@ function setCap(t){let k=SUBS.findIndex(s=>t>=s.s&&t<s.e);const st=capStyle(t),c
 
 // ---------- back layer: big words behind the person ----------
 function buildBack(){BACKTEXT.forEach((b,i)=>{b.el=add('back',`<div class="giant" style="top:${b.top}px;font:800 ${b.size}px/1 IT,LOC;letter-spacing:-0.04em;color:${b.color||'#F7F2EA'}">${b.text}</div>`)})}
-function drawBack(t){BACKTEXT.forEach(b=>{const on=t>=b.t0&&t<b.t1;b.el.style.display=on?'block':'none';if(!on)return;
+function drawBack(t){BACKTEXT.forEach(b=>{const on=IN(t,b.t0,b.t1);b.el.style.display=on?'block':'none';if(!on)return;
   const [s,o]=pop(t,b.t0,0.5);const out=1-eo(P(t,b.t1-0.22,0.22));const g=b.glowAt?Math.max(0,1-Math.abs(t-b.glowAt)/0.5):0;
   b.el.style.transform=`scale(${b.t0<0.05?1.06-0.06*eo(P(t,0,2.2)):s})`;b.el.style.opacity=(b.t0<0.05?1:o)*out;
   b.el.style.textShadow=`0 0 ${30+50*g}px rgba(var(--accrgb),${0.12+0.5*g})`;if(g>0)b.el.style.color=`color-mix(in srgb, var(--acc) ${g*100}%, ${b.color||'#F7F2EA'})`})}
@@ -162,18 +198,49 @@ function drawBack(t){BACKTEXT.forEach(b=>{const on=t>=b.t0&&t<b.t1;b.el.style.di
 function renderFrame(t,f,mode){FR=f;const back=mode==='back';
   for(const el of $('stage').children){if(el.id!=='back')el.style.visibility=back?'hidden':'visible'}
   $('back').style.display=back?'block':'none';if(back){drawBack(t);return true}
-  const card=BEATS.find(b=>b.card&&t>=b.t0&&t<b.t1);show($('card'),!!card);
-  for(const b of BEATS){const el=$(b.card||b.layer);const on=t>=b.t0&&t<b.t1;show(el,on);if(on&&b.draw)b.draw(t,el)}
+  const card=BEATS.find(b=>b.card&&IN(t,b.t0,b.t1));show($('card'),!!card);
+  for(const b of BEATS){const el=$(b.card||b.scene||b.layer);const on=IN(t,b.t0,b.t1);show(el,on);if(on&&b.draw)b.draw(t,el)}
+  if(window.hostDraw)hostDraw(t);
   if(card){const L=$(card.card);$('card').style.opacity=L.style.opacity===''?1:L.style.opacity;L.style.opacity=1}
   const p=drawPip(t);if(card&&+($('card').style.opacity)>0.99)show($('pipf'),0);
   $('shade').style.opacity=isFull(p.s)&&!card?1:0;
-  const hl=$('hl');show(hl,HEADLINE.text&&t<HEADLINE.until+0.05);const ho=1-eo(P(t,HEADLINE.until-0.2,0.2));hl.style.opacity=ho;$('tshade').style.opacity=HEADLINE.text&&t<HEADLINE.until?ho:0;
+  const hl=$('hl');show(hl,HEADLINE.text&&GQ(t)<GQ(HEADLINE.until+0.05));const ho=1-eo(P(t,HEADLINE.until-0.2,0.2));hl.style.opacity=ho;$('tshade').style.opacity=HEADLINE.text&&GQ(t)<GQ(HEADLINE.until)?ho:0;
   setCap(t);return true}
 window.init=async function(cfg){CFG=cfg;SUBS=cfg.subs;$('hl').innerHTML=HEADLINE.text;buildBack();
-  for(const b of BEATS){const id=b.card||b.layer;if(!$(id))add(b.card?'card':'layers',`<div class="layer" id="${id}"></div>`);if(b.build)b.build($(id))}
+  for(const b of BEATS){const id=b.card||b.scene||b.layer;if(!$(id))add(b.card?'card':(b.scene?'scenes':'layers'),`<div class="layer" id="${id}"></div>`);
+    if(b.raw&&b.raw.color){$(id).style.setProperty('--acc',b.raw.color);if(b.raw.crgb)$(id).style.setProperty('--accrgb',b.raw.crgb)}
+    if(b.build)b.build($(id))}
+  if(window.hostInit)hostInit();
   for(const w of ['500','600','700','800'])await document.fonts.load(`${w} 100px IT`);
   for(const w of ['700','800'])await document.fonts.load(`${w} 100px LOC`,'മലയാളം हिन्दी தமிழ் عربي');
   await document.fonts.load('italic 100px IS');await document.fonts.load('500 30px JB');await document.fonts.ready;
   await Promise.all([...document.images].map(im=>im.complete?1:new Promise(r=>{im.onload=r;im.onerror=r})));return true};
 window.renderFrame=renderFrame;
+if(PLAN.faceless)$('stage').classList.add('faceless');
+if(PLAN.layout){for(const [k,v] of Object.entries(PLAN.layout))document.documentElement.style.setProperty('--'+k,v)}
+
+/* ---------- frame signatures (render cache) ----------
+   A frame's picture depends only on what is on screen at time t and on times RELATIVE to t, so the same moment
+   shifted later (after a cut earlier in the reel) gets the same signature and its cached PNG is reused.
+   Relative times are in 1/120 s steps (build_plan snaps every time to that grid; a cut moves things by whole frames)
+   and clamped to +-8 s: every animation here settles within ~3 s. */
+const RT=960, rt=(v,t)=>v==null||typeof v!=='number'?v:Math.max(-RT,Math.min(RT,Math.round((v-t)*120)));
+function relBeat(b,t){const o={};for(const k of Object.keys(b)){const v=b[k];if(k==='t0'||k==='t1')o[k]=rt(v,t);else if(k==='k')o.k=(v||[]).map(x=>rt(x,t));else o[k]=v}return o}
+function pipKey(t){   // the layout at t as (state names + key times relative to t): exact under shifts, unlike interpolated numbers
+  const K=CFG.pip.keys,S=CFG.pip.states;let i=0;for(let j=0;j<K.length;j++)if(GQ(K[j][0])<=GQ(t))i=j;
+  if(i>=K.length-1)return [K[i][1],S[K[i][1]]];const a=K[i],b=K[i+1];
+  if(b[2]==='step'||b[0]===a[0]||a[1]===b[1])return [a[1],S[a[1]]];
+  return [a[1],S[a[1]],b[1],S[b[1]],b[2]||'eio',GQ(a[0])-GQ(t),GQ(b[0])-GQ(t)]}
+function frameSig(t,mode){
+  if(mode==='back'){const on=BACKTEXT.filter(b=>IN(t,b.t0,b.t1));if(!on.length)return 'B-';
+    return JSON.stringify(['B',Math.round(t*1000),on.map(b=>[b.text,b.top,b.size,b.color,rt(b.t0,t),rt(b.t1,t),rt(b.glowAt,t)])])}
+  const s=['F'];
+  (PLAN.beats||[]).forEach(b=>{if(COMP[b.type]&&IN(t,b.t0,b.t1))s.push(relBeat(b,t))});
+  s.push(['P',pipKey(t)]);
+  if(window.hostSig&&PLAN.host)s.push(['A',hostSig(t)]);
+  if(HEADLINE.text&&GQ(t)<GQ(HEADLINE.until+0.05))s.push(['H',HEADLINE.text,rt(HEADLINE.until,t)]);
+  const k=SUBS.findIndex(c=>IN(t,c.s,c.e)),st=capOf(t,k);s.push(['C',st.m,st.y]);
+  if(k>=0){const c=SUBS[k];s.push([rt(c.s,t),rt(c.e,t),c.w.map(w=>[w.x,w.big,w.a,w.serif,rt(w.t,t)])])}
+  return JSON.stringify(s)}
+window.frameSigs=function(n,fps,back){const out=[];for(let f=0;f<n;f++){const t=f/fps;out.push([frameSig(t,'front'),back.some(([a,b])=>IN(t,a,b))?frameSig(t,'back'):null])}return out};
 </script></body></html>

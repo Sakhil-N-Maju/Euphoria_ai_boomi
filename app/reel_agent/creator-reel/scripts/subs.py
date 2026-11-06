@@ -20,6 +20,6 @@ out=[]
 for k,c in enumerate(chunks):
     s=c[0]['t']-0.06; nxt=chunks[k+1][0]['t']-0.06 if k+1<len(chunks) else DUR
     e=DUR if k+1==len(chunks) else min(nxt,max(c[-1]['t']+0.85,s+0.6))
-    out.append({'s':round(s,3),'e':round(e,3),'w':c})
+    out.append({'s':round(s,6),'e':round(e,6),'w':c})
 json.dump(out,open('subs.json','w'),ensure_ascii=False); print(len(out),'caption chunks')
 for o in out: print(f"{o['s']:6.2f}-{o['e']:6.2f}  "+' '.join(('^' if x['big'] else '')+x['x'] for x in o['w']))

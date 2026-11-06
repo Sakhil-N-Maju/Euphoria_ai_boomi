@@ -1,7 +1,19 @@
 # Euphoria — AI Video Editor
 
-Transcript-driven, offline-first video editor for Indian-language talking-head videos.
+Transcript-driven, offline-first AI video editor for Indian creators. Turn a raw talking-head clip, a screen
+recording, or just a topic into a finished 9:16 reel with captions, motion graphics, sound and voice-over.
 Built by **Team Euphoria** for the **AI BHOOMI** programme.
+
+## Sample videos
+
+Made end to end by Euphoria (no manual editing). Click a preview to open the video (with sound).
+
+| Talking head · Malayalam | Talking head · title intro | No talking head · Devices | No talking head · Presenter | No talking head · Editorial | No talking head · Explainer |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| [![Malayalam talking head](docs/samples/talking-head-malayalam.gif)](docs/samples/talking-head-malayalam.mp4) | [![Talking head with title](docs/samples/talking-head-title.gif)](docs/samples/talking-head-title.mp4) | [![Devices look](docs/samples/faceless-devices.gif)](docs/samples/faceless-devices.mp4) | [![Presenter look](docs/samples/faceless-presenter.gif)](docs/samples/faceless-presenter.mp4) | [![Editorial look](docs/samples/faceless-editorial.gif)](docs/samples/faceless-editorial.mp4) | [![Explainer](docs/samples/faceless-explainer.gif)](docs/samples/faceless-explainer.mp4) |
+| Malayalam word-by-word captions, panels that build with the words | Title card, Malayalam + English captions | Phones, code, timelines and graphs from a topic, ElevenLabs voice | Cartoon host who talks along, numbered app windows | Notepad, huge type, magnifier, polaroids | Kinetic text and how-it-works graphics |
+
+Samples are the first 30 s at 540×960 (`docs/samples/`).
 
 **Demo:** _TODO — add live demo link_ · **Demo video:** _TODO — add 2-minute recording link_
 
@@ -54,13 +66,16 @@ flowchart LR
 | Finishing | `style.py`, `timeline.py`, `broll.py`, `sfx.py` | titles, keyword pops, b-roll, synthesised SFX, music ducking |
 | Reels / growth | `reel.py`, `montage.py`, `grow.py`, `extras*.py` | 9:16 reels, beat-sync montage, starter kit & scripts, exports |
 | Claude reel studio | `app/reel_agent/creator-reel/` | one Claude call returns a JSON plan; build + render without AI |
+| Edit styles | `app/reel_agent/styles/` | talking head · product (screen recordings) · no talking head (topic/script), each with its own skill, planner rules and preset |
+| Scene library | `app/reel_agent/creator-reel/templates/scenes.js` | hand-built scenes for the no-talking-head looks (devices, stick-figure story, editorial objects, cartoon presenter) |
+| Voice-over | `app/editor/tts.py` | ElevenLabs text-to-speech with word timings, cached per line |
 | Web | `app/editor/server.py`, `app/web/` | FastAPI backend + review page; landing page in `website/` |
 
 Full feature details: [`app/README.md`](app/README.md). Business plan and pitch: [`docs/`](docs/).
 
 ## Setup & run
 
-Tested on Windows 10/11. Needs Python 3.12, FFmpeg, and (for the reel studio) Node.js.
+Tested on Windows 10/11. Needs Python 3.12, FFmpeg, and (for the reel studio) Node.js + Claude Code.
 
 1. **Clone**
    ```
@@ -77,14 +92,24 @@ Tested on Windows 10/11. Needs Python 3.12, FFmpeg, and (for the reel studio) No
    ```
 4. **Speech-to-text models** (one time, ~1.5 GB for Malayalam) — run `app\download_models.bat`
    (or `python app/download_models.py`). Models land in `models/`.
-5. **API key (optional, for AI edits)** — copy `app/.env.example` to `app/.env` and set `LLM_API_KEY`
-   (any OpenAI-compatible provider; model in `app/config.yaml` or `LLM_MODEL`).
+5. **Keys (optional)** — copy `app/.env.example` to `app/.env` (never commit it) and fill in what you use:
+   - `LLM_API_KEY` — AI edits in the classic editor (any OpenAI-compatible provider; model in `app/config.yaml`
+     or `LLM_MODEL`).
+   - `ELEVENLABS_API_KEY` — AI voice-over for *No talking head* and *Product* reels (see
+     [ElevenLabs voice-over](#elevenlabs-voice-over-optional)).
 6. **Run**
    - Portable: double-click `app\run.bat`
    - System Python: `cd app` then `python -m editor.server`
 
    Open http://127.0.0.1:8000 (editor) or http://127.0.0.1:8000/site (website + Claude reel studio).
-7. **Reel studio (optional)** — run `app\setup_reel.bat` once, or use the "Set up this PC" panel on `/site`.
+7. **Reel studio** — run `app\setup_reel.bat` once (render tools, fonts, Chromium for graphics, cut-out model),
+   or use the "Set up this PC" panel on `/site`. The panel also installs Claude Code and signs it in: the reel
+   planner is one `claude -p` call per reel.
+   Then open http://127.0.0.1:8000/site → **Studio**, pick a style (and a look for *No talking head*), upload or
+   type your script, and press **Make my reel**. Use **Ask for a change** (optionally with a time range) to fix a
+   part; only that part is re-rendered.
+   After updating the code, **restart the app** (close its window and run it again) and hard-refresh the page
+   (Ctrl+Shift+R): the planner runs inside the server, so old code stays loaded until a restart.
 8. **CLI**
    ```
    app\edit.bat "C:\videos\talk.mp4" --lang ml --retakes
@@ -110,7 +135,8 @@ Tested on Windows 10/11. Needs Python 3.12, FFmpeg, and (for the reel studio) No
 | Colour LUT "Look 01" | by @shakirc.ai | Not redistributed — kept out of git |
 | Libraries | FastAPI, Uvicorn, faster-whisper, CTranslate2, NumPy, SciPy, OpenCV, ONNX Runtime, Playwright, PyYAML, FFmpeg | MIT / BSD / Apache-2.0 / LGPL (FFmpeg) |
 
-**Data:** only self-recorded clips with consent are used for testing (`assets/` holds sample outputs).
+**Data:** only self-recorded clips with consent are used for testing (`docs/samples/` holds sample outputs).
+Third-party reference reels used to study editing styles stay on the team's PC and are not redistributed.
 User videos stay on the user's PC and are **not** used for training. Uploaded jobs and renders live in
 `app/data/` (git-ignored).
 
@@ -142,6 +168,52 @@ User videos stay on the user's PC and are **not** used for training. Uploaded jo
   sanity, transcripts for counting errors).
 - "Review render" sends frames of the render to a vision model to list problems with timestamps.
 
+## Edit styles and fast corrections (reel studio)
+
+- **Pick a style** in the Studio: *Talking head* (your own video), *Product* (a screen recording of an app, website or
+  product: framed window, auto-zoom on what moves, speed-ups, titles, logo outro, optional AI narration) or
+  *No talking head* (just a topic or script; the AI can write the script; ElevenLabs voice, your own voice-over or
+  the Windows computer voice; optional music).
+  Each style's rules live in `app/reel_agent/styles/<style>/SKILL.md`, studied from reference reels (kept locally in
+  `assets/style/`, not in the repo).
+- **No talking head looks are scene families**, not just colours. The AI only picks a scene per moment and fills
+  in short text (same single call, same token cost); every scene is drawn by code
+  (`creator-reel/templates/scenes.js`):
+
+  | Look | Scenes |
+  |---|---|
+  | **Devices** (dark) | tilted 3D phone (list / chat / big number), code editor typing line by line, editing timeline with playhead, self-drawing curve graph, glowing 3D word, comment-box CTA |
+  | **Story** (navy neon) | stick figures with poses, props and ✓/✗ marks, neon tag boxes with strike-through, speech bubbles, line icons |
+  | **Editorial** (paper) | torn notepad with handwriting and a red circled word, huge condensed word with underline and definition, magnifier revealing a phrase, pinned polaroids |
+  | **Presenter** (light) | original cartoon host whose mouth moves with the voice, numbered app windows (typed prompt, folder, ticked checklist, chat) |
+
+  Each scene item appears on the word where it's said, and each scene type has its own synthesized sound effects.
+- **Captions never repeat the screen.** A caption line whose words are already shown by a scene, card, hook or CTA
+  is left out; lines break where a graphic appears, and a line keeps one position for its whole life (no jumps).
+- **Corrections touch only their part of the timeline.** Graphics frames and 2-second video chunks are cached by
+  content; a fix re-renders only what changed and reuses the rest byte for byte (parts that only moved because a
+  word was cut earlier are reused too). "Ask for a change" takes an optional time range; changes outside it are
+  refused and listed.
+- **Faster renders**: colour grade through a cached 3D lookup table (~5x), x264 `veryfast` per chunk in parallel
+  workers, no second full encode when the reel already fits the size limit. Measured on a 2-core test machine
+  (21 s reel): full render 362 s → ~125 s; a one-word spelling fix 22 s; cutting a word at 0:05 ~50 s.
+
+## ElevenLabs voice-over (optional)
+
+Used by *No talking head* (Voice → "ElevenLabs voice") and *Product* (Voice-over → "AI narration": the planner
+writes one line per scene, the scene slows down if the line needs more time, the recording's own sound is muted).
+1. ElevenLabs → Developers → API Keys → Create Key. Permissions: **Text to Speech: Access** and **Voices: Read**
+   (lets the app pick a default voice from your account when no voice ID is given); everything else "No Access".
+   Free plans can't use Voice Library voices through the API: use a default voice (My Voices) or your own.
+2. Add to `app/.env` (never commit it): `ELEVENLABS_API_KEY=sk_...`
+   Optional: `ELEVENLABS_VOICE_ID=<id from ElevenLabs → Voices → My Voices>` (otherwise the first default voice on
+   your account) and
+   `ELEVENLABS_MODEL=eleven_multilingual_v2|eleven_v3` (default: `eleven_v3` for Malayalam / auto-detect, which is the
+   only ElevenLabs model with Malayalam; `eleven_multilingual_v2` for English, Hindi, Tamil).
+3. Restart the app. A voice ID typed in the Studio overrides the default for that reel.
+Word timings come with the audio (`with-timestamps` endpoint). Every spoken line is cached in
+`app/data/reels/_cache/tts/`, so Retry and unchanged lines never use credits again.
+
 ## Known limitations & risks
 
 - **STT accuracy:** Malayalam model's published WER ≈ 40 %; Whisper small is weak on Malayalam and code-mixed
@@ -156,7 +228,11 @@ User videos stay on the user's PC and are **not** used for training. Uploaded jo
   reused code must keep its licence and attribution.
 - **Privacy:** videos stay local, but transcripts (and frames, for Review render / b-roll matching) are sent to the
   chosen AI provider when AI features are used.
-- **Not included:** dubbing, voice cloning, TTS, lip-sync.
+- **ElevenLabs:** voice-over needs an ElevenLabs key and uses its credits; free plans can't use Voice Library voices
+  through the API.
+- **Scene choice:** the AI picks scenes from the chosen look's list; a scene can still be a weaker fit for an
+  abstract line. Use *Ask for a change* to swap it.
+- **Not included:** dubbing, voice cloning, lip-sync.
 
 ## Team
 
@@ -176,11 +252,14 @@ User videos stay on the user's PC and are **not** used for training. Uploaded jo
 | `app/` | Editor code, web UI, reel agent, CLI, tests |
 | `website/` | Landing page |
 | `docs/` | Startup plan, AIBoomi Kochi build plan, mentor pitch, pitch deck (PDF + PPTX) |
-| `assets/` | Sample rendered outputs |
+| `docs/samples/` | Sample reels (GIF previews + 30 s MP4s) shown above |
+| `app/web/media/` | Clips for the landing-page 3D reel carousel |
+| `assets/` | Local only: reference reels (`assets/style/`) and full-size outputs (`assets/output/`), git-ignored |
 
 ## License
 
 [MIT](LICENSE) © 2026 Team Euphoria. Third-party models, fonts, LUTs and reused skill assets keep their own
 licences (see *Models & data*); the MIT licence covers the team's own code.
 
-Git-ignored (set up locally): `tools/`, `models/`, `app/data/`, `app/.env`, `app/luts/*.cube`.
+Git-ignored (set up locally): `tools/`, `models/`, `app/data/`, `app/.env`, `app/luts/*.cube`, `assets/style/`,
+`assets/output/`, `app/reel_agent/styles/*/refs/`.
