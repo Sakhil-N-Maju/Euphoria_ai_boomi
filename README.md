@@ -15,8 +15,6 @@ Made end to end by Euphoria (no manual editing). Click a preview to open the vid
 
 Samples are up to the first 30 s at 540×960 (`docs/samples/`).
 
-**Demo:** _TODO — add live demo link_ · **Demo video:** _TODO — add 2-minute recording link_
-
 ---
 
 ## Problem statement
