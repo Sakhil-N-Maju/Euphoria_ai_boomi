@@ -2,7 +2,7 @@
 
 Transcript-driven, offline-first AI video editor for Indian creators. Turn a raw talking-head clip, a screen
 recording, or just a topic into a finished 9:16 reel with captions, motion graphics, sound and voice-over.
-Built by **Team Euphoria** for the **AI BHOOMI** programme.
+Built by **Team Euphoria**.
 
 ## Sample videos
 
@@ -239,7 +239,6 @@ Word timings come with the audio (`with-timestamps` endpoint). Every spoken line
 | Name | Role | Contact |
 |---|---|---|
 | Sakhil N Maju | Backend & AI Lead — speech-to-text, edit-list logic, LLM prompts and guardrails, FFmpeg rendering, API | sakhil.n.maju123@gmail.com · [LinkedIn](https://linkedin.com/in/sakhil-n-maju) |
-| Nima Fathima | Product & Frontend Lead — web UI and website, demo, pitch deck, README, presenting | nimafathimapr@gmail.com · [LinkedIn](https://www.linkedin.com/in/nimafathima) |
 
 ---
 
@@ -249,7 +248,7 @@ Word timings come with the audio (`with-timestamps` endpoint). Every spoken line
 |---|---|
 | `app/` | Editor code, web UI, reel agent, CLI, tests |
 | `website/` | Landing page |
-| `docs/` | Startup plan, AIBoomi Kochi build plan, mentor pitch, pitch deck (PDF + PPTX) |
+| `docs/` | Startup plan, build plan, mentor pitch, pitch deck (PDF + PPTX) |
 | `docs/samples/` | Sample reels (GIF previews + 30 s MP4s) shown above |
 | `app/web/media/` | Clips for the landing-page 3D reel carousel |
 | `assets/` | Local only: reference reels (`assets/style/`) and full-size outputs (`assets/output/`), git-ignored |
